@@ -1,0 +1,45 @@
+@use '../base/mixins' as *;
+
+.login-screen{
+    @include mobile{
+        background: url(assets/images/login-bg.png) no-repeat center center; background-size: cover; padding: 40px;
+    }
+}
+.login-bg{
+    background: url(assets/images/login-bg.png) no-repeat center center; background-size: cover;
+    @include mobile{
+        background: none;
+    }
+}
+.loginBox{
+    width: 450px; max-width: 100%;margin: 0 40px;
+    @include mobile{
+        width: 100%; background: #fff; padding: 40px; margin: 0px;
+    }
+    .login-logo{max-width: 100%; width: 248px; margin-bottom: 20px;}
+    h2{@include para(32px, 500, 0 0 0px); color: var(--black-01); @include mobile{font-size: 24px;}}
+    h3{@include para(16px, 400, 0 0 10px); color: var(--black-02); @include mobile{font-size: 14px;}}
+    form{display: block; margin: 40px 0 0;}
+    .form-group{
+        margin-bottom: 30px;
+        label{@include para(16px, 500, 0 0 10px); color: var(--black-01); display: block;}
+        input{@include para(16px, 400, 0, 27px 20px); color: var(--black-01); border-color: #E2EAF2;border-radius: 12px;}
+    }
+    .btnRow{
+        margin-top: 20px;
+        .btn{@include para(20px, 300, 0, 21px 20px); width: 100%; text-align: center; border-radius: 50px; cursor: pointer;}
+    }
+}
+.innerContent{
+    width: 570px; color: #fff; max-width: 100%;margin: 0 40px;
+    @include mobile{
+        width: 100%; margin: 0px 0 40px;
+    }
+    h1{
+        @include para(50px, 600, 0 0 20px);max-width: 350px;
+        @include mobile{
+            max-width: 100%; font-size: 30px;
+        }
+    }
+    p{}
+}

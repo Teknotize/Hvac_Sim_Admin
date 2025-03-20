@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import MainLayout from './components/layout/MainLayout';
-import './App.css';
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

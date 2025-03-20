@@ -1,0 +1,66 @@
+/*@include per-width(100);
+@mixin per-width($n, $i: 1) when ($i =< $n){
+.wd-per{$i} {
+	width: ($i * 1%);
+}
+	@include per-width($n, ($i + 1));
+}
+
+@include px-width(100);
+@mixin px-width($n, $i: 1) when ($i =< $n){
+.wd-px{$i} {
+	width: ($i * 10px);
+}
+	@include px-width($n, ($i + 1));
+}*/
+
+
+@mixin ellipsis{white-space:pre;overflow:hidden;text-overflow:ellipsis;}
+@mixin clearafter{&:after{content:"";display:table;clear:both;}}
+@mixin icocenter{content:"";height:100%;display:inline-block;vertical-align:middle;}
+@mixin fxdcenter($pos){position:$pos;left:0;right:0;top:0;bottom:0;margin:auto;}
+@mixin para($font-size,$font-weight:normal,$margin:0,$padding:0){font-size:$font-size;line-height: 1.4;;/*line-height:($font-size+1);*/font-weight:$font-weight;margin:$margin;padding:$padding;}
+@mixin transDefault(){transition: all 0.5s ease;}
+//@mixin trans($speed:.2s) when ($speed = 0){transition:initial;-o-transition:initial;-ms-transition:initial;-moz-transition:initial;-webkit-transition:initial;}
+//@mixin trans($speed:.2s) when ($speed > 0){transition:all $speed ease-in-out;-o-transition:all $speed ease-in-out;-ms-transition:all $speed ease-in-out;-moz-transition:all $speed ease-in-out;-webkit-transition:all $speed ease-in-out;}
+@mixin placeholder($a){&:-moz-placeholder{color:$a;}&::-moz-placeholder{color:$a;}&:-ms-input-placeholder{color:$a;}&::-webkit-input-placeholder{color:$a;}}
+@mixin gutter($siz){ .row{margin-right: -$siz;margin-left: -$siz; > div{padding: 0 $siz;} } }
+@mixin imgCover{overflow:hidden;img{width:100%;height:100%;object-fit:cover;}}
+@mixin imgContain{overflow:hidden;img{max-width:100%;max-height:100%;object-fit:contain;}}
+
+
+/* -------------------------Responsive Mixins------------------------- */
+@mixin desktop4k{
+  @media (min-width:3840px){ @content; }
+}
+@mixin desktop2k{
+  @media (min-width:2560px){ @content; }
+}
+@mixin desktophd{
+  @media (min-width:1920px){ @content; }
+}
+@mixin desktopLarge{
+  @media (min-width:1500px){ @content; }
+}
+@mixin desktop{
+  @media (min-width:1025px){ @content; }
+}
+@mixin tablet-only{
+  @media (min-width:768px) and (max-width:1024px){ @content; }
+}
+@mixin tablet{
+  @media (max-width:1024px){ @content; }
+}
+@mixin smtablet{
+  @media (max-width:992px){ @content; }
+}
+@mixin mobile{
+  @media (max-width:767px){ @content; }
+}
+@mixin smmobile{
+  @media (max-width:512px){ @content; }
+}
+/* -------------------------Responsive Mixins------------------------- */
+
+
+

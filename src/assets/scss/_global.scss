@@ -1,0 +1,84 @@
+@use 'base/mixins' as *;
+
+.genContent{
+    h4{
+        @include para(18px, 500, 0 0 20px, 0); color: var(--base-color-primary);
+    }
+    h3{
+        @include para(48px, 600, 0 0 20px, 0); line-height: 4rem;
+        @include tablet{font-size: 36px; line-height: 3rem;}
+    }
+    h5{
+        @include para(36px, 600, 0 0 20px, 0); line-height: 2rem;
+        @include tablet{font-size: 28px;}
+    }
+    h6{
+        @include para(28px, 600, 0 0 20px, 0); line-height: 2rem;
+        @include tablet{font-size: 24px;}
+    }
+    p{
+        @include para(18px, 400, 0 0 20px, 0); color: var(--txt-color); line-height: 2rem;
+        +h4, +h5, +h6{margin-top: 50px;}
+    }
+}
+
+.foldImg{
+    --border-radius: 30px;
+    position: relative; max-width: 500px; aspect-ratio: 1 / 1; border-radius: var(--border-radius); overflow: hidden; @include imgCover();
+    img{border-radius: var(--border-radius);}
+    &.playerCover{
+        cursor: pointer;
+        &:after{
+            content: ''; width: 80%; height: 100%; transform: translateY(90px); background: url(assets/images/vid-control-01.png) center no-repeat; background-size: contain; z-index: 5; @include fxdcenter(absolute);
+            @include tablet{transform: translateY(60px);}
+        }
+    }
+    @include tablet{
+        margin-bottom: 60px;
+    }
+}
+
+.singleFold, .doubleFold{
+    padding: 150px 0;
+    @include mobile{
+        padding: 80px 0;
+    }
+}
+
+
+.contactForm{
+    position: relative; z-index: 10;
+    form{
+        margin-bottom: 20px;
+        .form-label{
+            display: block; color: #000; @include para(18px, 400, 0 0 5px, 0); 
+            span{color: #786383;}
+        }
+        .form-control{ 
+            width: 100%; background-color: #fff; border: 1px solid #EAE7F9; border-radius: 60px;@include para(16px, 500, 0, 24px 30px);
+            &:focus{box-shadow: 0 0 0 0.25rem rgba(var(--base-color-primary-rgb), 0.25);}
+        }
+        textarea.form-control{resize: none; border-radius: 30px; height: 150px;}
+        .btn{width: 100%; padding: 12px; border-radius: 40px;}
+    }
+}
+
+.page-title-section{
+    background: url(assets/images/bg-banner.png) center no-repeat; background-size: cover; position: relative;
+    display: flex; align-items: center; justify-content: center; height: 400px; color: #fff; text-align: center;
+    h1{@include para(48px, 500, 0 0 10px, 0); line-height: 4rem;}
+    .breadCrumb{
+        display: flex; align-items: center; justify-content: center;
+        a{@include para(18px, 400, 0 20px, 0); color: #fff;}
+        span{@include para(18px, 400, 0 10px, 0); color: #fff;}
+    }
+}
+
+
+.privacy-policy-section{
+    .genContent{
+        p{
+            strong{ color: #000; }
+        }
+    }
+}

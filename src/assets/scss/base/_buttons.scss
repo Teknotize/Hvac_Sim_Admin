@@ -1,0 +1,8 @@
+@use '../base/mixins' as *;
+
+.btn{
+    &-primary{
+        background-color: var(--base-color-primary-dull);
+        color: #fff;
+    }
+}

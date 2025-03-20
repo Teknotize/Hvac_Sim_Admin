@@ -1,0 +1,14 @@
+
+/* -------------------------Reset------------------------- */
+
+// *{margin:0px;padding:0px;outline:none;box-sizing:border-box;}
+img{vertical-align:top;max-width:100%;height:auto;}
+a{text-decoration:none;}
+ul,li{list-style:none;}
+hr{border:0;border-top:1px solid #f3f6f7;margin:15px 0;}
+input[type="text"],textarea,input[type="email"],select,input[type="search"],input[type="tel"],input[type="password"]{color:inherit; font-size: 12px; border:1px solid #ccc;border-radius:2px;height:35px;line-height:35px;width:100%;font-style:normal;background:#ffffff;font-family:var(--font-family-avenir);}
+textarea{resize:none;line-height:18px;font-family:var(--font-family-avenir);padding:10px;}
+figure{margin:0;}
+.dnone{display:none!important;}
+
+/* -------------------------Reset------------------------- */
