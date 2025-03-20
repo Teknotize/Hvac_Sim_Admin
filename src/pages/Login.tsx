@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import '../style.scss'
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,6 +33,10 @@ export default function Login() {
           </div>
         )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="container">
+      <h1>Hello, Sass!</h1>
+      <p>This is a simple example of using Sass with HTML.</p>
+    </div>
           <div className="-space-y-px rounded-md shadow-sm">
             <div>
               <label htmlFor="email-address" className="sr-only">
