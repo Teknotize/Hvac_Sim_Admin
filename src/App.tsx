@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import MainLayout from './components/layout/MainLayout';
-
+import Toast from './components/toast';
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -16,6 +16,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
+    <>
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -39,6 +40,8 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    <Toast/>
+    </>
   );
 }
 

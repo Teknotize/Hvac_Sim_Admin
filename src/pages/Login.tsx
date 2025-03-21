@@ -1,30 +1,47 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Field, Label, Description } from '@headlessui/react'
-
+import { Input, Field, Label } from '@headlessui/react'
 import { Button } from '@headlessui/react'
 import '../style.scss'
 import logo from '../assets/images/logo.png'
-
-
+import Loader from '../components/loader';
+import useToastStore from '../store/useToastStore';
+import axios from 'axios';
+import { BASE_URL } from '../config';
 export default function Login() {
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isChecking, setIsChecking] = useState(false); // ✅ Fixed missing state
   const navigate = useNavigate();
+  const showToast = useToastStore((state) => state.showToast);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would validate and authenticate here
-    if (email === 'admin@example.com' && password === 'password') {
-      // Mock successful login
-      localStorage.setItem('isAuthenticated', 'true');
-      navigate('/dashboard');
-    } else {
-      setError('Invalid email or password');
+    setIsChecking(true); // ✅ Corrected state update
+
+    try {
+        const response = await axios.post(`${BASE_URL}/auth/login-beta`, {
+      email,
+      password,
+    });
+
+      if (response.data.success) {
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+
+        showToast("Login successful!", "success"); // ✅ Show success toast
+        navigate('/dashboard');
+      } else {
+        showToast("Invalid email or password", "error"); // ✅ Show error toast
+      }
+    } catch (e) {
+      console.error("Error sending request", e);
+      showToast("An error occurred. Please try again.", "error"); // ✅ Show error toast
+    } finally {
+      setIsChecking(false); // ✅ Corrected state update
     }
-  };
+  };  
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen login-screen">
@@ -69,11 +86,15 @@ export default function Login() {
               />
             </div> */}
             <Field className="btnRow">
-              <Button
+                <Button
+              disabled={isChecking}
+              style={{display: 'flex', flexDirection:'row',justifyContent:'center', }}
+              onClick={handleSubmit}
                 type="submit"
                 className="btn btn-primary"
               >
                 Sign in
+              {isChecking && <Loader/>}
               </Button>
             </Field>
           </form>
@@ -156,6 +177,7 @@ export default function Login() {
         </form>
       </div>
       */}
+
     </div>
   );
 } 
