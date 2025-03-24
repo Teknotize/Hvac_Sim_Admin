@@ -7,17 +7,18 @@ import logo from '../assets/images/logo.png'
 import Loader from '../components/loader';
 import useToastStore from '../store/useToastStore';
 import axios from 'axios';
+import { useAuthStore } from '../store/useAuthStore';
 import { BASE_URL } from '../config';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isChecking, setIsChecking] = useState(false); // ✅ Fixed missing state
+  const [isChecking, setIsChecking] = useState(false); 
   const navigate = useNavigate();
   const showToast = useToastStore((state) => state.showToast);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsChecking(true); // ✅ Corrected state update
+    setIsChecking(true); 
 
     try {
         const response = await axios.post(`${BASE_URL}/auth/login-beta`, {
@@ -26,20 +27,18 @@ export default function Login() {
     });
 
       if (response.data.success) {
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('accessToken', response.data.accessToken);
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-
-        showToast("Login successful!", "success"); // ✅ Show success toast
+        const { accessToken, refreshToken } = response.data;
+        useAuthStore.getState().setTokens(accessToken, refreshToken);   
+        showToast("Login successful!", "success"); 
         navigate('/dashboard');
       } else {
-        showToast("Invalid email or password", "error"); // ✅ Show error toast
+        showToast("Invalid email or password", "error"); 
       }
     } catch (e) {
       console.error("Error sending request", e);
-      showToast("An error occurred. Please try again.", "error"); // ✅ Show error toast
+      showToast("An error occurred. Please try again.", "error"); 
     } finally {
-      setIsChecking(false); // ✅ Corrected state update
+      setIsChecking(false); 
     }
   };  
 
@@ -86,16 +85,24 @@ export default function Login() {
               />
             </div> */}
             <Field className="btnRow">
-                <Button
-              disabled={isChecking}
-              style={{display: 'flex', flexDirection:'row',justifyContent:'center', }}
-              onClick={handleSubmit}
-                type="submit"
-                className="btn btn-primary"
-              >
-                Sign in
-              {isChecking && <Loader/>}
-              </Button>
+            <Button
+  disabled={isChecking}
+  style={{
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center', // Ensures text & loader are vertically aligned
+    backgroundColor: isChecking ? 'rgba(192, 44, 36,0.5)' : 'rgba(192, 44, 36,1)' 
+  }}
+  onClick={handleSubmit}
+  type="submit"
+  className="btn btn-primary"
+>
+  Sign in
+  {isChecking && <span style={{ marginLeft: '8px' }}><Loader /></span>}
+
+</Button>
+
             </Field>
           </form>
         </div>

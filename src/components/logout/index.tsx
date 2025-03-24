@@ -1,30 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import useToastStore from "../../store/useToastStore";
-import { sendRequest } from "../../config";
+import { apiClient } from "../../config";
+import { useAuthStore } from "../../store/useAuthStore"; // ✅ Import Zustand auth store
 
 const useLogout = () => {
   const navigate = useNavigate();
-  const showToast = useToastStore((state) => state.showToast); // Access the showToast function
+  const showToast = useToastStore((state) => state.showToast); // ✅ Access the showToast function
+  const clearTokens = useAuthStore.getState().clearTokens; // ✅ Get Zustand's clearTokens
 
   const logout = async () => {
     try {
-      // Send logout request to the backend
-      const result = await sendRequest("auth/logout", "POST");
- console.log(result);
-      if (!result.success) {
-        throw new Error(result.message || "Logout failed.");
-      }
-      else{
+      const result = await apiClient.post("auth/logout");
 
-      localStorage.removeItem("isAuthenticated");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      if (!result.data.success) {
+        throw new Error(result.data.message || "Logout failed.");
+      }
+  
+      clearTokens();
 
       showToast("Logged out successfully!", "success");
 
       navigate("/login");
-    }
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Logout error:", error);
       showToast(error.message || "Logout failed. Please try again.", "error");
     }
