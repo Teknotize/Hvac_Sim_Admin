@@ -5,18 +5,25 @@ import Contacts from './pages/crm/Contacts';
 import MainLayout from './components/layout/MainLayout';
 import Logout from './pages/Logout';
 // Protected route component
+import Toast from './components/toast';
+import useTokenRefresh from './utils/refreshTokenTimer';
+import NotFoundPage from './pages/notFound';
+import { useAuthStore } from './store/useAuthStore';
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-  
-  if (!isAuthenticated) {
+  const accessToken = useAuthStore((state) => state.accessToken); 
+
+  if (!accessToken) {
     return <Navigate to="/login" replace />;
   }
-  
+  useTokenRefresh(); 
+
   return <>{children}</>;
 };
-
 function App() {
+  
   return (
+    <>
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -38,11 +45,14 @@ function App() {
           <Route path="cms" element={<div className="p-4">CMS Page (Coming Soon)</div>} />
           <Route path="logout" element={<Logout />} />
         </Route>
+        <Route path="not-found" element={<NotFoundPage/>} />
         
         {/* Catch all route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/not-found" replace />} />
       </Routes>
     </BrowserRouter>
+    <Toast/>
+    </>
   );
 }
 

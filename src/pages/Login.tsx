@@ -1,30 +1,46 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input, Field, Label } from '@headlessui/react'
-
 import { Button } from '@headlessui/react'
 import '../style.scss'
 import logo from '../assets/images/logo.png'
-
-
+import Loader from '../components/loader';
+import useToastStore from '../store/useToastStore';
+import axios from 'axios';
+import { useAuthStore } from '../store/useAuthStore';
+import { BASE_URL } from '../config';
 export default function Login() {
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isChecking, setIsChecking] = useState(false); 
   const navigate = useNavigate();
+  const showToast = useToastStore((state) => state.showToast);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would validate and authenticate here
-    if (email === 'admin@gmail.com' && password === 'admin') {
-      // Mock successful login
-      localStorage.setItem('isAuthenticated', 'true');
-      navigate('/dashboard');
-    } else {
-      setError('Invalid email or password');
+    setIsChecking(true); 
+
+    try {
+        const response = await axios.post(`${BASE_URL}/auth/login-beta`, {
+      email,
+      password,
+    });
+
+      if (response.data.success) {
+        const { accessToken, refreshToken } = response.data;
+        useAuthStore.getState().setTokens(accessToken, refreshToken);   
+        showToast("Login successful!", "success"); 
+        navigate('/dashboard');
+      } else {
+        showToast("Invalid email or password", "error"); 
+      }
+    } catch (e) {
+      console.error("Error sending request", e);
+      showToast("An error occurred. Please try again.", "error"); 
+    } finally {
+      setIsChecking(false); 
     }
-  };
+  };  
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen login-screen">
@@ -69,16 +85,27 @@ export default function Login() {
               />
             </div> */}
             <Field className="btnRow">
-              <Button
-                type="submit"
-                className="btn btn-primary"
-                onClick={handleSubmit}
-              >
-                Sign in
-              </Button>
+            <Button
+  disabled={isChecking}
+  style={{
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center', // Ensures text & loader are vertically aligned
+    backgroundColor: isChecking ? 'rgba(192, 44, 36,0.5)' : 'rgba(192, 44, 36,1)' 
+  }}
+  onClick={handleSubmit}
+  type="submit"
+  className="btn btn-primary"
+>
+  Sign in
+  {isChecking && <span style={{ marginLeft: '8px' }}><Loader /></span>}
+
+</Button>
+
             </Field>
             <div className='errorRow'>
-              {error && <p className='error'>{error}</p>}
+              {/* {error && <p className='error'>{error}</p>} */}
             </div>
           </form>
         </div>
@@ -160,6 +187,7 @@ export default function Login() {
         </form>
       </div>
       */}
+
     </div>
   );
 } 
