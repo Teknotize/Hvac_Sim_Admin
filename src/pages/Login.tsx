@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Field, Label, Description } from '@headlessui/react'
+import { Input, Field, Label } from '@headlessui/react'
 
 import { Button } from '@headlessui/react'
 import '../style.scss'
@@ -17,7 +17,7 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, you would validate and authenticate here
-    if (email === 'admin@example.com' && password === 'password') {
+    if (email === 'admin@gmail.com' && password === 'admin') {
       // Mock successful login
       localStorage.setItem('isAuthenticated', 'true');
       navigate('/dashboard');
@@ -72,10 +72,14 @@ export default function Login() {
               <Button
                 type="submit"
                 className="btn btn-primary"
+                onClick={handleSubmit}
               >
                 Sign in
               </Button>
             </Field>
+            <div className='errorRow'>
+              {error && <p className='error'>{error}</p>}
+            </div>
           </form>
         </div>
       </div>
