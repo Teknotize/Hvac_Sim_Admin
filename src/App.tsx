@@ -3,7 +3,6 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/crm/Contacts';
 import MainLayout from './components/layout/MainLayout';
-import Logout from './pages/Logout';
 // Protected route component
 import Toast from './components/toast';
 import useTokenRefresh from './utils/refreshTokenTimer';
@@ -43,7 +42,6 @@ function App() {
           <Route path="crm/contacts" element={<Contacts />} />
           <Route path="crm/pdf-manual" element={<div className="p-4">PDF Manual Page (Coming Soon)</div>} />
           <Route path="cms" element={<div className="p-4">CMS Page (Coming Soon)</div>} />
-          <Route path="logout" element={<Logout />} />
         </Route>
         <Route path="not-found" element={<NotFoundPage/>} />
         
