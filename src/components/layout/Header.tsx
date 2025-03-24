@@ -1,10 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-
+import useLogout from '../logout';
+import Toast from '../toast';
+import { useState } from 'react';
 export default function Header() {
   const navigate = useNavigate();
+  // const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const logout = useLogout();
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
+    logout()
     navigate('/login');
   };
 

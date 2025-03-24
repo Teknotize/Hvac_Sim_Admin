@@ -1,12 +1,26 @@
+import { useEffect } from "react";
+import { apiClient } from "../config";
 export default function Dashboard() {
   // Sample data for the dashboard
+  
   const stats = [
     { name: 'Active Systems', value: '24' },
     { name: 'Alerts', value: '3' },
     { name: 'Efficiency', value: '92%' },
     { name: 'Energy Usage', value: '1.2 kWh' },
   ];
-
+  useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const response = await apiClient.get('/admin/get-crm-users');
+            console.log(response.data); // Axios response has a `.data` field
+        } catch (error) {
+            console.error('Error fetching CRM users:', error);
+        }
+    };
+    
+    fetchData();
+}, []);
   return (
     <div className="space-y-6">
       <div>
