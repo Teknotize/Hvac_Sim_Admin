@@ -1,12 +1,9 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
-import { Link } from 'react-router-dom';
 import { UserMenuIconLogout } from '../svg/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { useNavigate } from 'react-router-dom';
 import useLogout from '../logout';
-import Toast from '../toast';
-import { useState } from 'react';
 export default function Header() {
 
   const navigate = useNavigate();
@@ -40,12 +37,13 @@ export default function Header() {
                   <p>Signed in as</p>
                   <p>umairfarooq@gmail.com</p>
                 </div>
-                <div className="user-menu">
-                  <Link to="/logout" className="user-menu-item">
+                <div className="user-menu" >
+                  <button onClick={handleLogout} className="user-menu-item" style={{ width: "100%",cursor:'pointer'}} >
                     <UserMenuIconLogout />
                     <p>Logout</p>
-                  </Link>
+                  </button>
                 </div>
+
               </PopoverPanel>
             </Popover>
 
