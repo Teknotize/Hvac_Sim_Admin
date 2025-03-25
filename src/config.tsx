@@ -32,7 +32,7 @@ apiClient.interceptors.response.use(
 
       const { refreshToken } = useAuthStore.getState(); // Get refresh token from Zustand
 
-      if (refreshToken) {
+      if (refreshToken&&error.response.message==="refresh") {
         const newAccessToken = await refreshAccessToken();
 
         if (newAccessToken) {
