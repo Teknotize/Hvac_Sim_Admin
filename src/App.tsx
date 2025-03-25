@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/crm/Contacts';
+import PdfManual from './pages/crm/PdfManual';
 import MainLayout from './components/layout/MainLayout';
 // Protected route component
 import Toast from './components/toast';
@@ -40,7 +41,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="distributors" element={<div className="p-4">Distributors Page (Coming Soon)</div>} />
           <Route path="crm/contacts" element={<Contacts />} />
-          <Route path="crm/pdf-manual" element={<div className="p-4">PDF Manual Page (Coming Soon)</div>} />
+          <Route path="crm/pdf-manual" element={<PdfManual />} />
           <Route path="cms" element={<div className="p-4">CMS Page (Coming Soon)</div>} />
         </Route>
         <Route path="not-found" element={<NotFoundPage/>} />

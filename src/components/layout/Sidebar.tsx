@@ -81,12 +81,6 @@ export default function Sidebar() {
               <div 
                 key={item.name} 
                 className={`nav-item-group ${item.children && isActive ? 'active' : ''}`}
-                onClick={item.children ? (e) => {
-                  e.preventDefault();
-                  // Toggle active class for items with children
-                  const currentTarget = e.currentTarget;
-                  currentTarget.classList.toggle('active');
-                } : undefined}
               >
                 {item.children ? (
                   <div
@@ -95,6 +89,14 @@ export default function Sidebar() {
                         ? 'active'
                         : ''
                     }`}
+                    onClick={item.children ? (e) => {
+                      e.preventDefault();
+                      // Toggle active class for items with children
+                      const currentTarget = e.currentTarget;
+                      if (currentTarget.parentElement) {
+                        currentTarget.parentElement.classList.toggle('active');
+                      }
+                    } : undefined}
                   >
                     <div className="nav-item-inner">
                       {item.icon}

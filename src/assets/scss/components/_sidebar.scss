@@ -7,10 +7,6 @@
         img{width: 160px;}
     }
     .user-info{
-        button{
-            &:focus,
-            &:focus-visible{outline: none;}
-        }
         svg{
             width: 20px;cursor: pointer;
             @include svgColor(#8B8D98);

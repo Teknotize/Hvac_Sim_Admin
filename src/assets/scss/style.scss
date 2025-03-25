@@ -7,10 +7,13 @@
 
 @use 'base/buttons';
 
+@use 'components/pagination';
+@use 'components/popover';
+
 @use 'components/login';
 @use 'components/header';
 @use 'components/footer';
 @use 'components/sidebar';
-@use 'components/home';
+@use 'components/pageHeader';
 @use 'global';
 
