@@ -6,7 +6,15 @@ import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
 
-export default function PageHeader({ title, route }: { title: string, route?: string }) {
+export default function PageHeader({ 
+  title, 
+  route, 
+  onSendEmailClick 
+}: { 
+  title: string, 
+  route?: string,
+  onSendEmailClick?: () => void 
+}) {
     return (
         <div className="page-header">
             <div className="flex items-center">
@@ -15,7 +23,7 @@ export default function PageHeader({ title, route }: { title: string, route?: st
                 </div>
                 {route === 'contacts' && (
                     <div className="filterArea">
-                        <Button className="btn btn-primary">Send Email</Button>
+                        <Button className="btn btn-primary" onClick={onSendEmailClick}>Send Email</Button>
                         <Field className="search-field">
                         <FontAwesomeIcon icon={faSearch} />
                             <Input as={Fragment}>

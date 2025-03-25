@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import PageHeader from '../../components/layout/PageHeader'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisVertical, faCheck, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { faEllipsisVertical, faCheck, faChevronLeft, faChevronRight, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { Popover, PopoverButton, PopoverPanel, Field, Input, Label, Button } from '@headlessui/react';
 import { Checkbox } from '@headlessui/react'
 import { useState } from 'react';
 import { ApprovedEmailIcon } from '../../components/svg/icons';
+import Editor from 'react-simple-wysiwyg';
+
 const contacts = [
   {
     id: 1,
@@ -132,11 +134,21 @@ const contacts = [
 
 
 export default function Contacts() {
-  const [enabled, setEnabled] = useState(false)
+  const [enabled, setEnabled] = useState(false);
+  const [html, setHtml] = useState('');
+  const [showEmailPopup, setShowEmailPopup] = useState(false);
+
+  function onChange(e: any) {
+    setHtml(e.target.value);
+  }
 
   return (
     <>
-    <PageHeader title="Contacts" route="contacts" />
+    <PageHeader 
+      title="Contacts" 
+      route="contacts" 
+      onSendEmailClick={() => setShowEmailPopup(true)}
+    />
     
     <div className='table-container'>
       <div className="table-wrapper">
@@ -250,6 +262,30 @@ export default function Contacts() {
       </div>
     </div>
     
+
+    <div className={`sendEmailPop ${showEmailPopup ? 'active' : ''}`}>
+      <div className='sendEmailPop-wrapper'>
+        <Button className='closeBtn' onClick={() => setShowEmailPopup(false)}>
+          <FontAwesomeIcon icon={faXmark} />
+        </Button>
+        <h2>Send Email</h2>
+        <Field className='fieldDv'>
+          <Label>To</Label>
+          <Input name="to" />
+        </Field>
+        <Field className='fieldDv'>
+          <Label>Subject</Label>
+          <Input name="subject" />
+        </Field>
+        <Field className='fieldDv'>
+          <Label>Message</Label>
+          <Editor value={html} onChange={onChange} />
+        </Field>
+        <div className='btnRow'>
+          <Button className='btn btn-primary'>Send</Button>
+        </div>
+      </div>
+    </div>
     
     </>
   );
