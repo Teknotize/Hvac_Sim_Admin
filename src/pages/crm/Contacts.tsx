@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import useCRMStore from '../../store/useCRMStore';
 import formatDateTime from '../../utils/DateConversion';
 import EmailPopup from '../../components/emailPopup';
+import Loader from '../../components/loader';
 
 interface CRMUser {
   [key: string]: any;
@@ -22,7 +23,7 @@ export default function Contacts() {
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
   const crmUsers = useCRMStore((state) => state.crmUsers);
   const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]); // Renamed for clarity
-
+  const [loading, setLoading] = useState(false);
 
   const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
     if (type === "single") {
@@ -39,22 +40,21 @@ export default function Contacts() {
   };
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
       try {
         const response = await apiClient.get('/admin/get-crm-users');
         const users = response.data.map((user: any) => ({ ...user, isChecked: false }));
         setOriginalUsers(users); 
-        setCRMUsers(users);     
+        setCRMUsers(users);
+        setLoading(false)     
       } catch (error) {
+        setLoading(false)
         console.error('Error fetching CRM users:', error);
       }
     };
   
     if (originalUsers.length === 0) fetchData();
   }, [setCRMUsers]);
-
-  useEffect(() => {
-    console.log('crm',crmUsers);
-  }, [crmUsers]);
 
   const handleSearchChange = (value: string) => {
     const searchTerm = value.trim().toLowerCase();
@@ -79,7 +79,7 @@ export default function Contacts() {
       route="contacts" 
       onSendEmailClick={() => setShowEmailPopup(true)}
     />
-    
+    {!loading ?
     <div className='table-container'>
       <div className="table-wrapper">
         <div className='table-header'>
@@ -193,6 +193,11 @@ export default function Contacts() {
         </div>
       </div>
     </div>
+    :
+    <div style={{height:"100%",display:"flex",justifyContent:"center",alignItems:"center"}}>
+    <Loader size="xl"/>
+    </div>
+    }
     
 
    
