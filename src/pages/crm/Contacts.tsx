@@ -1,151 +1,84 @@
 import { Link } from 'react-router-dom';
 import PageHeader from '../../components/layout/PageHeader'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsisVertical, faCheck, faChevronLeft, faChevronRight, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { Popover, PopoverButton, PopoverPanel, Field, Input, Label, Button } from '@headlessui/react';
+import { faEllipsisVertical, faCheck, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { Popover, PopoverButton, PopoverPanel,  } from '@headlessui/react';
 import { Checkbox } from '@headlessui/react'
 import { useState } from 'react';
 import { ApprovedEmailIcon } from '../../components/svg/icons';
-import Editor from 'react-simple-wysiwyg';
+import { apiClient } from '../../config';
+import { useEffect } from 'react';
+import useCRMStore from '../../store/useCRMStore';
+import formatDateTime from '../../utils/DateConversion';
+import EmailPopup from '../../components/emailPopup';
 
-const contacts = [
-  {
-    id: 1,
-    name: 'John Doe',
-    phone: '0300 1234567',
-    email: 'john.doe@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['Lead', 'Prospect', 'New', 'Old'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    phone: '0300 1234567',
-    email: 'jane.smith@example.com',
-    emailApproved: false,
-    business: 'Business Name',
-    tags: ['New', 'Prospect'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: true
-  },
-  {
-    id: 3,
-    name: 'Mike Johnson',
-    phone: '0300 1234567',
-    email: 'mike.johnson@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['New', 'Prospect'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  },
-  {
-    id: 4,
-    name: 'John Doe',
-    phone: '0300 1234567',
-    email: 'john.doe@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['Lead', 'Prospect', 'New', 'Old'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  },
-  {
-    id: 5,
-    name: 'John Doe',
-    phone: '0300 1234567',
-    email: 'john.doe@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['Lead', 'Prospect', 'New', 'Old'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  },
-  {
-    id: 6,
-    name: 'John Doe',
-    phone: '0300 1234567',
-    email: 'john.doe@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['Lead', 'Prospect', 'New', 'Old'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  },
-  {
-    id: 7,
-    name: 'John Doe',
-    phone: '0300 1234567',
-    email: 'john.doe@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['Lead', 'Prospect', 'New', 'Old'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  },
-  {
-    id: 8,
-    name: 'John Doe',
-    phone: '0300 1234567',
-    email: 'john.doe@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['Lead', 'Prospect', 'New', 'Old'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  },
-  {
-    id: 9,
-    name: 'John Doe',
-    phone: '0300 1234567',
-    email: 'john.doe@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['Lead', 'Prospect', 'New', 'Old'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  },
-  {
-    id: 10,
-    name: 'John Doe',
-    phone: '0300 1234567',
-    email: 'john.doe@example.com',
-    emailApproved: true,
-    business: 'Business Name',
-    tags: ['Lead', 'Prospect', 'New', 'Old'],
-    date: 'March 24, 2025',
-    time: '10:00 AM',
-    checked: false
-  }
-]
-
-
+interface CRMUser {
+  [key: string]: any;
+}
 
 export default function Contacts() {
   const [enabled, setEnabled] = useState(false);
-  const [html, setHtml] = useState('');
   const [showEmailPopup, setShowEmailPopup] = useState(false);
+  const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
+  const crmUsers = useCRMStore((state) => state.crmUsers);
+  const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]); // Renamed for clarity
 
-  function onChange(e: any) {
-    setHtml(e.target.value);
-  }
 
+  const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
+    if (type === "single") {
+      setCRMUsers(
+        crmUsers.map((user) =>
+          user._id === id ? { ...user, isChecked: checked } : user
+        )
+      );
+    } else {
+      setCRMUsers(
+        crmUsers.map((user) => ({ ...user, isChecked: !enabled }))
+      );
+    }
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiClient.get('/admin/get-crm-users');
+        const users = response.data.map((user: any) => ({ ...user, isChecked: false }));
+        
+        setOriginalUsers(users); 
+        setCRMUsers(users);     
+      } catch (error) {
+        console.error('Error fetching CRM users:', error);
+      }
+    };
+  
+    if (originalUsers.length === 0) fetchData();
+  }, [setCRMUsers]);
+
+  useEffect(() => {
+    console.log('crm',crmUsers);
+  }, [crmUsers]);
+
+  const handleSearchChange = (value: string) => {
+    const searchTerm = value.trim().toLowerCase();
+    
+    if (!searchTerm) {
+      // Reset to all users when search is empty
+      setCRMUsers(originalUsers);
+      return;
+    }
+  
+    const filteredUsers = originalUsers.filter(user =>
+      user.name?.toLowerCase().includes(searchTerm) ||
+      user.email?.toLowerCase().includes(searchTerm) ||
+      user.phone?.toLowerCase().includes(searchTerm)
+    );
+  
+    setCRMUsers(filteredUsers);
+  };
   return (
     <>
     <PageHeader 
       title="Contacts" 
+      onSearchChange={(value) => handleSearchChange(value)} 
       route="contacts" 
       onSendEmailClick={() => setShowEmailPopup(true)}
     />
@@ -157,7 +90,7 @@ export default function Contacts() {
             <div className='table-cell cell-checkbox'>
               <Checkbox
                 checked={enabled}
-                onChange={setEnabled}
+                onChange={()=>{handleCheckboxChange("123",enabled,"all");setEnabled(!enabled)}}
                 className="group table-checkbox-item data-[checked]:checked"
               >
                 <FontAwesomeIcon icon={faCheck} className='opacity-0 group-data-[checked]:opacity-100' />
@@ -173,14 +106,12 @@ export default function Contacts() {
           </div>
         </div>
         <div className='table-body'>
-          {contacts.map((contact) => (
-            <div className='table-row' key={contact.id}>
+          {crmUsers.map((contact) => (
+            <div className='table-row' key={contact._id}>
               <div className='table-cell cell-checkbox'>
                 <Checkbox
-                checked={contact.checked || false}
-                onChange={(checked) => {
-                  contact.checked = checked;
-                }}
+                checked={contact.isChecked}
+                onChange={(checked) => handleCheckboxChange(contact._id, checked,"single")}
                 className="group table-checkbox-item data-[checked]:checked"
               >
                 <FontAwesomeIcon icon={faCheck} className='opacity-0 group-data-[checked]:opacity-100' />
@@ -196,20 +127,24 @@ export default function Contacts() {
               <p>{contact.phone}</p>
             </div>
             <div className='table-cell cell-email'>
-              <p className='email-item'>{contact.emailApproved && <ApprovedEmailIcon />} <span>{contact.email}</span></p>
+              <p className='email-item'>
+                {
+                // contact.emailApproved 
+                true&& <ApprovedEmailIcon />} <span>{contact.email}</span></p>
             </div>
             <div className='table-cell cell-business'>
               <p>{contact.business}</p>
             </div>
             <div className='table-cell cell-tags'>
               <p className='tags'>
-                {contact.tags.map((tag) => (
+                {/* {contact.tags.map((tag:string) => (
                   <span key={tag}>{tag}</span>
-                ))}
+                ))} */}
+                  <span >{contact.tags}</span>
               </p>
             </div>
             <div className='table-cell cell-date'>
-              <p className='date'>{contact.date} <span className='time'>{contact.time}</span></p>
+              <p className='date'>{formatDateTime(contact.createdAt).date} <span className='time'>{formatDateTime(contact.createdAt).time}</span></p>
             </div>
             <div className='table-cell cell-action justify-end'>
 
@@ -263,30 +198,8 @@ export default function Contacts() {
     </div>
     
 
-    <div className={`sendEmailPop ${showEmailPopup ? 'active' : ''}`}>
-      <div className='sendEmailPop-wrapper'>
-        <Button className='closeBtn' onClick={() => setShowEmailPopup(false)}>
-          <FontAwesomeIcon icon={faXmark} />
-        </Button>
-        <h2>Send Email</h2>
-        <Field className='fieldDv'>
-          <Label>To</Label>
-          <Input name="to" />
-        </Field>
-        <Field className='fieldDv'>
-          <Label>Subject</Label>
-          <Input name="subject" />
-        </Field>
-        <Field className='fieldDv'>
-          <Label>Message</Label>
-          <Editor value={html} onChange={onChange} />
-        </Field>
-        <div className='btnRow'>
-          <Button className='btn btn-primary'>Send</Button>
-        </div>
-      </div>
-    </div>
-    
+   
+<EmailPopup isOpen={showEmailPopup} onClose={() => setShowEmailPopup(false)} />   
     </>
   );
 }
