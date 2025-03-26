@@ -72,6 +72,7 @@
     .email-item{
         display: flex; align-items: center; gap: 5px;
         svg{ width: 17px; height: 17px; @include svgColor(#4361EE); }
+        span{max-width: 190px; overflow: hidden; text-overflow: ellipsis;}
     }
     .tags{
         display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
@@ -102,6 +103,9 @@
             margin-bottom: 10px; display: flex; gap: 10px; flex-direction: column;
             label{ @include para(14px, 600, 0, 0); color: #000; }
             input{ @include para(14px, 400, 0, 10px); color: #000; border: 1px solid var(--table-border-color); border-radius: 5px; padding: 10px; width: 100%; }
+        }
+        .rsw-editor{
+            .rsw-ce{min-height: 300px;}
         }
         .btnRow{
             display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding-top: 20px;
