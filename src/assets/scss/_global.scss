@@ -17,20 +17,11 @@
 
     .table-body {
         .table-row {
-            border-bottom: 1px solid var(--table-border-color);
-            background-color: #fff;
-
-            &:nth-child(odd) {
-                background-color: #FEFBFB;
-            }
-
+            border-bottom: 1px solid var(--table-border-color); background-color: #fff;
+            &:nth-child(odd) { background-color: #FEFBFB; }
             .table-cell {
-                @include para(14px, 400, 0, 12px 15px);
-                color: var(--txt-color);
-
-                p {
-                    margin: 0;
-                }
+                @include para(14px, 400, 0, 12px 15px); color: var(--txt-color);
+                p { margin: 0; }
             }
         }
     }
@@ -50,351 +41,127 @@
 
     .table-wrapper {
         overflow-x: auto;
-
         .table-header,
-        .table-body {
-            min-width: 1400px;
-        }
+        .table-body { min-width: 1400px; }
     }
-
     .table-row {
         display: flex;
-
         .table-cell {
-            flex: 1;
-            display: flex;
-            align-items: center;
-
+            flex: 1; display: flex; align-items: center;
             &.cell {
-                &-checkbox {
-                    flex: 0 0 50px;
-                }
-
-                &-user {
-                    flex: 1 0 150px;
-                }
-
-                &-phone {
-                    flex: 1 0 100px;
-                }
-
-                &-email {
-                    flex: 1 0 200px;
-                }
-
-                &-business {
-                    flex: 1 0 200px;
-                }
-
-                &-tags {
-                    flex: 0 0 200px;
-                }
-
-                &-date {
-                    flex: 0 0 200px;
-                }
-
-                &-action {
-                    flex: 0 0 70px;
-                }
+                &-checkbox { flex: 0 0 50px; }
+                &-user { flex: 1 0 150px; }
+                &-phone { flex: 1 0 100px; }
+                &-email { flex: 1 0 200px; }
+                &-business { flex: 1 0 200px; }
+                &-tags { flex: 0 0 200px; }
+                &-date { flex: 0 0 200px; }
+                &-action { flex: 0 0 70px; }
             }
-
-            &.pagination-cell {
-                justify-content: flex-end;
-            }
+            &.pagination-cell { justify-content: flex-end; }
         }
     }
 
     .table-checkbox-item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 16px;
-        height: 16px;
-        border-radius: 3px;
-        background-color: transparent;
-        border: 2px solid #8B8D98;
-
-        svg {
-            width: 12px;
-            height: 12px;
-            color: #fff;
-        }
-
-        &[data-checked] {
-            background-color: var(--base-color-primary);
-            border-color: var(--base-color-primary);
-        }
+        display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 3px; background-color: transparent; border: 2px solid #8B8D98;
+        svg { width: 12px; height: 12px; color: #fff; }
+        &[data-checked] { background-color: var(--base-color-primary); border-color: var(--base-color-primary); }
     }
 
     .user-dp-card {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
+        display: flex; align-items: center; gap: 10px;
         figure {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background-color: var(--button-border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            span {
-                @include para(14px, 400, 0, 0);
-                color: var(--txt-color);
-            }
+            width: 30px; height: 30px; border-radius: 50%; background-color: var(--button-border-color); display: flex; align-items: center; justify-content: center;
+            span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
         }
-
-        span {
-            @include para(14px, 400, 0, 0);
-            color: var(--txt-color);
-        }
+        span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
     }
 
     .email-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-
-        svg {
-            width: 17px;
-            height: 17px;
-            @include svgColor(#4361EE);
-        }
-
-        span {
-            max-width: 190px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        display: flex; align-items: center; gap: 5px;
+        svg { width: 17px; height: 17px; @include svgColor(#4361EE); }
+        span { max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
     }
 
     .tags {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        flex-wrap: wrap;
-
-        span {
-            background-color: #EEEEF4;
-            border-radius: 30px;
-            @include para(10px, 400, 0, 4px 10px);
-            color: var(--txt-color);
-        }
+        display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+        span { background-color: #EEEEF4; border-radius: 30px; @include para(10px, 400, 0, 4px 10px); color: var(--txt-color); }
     }
 
     .date {
-        .time {
-            @include para(12px, 400, 0, 0);
-            display: block;
-        }
+        .time { @include para(12px, 400, 0, 0); display: block; }
     }
 
     .action-drop {
-        button {
-            font-size: 20px;
-            min-width: 30px;
-            cursor: pointer;
-        }
+        button { font-size: 20px; min-width: 30px; cursor: pointer; }
     }
-
 }
 
 .sendEmailPop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    z-index: 999;
-    align-items: flex-end;
-    justify-content: flex-end;
-    display: none;
-
-    &.active {
-        display: flex;
-    }
-
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0); z-index: 999; align-items: flex-end; justify-content: flex-end; display: none;
+    &.active { display: flex; }
     .sendEmailPop-wrapper {
-        background-color: #fff;
-        border-radius: 10px;
-        width: 50%;
-        padding: 20px;
-        margin: 0px 30px 20px 0px;
-        border: 1px solid var(--table-border-color);
-        cursor: pointer;
-        position: relative;
-
-        .closeBtn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: var(--color-gray-200);
-            border-radius: 50%;
-            @include para(20px, 400, 0, 5px);
-            line-height: 1;
-            min-width: 30px;
-            cursor: pointer;
-            color: var(--txt-color);
-        }
-
-        h2 {
-            @include para(24px, 600, 0, 20px);
-            color: #000;
-        }
-
+        background-color: #fff; border-radius: 10px; width: 50%; padding: 20px; margin: 0px 30px 20px 0px; border: 1px solid var(--table-border-color); cursor: pointer; position: relative;
+        .closeBtn { position: absolute; top: 20px; right: 20px; background-color: var(--color-gray-200); border-radius: 50%; @include para(20px, 400, 0, 5px); line-height: 1; min-width: 30px; cursor: pointer; color: var(--txt-color); }
+        h2 { @include para(24px, 600, 0, 20px); color: #000; }
         .fieldDv {
-            margin-bottom: 10px;
-            display: flex;
-            gap: 10px;
-            flex-direction: column;
-
-            label {
-                @include para(14px, 600, 0, 0);
-                color: #000;
-            }
-
-            input {
-                @include para(14px, 400, 0, 10px);
-                color: #000;
-                border: 1px solid var(--table-border-color);
-                border-radius: 5px;
-                padding: 10px;
-                width: 100%;
+            margin-bottom: 10px; display: flex; gap: 10px; flex-direction: column;
+            label { @include para(14px, 600, 0, 0); color: #000; }
+            input { @include para(14px, 400, 0, 10px); color: #000; border: 1px solid var(--table-border-color); border-radius: 5px; padding: 10px; width: 100%; }
+            .emailInputCol{
+                display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border: 1px solid var(--table-border-color); padding: 5px; border-radius: 5px;
+                &:focus-within{outline: 2px solid var(--base-color-primary);}
+                .emailItem{
+                    display: flex; align-items: center; gap: 10px; background-color: var(--table-border-color);border-radius: 50px;padding: 4px;
+                    figure {
+                        width: 30px; height: 30px; border-radius: 50%; background-color:#fff; display: flex; align-items: center; justify-content: center;
+                        span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
+                    }
+                    span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
+                    i{@include para(20px, 400, 0px 10px 0px 0px, 0); color: var(--txt-color-dark);}
+                }
+                .textInput{
+                    position: relative;
+                    input{position: absolute; top: 0; left: 0; width: 100%; height: 100%; outline: none; border: none; padding: 0;;}
+                    span{opacity: 0; display: block; min-width: 140px;height: 38px;}
+                }
             }
         }
-
         .rsw-editor {
-            .rsw-ce {
-                min-height: 300px;
-            }
+            .rsw-ce { min-height: 300px; }
         }
-
-        .btnRow {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
-            padding-top: 20px;
-        }
+        .btnRow { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding-top: 20px; }
     }
 }
 
 
 .fileDownloadDv {
-    background-color: #faf4f5;
-    border-radius: 24px;
-    width: 23.7%;
-    padding: 2px;
-    border: 2px solid var(--button-border-color);
-    cursor: pointer;
-    position: relative;
-
+    background-color: #faf4f5; border-radius: 24px; width: 23.7%; padding: 2px; border: 2px solid var(--button-border-color); cursor: pointer; position: relative;
     .downloadBtn {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 1;
-        background-color: #FAF4F5;
-        border-radius: 5px;
-        padding: 10px;
-        cursor: pointer;
-
-        svg {
-            width: 20px;
-            height: 20px;
-            @include svgColor(var(--base-color-primary));
-        }
+        position: absolute; top: 20px; right: 20px; z-index: 1; background-color: #FAF4F5; border-radius: 5px; padding: 10px; cursor: pointer;
+        svg { width: 20px; height: 20px; @include svgColor(var(--base-color-primary)); }
     }
-
     .action-drop {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 1;
-
-        button {
-            font-size: 20px;
-            min-width: 30px;
-            cursor: pointer;
-        }
+        position: absolute; top: 20px; right: 20px; z-index: 1;
+        button { font-size: 20px; min-width: 30px; cursor: pointer; }
     }
 
     .fileLockIcon {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        z-index: 1;
-        width: 34px;
-        opacity: 0;
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+        position: absolute; top: 20px; left: 20px; z-index: 1; width: 34px; opacity: 0;
+        img { width: 100%; height: 100%; object-fit: contain; }
     }
-
-    .iconDv {
-        background-color: #fff;
-        border-radius: 24px;
-        padding: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 180px;
-    }
-
-    h3 {
-        @include para(16px, 600, 0, 20px);
-        color: #000;
-        min-height: 88px;
-    }
-
+    .iconDv { background-color: #fff; border-radius: 24px; padding: 10px; display: flex; align-items: center; justify-content: center; min-height: 180px; }
+    h3 { @include para(16px, 600, 0, 20px); color: #000; min-height: 88px; }
     .templateInfo {
-        position: relative;
-        padding: 20px;
-        padding-left: 80px;
-
-        figure {
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            @include imgCover;
-        }
-
-        h3 {
-            padding: 0px;
-            min-height: 0px;
-            margin-bottom: 5px;
-        }
-
-        p {
-            @include para(12px, 400, 0, 0);
-            color: var(--txt-color);
-        }
+        position: relative; padding: 20px; padding-left: 80px;
+        figure { width: 45px; height: 45px; border-radius: 10px; position: absolute; top: 20px; left: 20px; @include imgCover; }
+        h3 { padding: 0px; min-height: 0px; margin-bottom: 5px; }
+        p { @include para(12px, 400, 0, 0); color: var(--txt-color); }
     }
-
-    &:hover {
-        border-color: var(--base-color-primary);
-    }
-
+    &:hover { border-color: var(--base-color-primary); }
     &.locked {
-        background-color: #EFF5F8;
-        pointer-events: none;
-
-        .iconDv {
-            filter: grayscale(100%);
-        }
-
-        .fileLockIcon {
-            opacity: 1;
-        }
+        background-color: #EFF5F8; pointer-events: none;
+        .iconDv { filter: grayscale(100%); }
+        .fileLockIcon { opacity: 1; }
     }
 }

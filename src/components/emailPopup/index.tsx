@@ -10,8 +10,14 @@ interface EmailPopupProps {
   onClose: () => void;
 }
 
+const contact = {
+  name: "John Doe",
+  email: "john.doe@example.com"
+}
+
 export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
   const [html, setHtml] = useState('');
+  const [to, setTo] = useState('');
 
   function onChange(e: any) {
     setHtml(e.target.value);
@@ -27,14 +33,29 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
 
   return (
     <div className={`sendEmailPop active`}>
-      <div className='sendEmailPop-wrapper'>
+      <div className='sendEmailPop-wrapper shadow-lg'>
         <Button className='closeBtn' onClick={onClose}>
           <FontAwesomeIcon icon={faXmark} />
         </Button>
         <h2>Send Email</h2>
         <Field className='fieldDv'>
           <Label>To</Label>
-          <Input name="to" />
+          {/* <Input name="to" /> */}
+          <div className='emailInputCol'>
+            <div className='emailItem'>
+              <figure><span>{contact.name.charAt(0)}</span></figure>
+              <span>{contact.name}</span>
+              <i><FontAwesomeIcon icon={faXmark} /></i>
+            </div>
+            <div className='emailItem'>
+              <figure><span>{contact.name.charAt(0)}</span></figure>
+              <span>{contact.name}</span>
+              <i><FontAwesomeIcon icon={faXmark} /></i>
+            </div>
+            <div className='textInput'>
+              <span>{to}</span><Input name="to" placeholder='Type email address' value={to} onChange={(e) => setTo(e.target.value)} />
+            </div>
+          </div>
         </Field>
         <Field className='fieldDv'>
           <Label>Subject</Label>
@@ -51,3 +72,4 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
     </div>
   );
 }
+
