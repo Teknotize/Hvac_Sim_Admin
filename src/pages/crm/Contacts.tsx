@@ -42,7 +42,6 @@ export default function Contacts() {
       try {
         const response = await apiClient.get('/admin/get-crm-users');
         const users = response.data.map((user: any) => ({ ...user, isChecked: false }));
-        
         setOriginalUsers(users); 
         setCRMUsers(users);     
       } catch (error) {
@@ -61,11 +60,9 @@ export default function Contacts() {
     const searchTerm = value.trim().toLowerCase();
     
     if (!searchTerm) {
-      // Reset to all users when search is empty
       setCRMUsers(originalUsers);
       return;
     }
-  
     const filteredUsers = originalUsers.filter(user =>
       user.name?.toLowerCase().includes(searchTerm) ||
       user.email?.toLowerCase().includes(searchTerm) ||

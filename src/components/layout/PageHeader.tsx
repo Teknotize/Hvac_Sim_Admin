@@ -29,15 +29,15 @@ export default function PageHeader({
                         <Field className="search-field">
                         <FontAwesomeIcon icon={faSearch} />
                         <Input as={Fragment}>
-      {({ focus, hover }) => (
-        <input
-          name="search"
-          placeholder="Search"
-          className={clsx(focus && 'itemfocus', hover && 'itemhover')}
-          onChange={(e) => onSearchChange?.(e.target.value)}
-        />
-      )}
-    </Input>
+                            {({ focus, hover }) => (
+                                <input
+                                name="search"
+                                placeholder="Search"
+                                className={clsx(focus && 'itemfocus', hover && 'itemhover')}
+                                onChange={(e) => onSearchChange?.(e.target.value)}
+                                />
+                            )}
+                            </Input>
                         </Field>
                         <Button className="btn btn-outline-grey icon-start"><FilterIcon /> Filter</Button>
                     </div>
