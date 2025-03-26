@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import logo from '../../assets/images/logo.png';
 import { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavCMS, MainMenuNavCRM, MainMenuNavDistributors, MainMenuNavAppData } from '../svg/icons';
-
-// Navigation items
+import { useNavigate } from 'react-router-dom';
+import useLogout from '../logout';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: <MainMenuNavDashboard /> },
   { name: 'Distributors', href: '/distributors', icon: <MainMenuNavDistributors /> },
@@ -22,7 +22,13 @@ const navigation = [
 
 export default function Sidebar() {
   const location = useLocation();
-
+  const logout = useLogout();
+const navigate=useNavigate()
+  const handleLogout = () => {
+    logout()
+    navigate('/login');
+  };
+   
   return (
     <div className="flex h-full flex-col sidebar">
       <div className="flex h-16 items-center gap-4 p-4 border-b-2 border-gray-800">
@@ -52,10 +58,15 @@ export default function Sidebar() {
                 <UserMenuIconSettings />
                 <p>Settings</p>
               </Link>
-              <Link to="/logout" className="user-menu-item">
+              {/* <Link to="/logout" className="user-menu-item">
                 <UserMenuIconLogout />
                 <p>Logout</p>
-              </Link>
+              </Link> */}
+              <button onClick={handleLogout} className="user-menu-item" style={{ width: "100%",cursor:'pointer'}} >
+                      <UserMenuIconLogout />
+                      <p>Logout</p>
+                    </button>
+                  
             </div>
           </PopoverPanel>
         </Popover>
