@@ -2,7 +2,6 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { UserMenuIconLogout } from '../svg/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import { useNavigate } from 'react-router-dom';
 export default function Header() {
 
   // const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
