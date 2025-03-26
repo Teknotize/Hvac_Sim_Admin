@@ -10,8 +10,8 @@ export default function PdfManual() {
         <>
             <PageHeader title="PDF Manual" route="pdf-manual" />
 
-            <div className="flex gap-4 flex-wrap">
-                <div className="fileDownloadDv">
+            <div className="flex gap-6 flex-wrap">
+                <div className="fileDownloadDv locked">
                     <Popover className="action-drop">
                         <PopoverButton className="block">
                         <FontAwesomeIcon icon={faEllipsisVertical} />

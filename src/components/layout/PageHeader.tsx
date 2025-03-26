@@ -5,6 +5,8 @@ import { Field, Input } from '@headlessui/react';
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { Link } from "react-router-dom";
 
 export default function PageHeader({ 
   title, 
@@ -45,6 +47,31 @@ export default function PageHeader({
                 {route === 'pdf-manual' && (
                     <div className="filterArea">
                         <Button className="btn btn-primary"><FontAwesomeIcon icon={faPlus} /> Add New</Button>
+                    </div>
+                )}
+                {route === 'app-data' && (
+                    <div className="filterArea">
+
+                        <Popover className="action-drop">
+                            <PopoverButton className="block">
+                            <Button className="btn btn-primary"><FontAwesomeIcon icon={faPlus} /> Add New</Button>
+                            </PopoverButton>
+                            <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                            >
+                            <div className="action-menu">
+                                <Link to="/" className="action-menu-item">
+                                <p>Combustion</p>
+                                </Link>
+                                <Link to="/" className="action-menu-item">
+                                <p>Refrigerant</p>
+                                </Link>
+                            </div>
+                            </PopoverPanel>
+                        </Popover>
+
                     </div>
                 )}
             </div>
