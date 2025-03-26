@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import logo from '../../assets/images/logo.png';
-import { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavCMS, MainMenuNavCRM, MainMenuNavDistributors } from '../svg/icons';
+import { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavCMS, MainMenuNavCRM, MainMenuNavDistributors, MainMenuNavAppData } from '../svg/icons';
 
 // Navigation items
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: <MainMenuNavDashboard /> },
   { name: 'Distributors', href: '/distributors', icon: <MainMenuNavDistributors /> },
+  { name: 'AppData', href: '/app-data', icon: <MainMenuNavAppData /> },
   { 
     name: 'CRM', 
     href: '/crm', 

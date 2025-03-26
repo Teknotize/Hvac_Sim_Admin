@@ -9,6 +9,8 @@ import Toast from './components/toast';
 import useTokenRefresh from './utils/refreshTokenTimer';
 import NotFoundPage from './pages/notFound';
 import { useAuthStore } from './store/useAuthStore';
+import AppData from './pages/AppData';
+
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const accessToken = useAuthStore((state) => state.accessToken); 
@@ -40,6 +42,7 @@ function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="distributors" element={<div className="p-4">Distributors Page (Coming Soon)</div>} />
+          <Route path="app-data" element={<AppData />} />
           <Route path="crm/contacts" element={<Contacts />} />
           <Route path="crm/pdf-manual" element={<PdfManual />} />
           <Route path="cms" element={<div className="p-4">CMS Page (Coming Soon)</div>} />
