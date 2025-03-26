@@ -39,8 +39,13 @@
         }
     }
 
+    .noData{
+        display: flex; align-items: center; justify-content: center; height: 70vh; background: #fff;
+        p{@include para(14px, 400, 0, 0); color: var(--txt-color-dark);}
+    }
+
     .table-wrapper {
-        overflow-x: auto;
+        overflow-x: auto; min-height: calc(100vh - 310px); background: #fff;
         .table-header,
         .table-body { min-width: 1400px; }
     }

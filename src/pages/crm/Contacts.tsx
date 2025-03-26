@@ -103,7 +103,8 @@ export default function Contacts() {
           </div>
         </div>
         <div className='table-body'>
-          {crmUsers.map((contact) => (
+          {crmUsers.length > 0 ?
+          crmUsers.map((contact) => (
             <div className='table-row' key={contact._id}>
               <div className='table-cell cell-checkbox'>
                 <Checkbox
@@ -167,7 +168,9 @@ export default function Contacts() {
 
             </div>
           </div>
-          ))}
+          )) :
+          <div className='noData'><p>No data found</p></div>
+          }
         </div>
       </div>
       <div className='table-footer'>
