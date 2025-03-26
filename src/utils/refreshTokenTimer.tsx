@@ -27,7 +27,7 @@ const useTokenRefresh = () => {
       console.log("Inside interval - attempting refresh");
       await refreshAccessToken();
       console.log("Access token refreshed via interval");
-    }, 870000); // 14.5 minutes
+    }, 420000); // 14.5 minutes
 
     return () => {
       console.log("Clearing interval on unmount");

@@ -9,11 +9,13 @@ import { faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
 export default function PageHeader({ 
   title, 
   route, 
-  onSendEmailClick 
+  onSendEmailClick ,
+  onSearchChange 
 }: { 
   title: string, 
   route?: string,
-  onSendEmailClick?: () => void 
+  onSendEmailClick?: () => void ,
+  onSearchChange?: (value: string) => void
 }) {
     return (
         <div className="page-header">
@@ -26,9 +28,16 @@ export default function PageHeader({
                         <Button className="btn btn-primary" onClick={onSendEmailClick}>Send Email</Button>
                         <Field className="search-field">
                         <FontAwesomeIcon icon={faSearch} />
-                            <Input as={Fragment}>
-                                {({ focus, hover }) => <input name="search" placeholder="Search" className={clsx(focus && 'itemfocus', hover && 'itemhover')} />}
-                            </Input>
+                        <Input as={Fragment}>
+      {({ focus, hover }) => (
+        <input
+          name="search"
+          placeholder="Search"
+          className={clsx(focus && 'itemfocus', hover && 'itemhover')}
+          onChange={(e) => onSearchChange?.(e.target.value)}
+        />
+      )}
+    </Input>
                         </Field>
                         <Button className="btn btn-outline-grey icon-start"><FilterIcon /> Filter</Button>
                     </div>
