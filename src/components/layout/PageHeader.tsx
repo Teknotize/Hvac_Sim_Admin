@@ -8,20 +8,20 @@ import { faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Link } from "react-router-dom";
 
-
 export default function PageHeader({ 
-  title, 
-  route, 
-  onSendEmailClick ,
-  onSearchChange ,
-  showEmail
-}: { 
-  title: string, 
-  route?: string,
-  onSendEmailClick?: () => void ,
-  onSearchChange?: (value: string) => void,
-  showEmail?: boolean
-}) {
+    title, 
+    route, 
+    onSendEmailClick,
+    onSearchChange,
+    showEmail
+  }: { 
+    title: string, 
+    route?: string,
+    onSendEmailClick?: () => void,
+    onSearchChange?: (value: string) => void,
+    showEmail?: boolean
+  }) {
+      
     return (
         <div className="page-header">
             <div className="flex items-center">
@@ -30,7 +30,10 @@ export default function PageHeader({
                 </div>
                 {route === 'contacts' && (
                     <div className="filterArea">
-                        {showEmail&&<Button className="btn btn-primary" onClick={onSendEmailClick}>Send Email</Button>}
+                        {showEmail&&
+                        <Button className="btn btn-primary" onClick={()=>{  onSendEmailClick?.();} }>
+                            Send Email
+                            </Button>}
                         <Field className="search-field">
                         <FontAwesomeIcon icon={faSearch} />
                         <Input as={Fragment}>
