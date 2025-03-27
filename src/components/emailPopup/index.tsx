@@ -22,7 +22,9 @@ export default function EmailPopup({ isOpen, onClose ,recipients}: EmailPopupPro
   const [html, setHtml] = useState('');
   const [to, setTo] = useState('');
   const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
+const removeReciepent=()=>{
 
+}
   function onChange(e: any) {
     setHtml(e.target.value);
   }
@@ -38,23 +40,19 @@ useEffect(()=>{
 
   if (!isOpen) return null;
 
-  // Test function to trigger the progress
   const testEmailProgress = () => {
       
-      // Hardcoded values
       const totalEmails = 10;
       let currentProgress = 0;
 
-      // Initialize progress
       startProgress(totalEmails);
       
-      // Update progress every 2 seconds
       const interval = setInterval(() => {
         currentProgress += 1;
         updateProgress(currentProgress);
-        console.log(`Progress: ${currentProgress}/${totalEmails}`); // Debug log
+        console.log(`Progress: ${currentProgress}/${totalEmails}`);
 
-        // Complete when done
+        
         if (currentProgress >= totalEmails) {
           clearInterval(interval);
           completeProgress(true);
@@ -74,16 +72,13 @@ useEffect(()=>{
           <Label>To</Label>
           {/* <Input name="to" /> */}
           <div className='emailInputCol'>
+            {recipients?.map((recipient)=>
             <div className='emailItem'>
-              <figure><span>{contact.name.charAt(0)}</span></figure>
-              <span>{contact.name}</span>
-              <i><FontAwesomeIcon icon={faXmark} /></i>
-            </div>
-            <div className='emailItem'>
-              <figure><span>{contact.name.charAt(0)}</span></figure>
-              <span>{contact.name}</span>
-              <i><FontAwesomeIcon icon={faXmark} /></i>
-            </div>
+            <figure><span>{recipient.name.charAt(0)}</span></figure>
+            <span>{recipient.name}</span>
+            <i onClick={removeReciepent}><FontAwesomeIcon icon={faXmark} /></i>
+          </div>)}
+            
             <div className='textInput'>
               <span>{to}</span><Input name="to" placeholder='Type email address' value={to} onChange={(e) => setTo(e.target.value)} />
             </div>

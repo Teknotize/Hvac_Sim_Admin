@@ -209,58 +209,94 @@ export default function Contacts() {
 </p>
 
       <div className='pagination'>
-        <button
-          className='pagination-button'
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          <FontAwesomeIcon icon={faChevronLeft} />
-        </button>
+      <button
+  className='pagination-button'
+  onClick={() => handlePageChange(currentPage - 1)}
+  disabled={currentPage === 1}
+>
+  <FontAwesomeIcon icon={faChevronLeft} />
+</button>
 
-        <div className='pagination-numbers'>
-          {totalPages > 5 ? (
-            <>
-              {currentPage > 3 && <p onClick={() => handlePageChange(1)}>1</p>}
-              {currentPage > 4 && <p>...</p>}
+<div className='pagination-numbers'>
+  {totalPages <= 5 ? (
+    /* Show all pages if 5 or fewer */
+    Array.from({ length: totalPages }, (_, i) => (
+      <p
+        key={i + 1}
+        className={currentPage === i + 1 ? 'active' : ''}
+        onClick={() => handlePageChange(i + 1)}
+      >
+        {i + 1}
+      </p>
+    ))
+  ) : (
+    /* Show smart pagination for more than 5 pages */
+    <>
+      {/* Always show first page */}
+      <p
+        className={currentPage === 1 ? 'active' : ''}
+        onClick={() => handlePageChange(1)}
+      >
+        1
+      </p>
 
-              {Array.from({ length: 5 }, (_, i) => {
-                const page = Math.min(Math.max(currentPage - 2 + i, 1), totalPages);
-                return (
-                  <p
-                    key={page}
-                    className={currentPage === page ? 'active' : ''}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </p>
-                );
-              })}
+      {/* Show left ellipsis if needed */}
+      {currentPage > 3 && <p>...</p>}
 
-              {currentPage < totalPages - 3 && <p>...</p>}
-              {currentPage < totalPages - 2 && (
-                <p onClick={() => handlePageChange(totalPages)}>{totalPages}</p>
-              )}
-            </>
-          ) : (
-            Array.from({ length: totalPages }, (_, i) => (
-              <p
-                key={i}
-                className={currentPage === i + 1 ? 'active' : ''}
-                onClick={() => handlePageChange(i + 1)}
-              >
-                {i + 1}
-              </p>
-            ))
-          )}
-        </div>
+      {/* Show middle pages - always exactly 3 in the middle */}
+      {(() => {
+        let start, end;
+        
+        if (currentPage <= 3) {
+          // Near start: show 2, 3, 4
+          start = 2;
+          end = 4;
+        } else if (currentPage >= totalPages - 2) {
+          // Near end: show n-3, n-2, n-1
+          start = totalPages - 3;
+          end = totalPages - 1;
+        } else {
+          // Middle: show current-1, current, current+1
+          start = currentPage - 1;
+          end = currentPage + 1;
+        }
 
-        <button
-          className='pagination-button'
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          <FontAwesomeIcon icon={faChevronRight} />
-        </button>
+        const pages = [];
+        for (let i = start; i <= end; i++) {
+          pages.push(
+            <p
+              key={i}
+              className={currentPage === i ? 'active' : ''}
+              onClick={() => handlePageChange(i)}
+            >
+              {i}
+            </p>
+          );
+        }
+        return pages;
+      })()}
+
+      {/* Show right ellipsis if needed */}
+      {currentPage < totalPages - 2 && <p>...</p>}
+
+      {/* Always show last page */}
+      <p
+        className={currentPage === totalPages ? 'active' : ''}
+        onClick={() => handlePageChange(totalPages)}
+      >
+        {totalPages}
+      </p>
+    </>
+  )}
+</div>
+
+<button
+  className='pagination-button'
+  onClick={() => handlePageChange(currentPage + 1)}
+  disabled={currentPage === totalPages}
+>
+  <FontAwesomeIcon icon={faChevronRight} />
+</button>
       </div>
 
     </div>
