@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { Field, Input, Label, Button } from '@headlessui/react';
@@ -8,6 +8,9 @@ import useEmailToastStore from '../../store/userEmailToastStore';
 interface EmailPopupProps {
   isOpen: boolean;
   onClose: () => void;
+  recipients?: Array<{
+    [key: string]: any; 
+  }>;
 }
 
 const contact = {
@@ -15,15 +18,19 @@ const contact = {
   email: "john.doe@example.com"
 }
 
-export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
+export default function EmailPopup({ isOpen, onClose ,recipients}: EmailPopupProps) {
   const [html, setHtml] = useState('');
   const [to, setTo] = useState('');
   const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
+const removeReciepent=()=>{
 
+}
   function onChange(e: any) {
     setHtml(e.target.value);
   }
-
+useEffect(()=>{
+  console.log('recipients',recipients)
+},[recipients])
   const handleSendEmail = () => {
     // Add your email sending logic here
     console.log('Sending email with content:', html);
@@ -33,23 +40,19 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
 
   if (!isOpen) return null;
 
-  // Test function to trigger the progress
   const testEmailProgress = () => {
       
-      // Hardcoded values
       const totalEmails = 10;
       let currentProgress = 0;
 
-      // Initialize progress
       startProgress(totalEmails);
       
-      // Update progress every 2 seconds
       const interval = setInterval(() => {
         currentProgress += 1;
         updateProgress(currentProgress);
-        console.log(`Progress: ${currentProgress}/${totalEmails}`); // Debug log
+        console.log(`Progress: ${currentProgress}/${totalEmails}`);
 
-        // Complete when done
+        
         if (currentProgress >= totalEmails) {
           clearInterval(interval);
           completeProgress(true);
@@ -69,16 +72,13 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
           <Label>To</Label>
           {/* <Input name="to" /> */}
           <div className='emailInputCol'>
+            {recipients?.map((recipient)=>
             <div className='emailItem'>
-              <figure><span>{contact.name.charAt(0)}</span></figure>
-              <span>{contact.name}</span>
-              <i><FontAwesomeIcon icon={faXmark} /></i>
-            </div>
-            <div className='emailItem'>
-              <figure><span>{contact.name.charAt(0)}</span></figure>
-              <span>{contact.name}</span>
-              <i><FontAwesomeIcon icon={faXmark} /></i>
-            </div>
+            <figure><span>{recipient.name.charAt(0)}</span></figure>
+            <span>{recipient.name}</span>
+            <i onClick={removeReciepent}><FontAwesomeIcon icon={faXmark} /></i>
+          </div>)}
+            
             <div className='textInput'>
               <span>{to}</span><Input name="to" placeholder='Type email address' value={to} onChange={(e) => setTo(e.target.value)} />
             </div>
