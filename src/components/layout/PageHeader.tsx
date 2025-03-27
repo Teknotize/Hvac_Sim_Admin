@@ -7,21 +7,52 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Link } from "react-router-dom";
-
+import { useState ,useEffect} from 'react';
+import useEmailToastStore from '../../store/userEmailToastStore';
 
 export default function PageHeader({ 
-  title, 
-  route, 
-  onSendEmailClick ,
-  onSearchChange ,
-  showEmail
-}: { 
-  title: string, 
-  route?: string,
-  onSendEmailClick?: () => void ,
-  onSearchChange?: (value: string) => void,
-  showEmail?: boolean
-}) {
+    title, 
+    route, 
+    onSendEmailClick,
+    onSearchChange,
+    showEmail
+  }: { 
+    title: string, 
+    route?: string,
+    onSendEmailClick?: () => void,
+    onSearchChange?: (value: string) => void,
+    showEmail?: boolean
+  }) {
+      const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
+      const [showPopup, setShowPopup] = useState(false);
+  
+      // Test function to trigger the progress
+      const testEmailProgress = () => {
+          setShowPopup(true);
+          
+          // Hardcoded values
+          const totalEmails = 10;
+          let currentProgress = 0;
+  
+          // Initialize progress
+          startProgress(totalEmails);
+          
+          // Update progress every 2 seconds
+          const interval = setInterval(() => {
+            currentProgress += 1;
+            updateProgress(currentProgress);
+            console.log(`Progress: ${currentProgress}/${totalEmails}`); // Debug log
+  
+            // Complete when done
+            if (currentProgress >= totalEmails) {
+              clearInterval(interval);
+              completeProgress(true);
+              setShowPopup(false);
+            }
+          }, 2000);
+  
+          return () => clearInterval(interval);
+      };
     return (
         <div className="page-header">
             <div className="flex items-center">
@@ -30,7 +61,10 @@ export default function PageHeader({
                 </div>
                 {route === 'contacts' && (
                     <div className="filterArea">
-                        {showEmail&&<Button className="btn btn-primary" onClick={onSendEmailClick}>Send Email</Button>}
+                        {showEmail&&
+                        <Button className="btn btn-primary" onClick={()=>{  onSendEmailClick?.();testEmailProgress();} }>
+                            Send Email
+                            </Button>}
                         <Field className="search-field">
                         <FontAwesomeIcon icon={faSearch} />
                         <Input as={Fragment}>
