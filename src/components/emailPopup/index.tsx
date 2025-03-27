@@ -13,11 +13,6 @@ interface EmailPopupProps {
   }>;
 }
 
-const contact = {
-  name: "John Doe",
-  email: "john.doe@example.com"
-}
-
 export default function EmailPopup({ isOpen, onClose ,recipients}: EmailPopupProps) {
   const [html, setHtml] = useState('');
   const [to, setTo] = useState('');
