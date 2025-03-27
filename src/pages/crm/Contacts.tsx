@@ -62,7 +62,7 @@ export default function Contacts() {
       }
     };
   
-    if (originalUsers.length === 0) fetchData();
+    if (crmUsers.length===0) fetchData();
   }, [setCRMUsers]);
 
   const handleSearchChange = (value: string) => {

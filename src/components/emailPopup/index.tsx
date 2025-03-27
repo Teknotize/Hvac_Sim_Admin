@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { Field, Input, Label, Button } from '@headlessui/react';
 import Editor from 'react-simple-wysiwyg';
-
+import useEmailToastStore from '../../store/userEmailToastStore';
 interface EmailPopupProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,6 +18,8 @@ const contact = {
 export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
   const [html, setHtml] = useState('');
   const [to, setTo] = useState('');
+  const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
+  const [showPopup, setShowPopup] = useState(false);
 
   function onChange(e: any) {
     setHtml(e.target.value);
@@ -26,11 +28,39 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
   const handleSendEmail = () => {
     // Add your email sending logic here
     console.log('Sending email with content:', html);
+    testEmailProgress()
     onClose();
   };
 
   if (!isOpen) return null;
 
+  // Test function to trigger the progress
+  const testEmailProgress = () => {
+      setShowPopup(true);
+      
+      // Hardcoded values
+      const totalEmails = 10;
+      let currentProgress = 0;
+
+      // Initialize progress
+      startProgress(totalEmails);
+      
+      // Update progress every 2 seconds
+      const interval = setInterval(() => {
+        currentProgress += 1;
+        updateProgress(currentProgress);
+        console.log(`Progress: ${currentProgress}/${totalEmails}`); // Debug log
+
+        // Complete when done
+        if (currentProgress >= totalEmails) {
+          clearInterval(interval);
+          completeProgress(true);
+          setShowPopup(false);
+        }
+      }, 2000);
+
+      return () => clearInterval(interval);
+  };
   return (
     <div className={`sendEmailPop active`}>
       <div className='sendEmailPop-wrapper shadow-lg'>
