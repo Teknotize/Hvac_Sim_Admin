@@ -24,6 +24,14 @@ export default function Contacts() {
   const crmUsers = useCRMStore((state) => state.crmUsers);
   const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]); // Renamed for clarity
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8; 
+  const [showEmail,setShowEmail] = useState(false)
+  
+  useEffect(() => {
+    const hasCheckedUser = crmUsers.some(user => user.isChecked) || originalUsers.some(user => user.isChecked);
+    setShowEmail(hasCheckedUser);
+  }, [crmUsers, originalUsers]);
 
   const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
     if (type === "single") {
@@ -33,6 +41,7 @@ export default function Contacts() {
         )
       );
     } else {
+      setShowEmail(false)
       setCRMUsers(
         crmUsers.map((user) => ({ ...user, isChecked: !enabled }))
       );
@@ -71,6 +80,17 @@ export default function Contacts() {
   
     setCRMUsers(filteredUsers);
   };
+  const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
+  const paginatedUsers = crmUsers.slice(
+    (currentPage - 1) * itemsPerPage, 
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
   return (
     <>
     <PageHeader 
@@ -78,6 +98,7 @@ export default function Contacts() {
       onSearchChange={(value) => handleSearchChange(value)} 
       route="contacts" 
       onSendEmailClick={() => setShowEmailPopup(true)}
+      showEmail={showEmail}
     />
     {!loading ?
     <div className='table-container'>
@@ -103,8 +124,8 @@ export default function Contacts() {
           </div>
         </div>
         <div className='table-body'>
-          {crmUsers.length > 0 ?
-          crmUsers.map((contact) => (
+          {paginatedUsers.length > 0 ?
+          paginatedUsers.map((contact) => (
             <div className='table-row' key={contact._id}>
               <div className='table-cell cell-checkbox'>
                 <Checkbox
@@ -122,16 +143,16 @@ export default function Contacts() {
               </div>
             </div>
             <div className='table-cell cell-phone'>
-              <p>{contact.phone}</p>
+              <p>{contact.phone||"N/A"}</p>
             </div>
             <div className='table-cell cell-email'>
               <p className='email-item'>
                 {
-                // contact.emailApproved 
-                true&& <ApprovedEmailIcon />} <span>{contact.email}</span></p>
+                contact.tags==="mobile user" 
+                && <ApprovedEmailIcon />} <span>{contact.email}</span></p>
             </div>
             <div className='table-cell cell-business'>
-              <p>{contact.business}</p>
+              <p>{contact.business||"N/A"}</p>
             </div>
             <div className='table-cell cell-tags'>
               <p className='tags'>
@@ -174,27 +195,51 @@ export default function Contacts() {
         </div>
       </div>
       <div className='table-footer'>
-        <div className='table-row'>
-          <div className='table-cell'></div>
-          <div className='table-cell pagination-cell'>
-            <div className='pagination'>
-              <button className='pagination-button'>
-                <FontAwesomeIcon icon={faChevronLeft} />
-              </button>
-              <div className='pagination-numbers'>
-                <p className='active'>1</p>
-                <p>2</p>
-                <p>3</p>
-                <p>...</p>
-                <p>5</p>
-              </div>
-              <button className='pagination-button'>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </button>
-            </div>
-          </div>
+  <div className='table-row'>
+    <div className='table-cell'></div>
+    <div className='table-cell pagination-cell'>
+      <div className='pagination'>
+        <button className='pagination-button' onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+          <FontAwesomeIcon icon={faChevronLeft} />
+        </button>
+        <div className='pagination-numbers'>
+          {totalPages > 5 ? (
+            <>
+              {currentPage > 3 && <p onClick={() => handlePageChange(1)}>1</p>}
+              {currentPage > 4 && <p>...</p>}
+
+              {Array.from({ length: 5 }, (_, i) => {
+                const page = Math.min(Math.max(currentPage - 2 + i, 1), totalPages);
+                return (
+                  <p
+                    key={page}
+                    className={currentPage === page ? 'active' : ''}
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </p>
+                );
+              })}
+
+              {currentPage < totalPages - 3 && <p>...</p>}
+              {currentPage < totalPages - 2 && <p onClick={() => handlePageChange(totalPages)}>{totalPages}</p>}
+            </>
+          ) : (
+            Array.from({ length: totalPages }, (_, i) => (
+              <p key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => handlePageChange(i + 1)}>
+                {i + 1}
+              </p>
+            ))
+          )}
         </div>
+        <button className='pagination-button' onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+          <FontAwesomeIcon icon={faChevronRight} />
+        </button>
       </div>
+    </div>
+  </div>
+</div>
+
     </div>
     :
     <div style={{height:"100%",display:"flex",justifyContent:"center",alignItems:"center"}}>

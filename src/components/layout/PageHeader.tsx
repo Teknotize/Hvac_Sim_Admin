@@ -13,12 +13,14 @@ export default function PageHeader({
   title, 
   route, 
   onSendEmailClick ,
-  onSearchChange 
+  onSearchChange ,
+  showEmail
 }: { 
   title: string, 
   route?: string,
   onSendEmailClick?: () => void ,
-  onSearchChange?: (value: string) => void
+  onSearchChange?: (value: string) => void,
+  showEmail?: boolean
 }) {
     return (
         <div className="page-header">
@@ -28,7 +30,7 @@ export default function PageHeader({
                 </div>
                 {route === 'contacts' && (
                     <div className="filterArea">
-                        <Button className="btn btn-primary" onClick={onSendEmailClick}>Send Email</Button>
+                        {showEmail&&<Button className="btn btn-primary" onClick={onSendEmailClick}>Send Email</Button>}
                         <Field className="search-field">
                         <FontAwesomeIcon icon={faSearch} />
                         <Input as={Fragment}>
