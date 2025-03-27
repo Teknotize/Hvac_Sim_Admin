@@ -1,0 +1,14 @@
+@use '../base/mixins' as *;
+
+
+.action-popover{
+    background-color: #fff; border-radius: 10px; padding: 10px;
+    .action-menu{
+        min-width: 150px;
+        .action-menu-item{
+            display: block; padding: 5px 10px; border-radius: 5px;
+            p{ @include para(14px, 500, 0, 0);}
+            &:hover{ background-color: rgba(var(--base-color-primary-rgb), 0.1); }
+        }
+    }
+}
