@@ -41,7 +41,6 @@ const ProgressToast = () => {
                     type === 'error' ? 'bg-red-600' :
                         'bg-red-600'}`}>
 
-                {/* Progress bar for progress type */}
                 {type === 'progress' && (
                     <div className="mb-2">
                         <div className="flex justify-between text-xs mb-1">
@@ -50,7 +49,7 @@ const ProgressToast = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div
-                                className="bg-green-400 h-2.5 rounded-full transition-all duration-300 ease-out"
+                                className="bg-red-700 h-2.5 rounded-full transition-all duration-300 ease-out"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
@@ -60,7 +59,6 @@ const ProgressToast = () => {
                     </div>
                 )}
 
-                {/* Regular message for success/error */}
                 {type !== 'progress' && (
                     <div className="flex items-center justify-between">
                         <span>{message}</span>
