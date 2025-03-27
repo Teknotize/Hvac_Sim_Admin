@@ -25,6 +25,7 @@ export default function Contacts() {
   const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]); // Renamed for clarity
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [checkedUser,setCheckedUser]=useState<CRMUser[]>([])
   const itemsPerPage = 8; 
   const [showEmail,setShowEmail] = useState(false)
   
@@ -34,18 +35,19 @@ export default function Contacts() {
   }, [crmUsers, originalUsers]);
 
   const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
+    let updatedUsers;
+    
     if (type === "single") {
-      setCRMUsers(
-        crmUsers.map((user) =>
-          user._id === id ? { ...user, isChecked: checked } : user
-        )
+      updatedUsers = crmUsers.map(user => 
+        user._id === id ? { ...user, isChecked: checked } : user
       );
     } else {
-      setShowEmail(false)
-      setCRMUsers(
-        crmUsers.map((user) => ({ ...user, isChecked: !enabled }))
-      );
+      updatedUsers = crmUsers.map(user => ({ ...user, isChecked: !enabled }));
+      setEnabled(!enabled);
     }
+    
+    setCRMUsers(updatedUsers);
+    setCheckedUser(updatedUsers.filter(user => user.isChecked));
   };
   useEffect(() => {
     const fetchData = async () => {
@@ -64,7 +66,9 @@ export default function Contacts() {
   
     if (crmUsers.length===0) fetchData();
   }, [setCRMUsers]);
-
+  useEffect(() => {
+    setCheckedUser(crmUsers.filter(user => user.isChecked));
+  }, [crmUsers]); // Remove empty dependency array
   const handleSearchChange = (value: string) => {
     const searchTerm = value.trim().toLowerCase();
     
@@ -271,7 +275,7 @@ export default function Contacts() {
     </div>
     }
 
-      <EmailPopup isOpen={showEmailPopup} onClose={() => setShowEmailPopup(false)} />   
+      <EmailPopup isOpen={showEmailPopup} recipients={checkedUser} onClose={() => setShowEmailPopup(false)} />   
     </>
   );
 }
