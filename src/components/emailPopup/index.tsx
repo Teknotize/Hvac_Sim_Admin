@@ -82,6 +82,17 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
             <div className='textInput'>
               <span>{to}</span><Input name="to" placeholder='Type email address' value={to} onChange={(e) => setTo(e.target.value)} />
             </div>
+            {to && <div className='emailDroplist'>
+              <ul>
+                <li>user01@gmail.com</li>
+                <li>user02@gmail.com</li>
+                <li>user03@gmail.com</li>
+                <li>user04@gmail.com</li>
+                <li>user05@gmail.com</li>
+                <li>user06@gmail.com</li>
+                <li>user07@gmail.com</li>
+              </ul>
+            </div>}
           </div>
         </Field>
         <Field className='fieldDv'>

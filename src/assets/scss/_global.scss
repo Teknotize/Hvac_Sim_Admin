@@ -135,7 +135,7 @@
             label { @include para(14px, 600, 0, 0); color: #000; }
             input { @include para(14px, 400, 0, 10px); color: #000; border: 1px solid var(--table-border-color); border-radius: 5px; padding: 10px; width: 100%; }
             .emailInputCol{
-                display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border: 1px solid var(--table-border-color); padding: 5px; border-radius: 5px;
+                display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border: 1px solid var(--table-border-color); padding: 5px; border-radius: 5px; position: relative;
                 &:focus-within{outline: 2px solid var(--base-color-primary);}
                 .emailItem{
                     display: flex; align-items: center; gap: 10px; background-color: var(--table-border-color);border-radius: 50px;padding: 4px;
@@ -150,6 +150,15 @@
                     position: relative;
                     input{position: absolute; top: 0; left: 0; width: 100%; height: 100%; outline: none; border: none; padding: 0;;}
                     span{opacity: 0; display: block; min-width: 140px;height: 38px;}
+                }
+                .emailDroplist{
+                    position: absolute; top: 100%; left: 0; width: 100%; background-color: #fff; border: 1px solid var(--table-border-color); padding: 5px; z-index: 1; max-height: 187px; overflow: auto;
+                    ul{
+                        li{
+                            @include para(14px, 400, 0, 0); color: var(--txt-color); padding: 10px; border-radius: 5px; cursor: pointer;
+                            &:hover{background-color: rgba(var(--base-color-primary-rgb),0.1);}
+                        }
+                    }
                 }
             }
         }
