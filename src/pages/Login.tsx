@@ -32,11 +32,11 @@ export default function Login() {
         showToast("Login successful!", "success"); 
         navigate('/dashboard');
       } else {
-        showToast("Invalid email or password", "error"); 
+        showToast(response?.data?.message||"Invalid email or password", "error"); 
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error sending request", e);
-      showToast("An error occurred. Please try again.", "error"); 
+      showToast( e.response?.data?.message||"An Error occured", "error");  
     } finally {
       setIsChecking(false); 
     }
