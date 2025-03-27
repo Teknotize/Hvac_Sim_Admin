@@ -198,10 +198,21 @@ export default function Contacts() {
   <div className='table-row'>
     <div className='table-cell'></div>
     <div className='table-cell pagination-cell'>
+      
+    <p className="pagination-info" style={{marginRight:"20px"}}>
+  Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+  {Math.min(currentPage * itemsPerPage, crmUsers.length)} of {crmUsers.length} records
+</p>
+
       <div className='pagination'>
-        <button className='pagination-button' onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+        <button
+          className='pagination-button'
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
           <FontAwesomeIcon icon={faChevronLeft} />
         </button>
+
         <div className='pagination-numbers'>
           {totalPages > 5 ? (
             <>
@@ -222,23 +233,36 @@ export default function Contacts() {
               })}
 
               {currentPage < totalPages - 3 && <p>...</p>}
-              {currentPage < totalPages - 2 && <p onClick={() => handlePageChange(totalPages)}>{totalPages}</p>}
+              {currentPage < totalPages - 2 && (
+                <p onClick={() => handlePageChange(totalPages)}>{totalPages}</p>
+              )}
             </>
           ) : (
             Array.from({ length: totalPages }, (_, i) => (
-              <p key={i} className={currentPage === i + 1 ? 'active' : ''} onClick={() => handlePageChange(i + 1)}>
+              <p
+                key={i}
+                className={currentPage === i + 1 ? 'active' : ''}
+                onClick={() => handlePageChange(i + 1)}
+              >
                 {i + 1}
               </p>
             ))
           )}
         </div>
-        <button className='pagination-button' onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+
+        <button
+          className='pagination-button'
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
           <FontAwesomeIcon icon={faChevronRight} />
         </button>
       </div>
+
     </div>
   </div>
 </div>
+
 
     </div>
     :

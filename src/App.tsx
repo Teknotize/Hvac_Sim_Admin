@@ -4,13 +4,12 @@ import Dashboard from './pages/Dashboard';
 import Contacts from './pages/crm/Contacts';
 import PdfManual from './pages/crm/PdfManual';
 import MainLayout from './components/layout/MainLayout';
-// Protected route component
-import Toast from './components/toast';
+import Toast from './components/toast/loginToast';
 import useTokenRefresh from './utils/refreshTokenTimer';
 import NotFoundPage from './pages/notFound';
 import { useAuthStore } from './store/useAuthStore';
 import AppData from './pages/AppData';
-
+import ProgressToast from './components/toast/sendingEmailToast';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const accessToken = useAuthStore((state) => state.accessToken); 
@@ -53,6 +52,7 @@ function App() {
         <Route path="*" element={<Navigate to="/not-found" replace />} />
       </Routes>
     </BrowserRouter>
+    <ProgressToast/>
     <Toast/>
     </>
   );
