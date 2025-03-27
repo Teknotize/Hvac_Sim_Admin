@@ -1,4 +1,4 @@
-import { Button, Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { Button} from '@headlessui/react';
 // import { UserMenuIconLogout } from '../svg/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
