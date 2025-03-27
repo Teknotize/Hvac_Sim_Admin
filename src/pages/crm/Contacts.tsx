@@ -270,10 +270,8 @@ export default function Contacts() {
     <Loader size="xl"/>
     </div>
     }
-    
 
-   
-<EmailPopup isOpen={showEmailPopup} onClose={() => setShowEmailPopup(false)} />   
+      <EmailPopup isOpen={showEmailPopup} onClose={() => setShowEmailPopup(false)} />   
     </>
   );
 }

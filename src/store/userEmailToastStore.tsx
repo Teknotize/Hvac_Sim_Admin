@@ -14,10 +14,10 @@ interface ToastState {
     completeProgress: (success: boolean, message?: string) => void;
 }
 
-const useToastStore = create<ToastState>((set) => ({
+const useEmailToastStore = create<ToastState>((set) => ({
     message: '',
     type: null,
-    isOpen: true,
+    isOpen: false,
     progress: 0,
     total: 0,
     completed: 0,
@@ -51,4 +51,4 @@ const useToastStore = create<ToastState>((set) => ({
     })
 }));
 
-export default useToastStore;
+export default useEmailToastStore;
