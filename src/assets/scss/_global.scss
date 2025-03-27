@@ -53,17 +53,38 @@
         display: flex;
         .table-cell {
             flex: 1; display: flex; align-items: center;
+            --width-05: 200px;
+            --width-04: 180px;
+            --width-03: 150px;
+            --width-02: 100px;
+            --width-01: 50px;
+            @include desktopLarge{
+                --width-04: 180px;
+                --width-03: 150px;
+                --width-02: 100px;
+                --width-01: 50px;
+            }
             &.cell {
-                &-checkbox { flex: 0 0 50px; }
-                &-user { flex: 1 0 150px; }
-                &-phone { flex: 1 0 100px; }
-                &-email { flex: 1 0 200px; }
-                &-business { flex: 1 0 200px; }
-                &-tags { flex: 0 0 200px; }
-                &-date { flex: 0 0 200px; }
-                &-action { flex: 0 0 70px; }
+                &-checkbox { flex: 0 0 var(--width-01); }
+                &-user { flex: 1 0 var(--width-03); }
+                &-phone { flex: 1 0 var(--width-02); }
+                &-email { flex: 1 0 var(--width-05); }
+                &-business { flex: 1 0 var(--width-04); }
+                &-tags { flex: 0 0 var(--width-04); }
+                &-date { flex: 0 0 var(--width-04); }
+                &-action { flex: 0 0 var(--width-01); }
             }
             &.pagination-cell { justify-content: flex-end; }
+        }
+    }
+
+    &.table-contacts-page{
+        .table-wrapper {
+            .table-header,
+            .table-body { 
+                min-width: 1350px;
+                @include desktopLarge{ min-width: 1400px; }
+            }
         }
     }
 
@@ -85,7 +106,7 @@
     .email-item {
         display: flex; align-items: center; gap: 5px;
         svg { width: 17px; height: 17px; @include svgColor(#4361EE); }
-        span { max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
+        // span { max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
     }
 
     .tags {
@@ -141,7 +162,7 @@
 
 
 .fileDownloadDv {
-    background-color: #faf4f5; border-radius: 24px; width: 23.7%; padding: 2px; border: 2px solid var(--button-border-color); cursor: pointer; position: relative;
+    background-color: #faf4f5; border-radius: 24px; width: calc(25% - 18px); padding: 2px; border: 2px solid var(--button-border-color); cursor: pointer; position: relative;
     .downloadBtn {
         position: absolute; top: 20px; right: 20px; z-index: 1; background-color: #FAF4F5; border-radius: 5px; padding: 10px; cursor: pointer;
         svg { width: 20px; height: 20px; @include svgColor(var(--base-color-primary)); }

@@ -105,7 +105,7 @@ export default function Contacts() {
       showEmail={showEmail}
     />
     {!loading ?
-    <div className='table-container'>
+    <div className='table-container table-contacts-page'>
       <div className="table-wrapper">
         <div className='table-header'>
           <div className='table-row'>
