@@ -19,7 +19,6 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
   const [html, setHtml] = useState('');
   const [to, setTo] = useState('');
   const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
-  const [showPopup, setShowPopup] = useState(false);
 
   function onChange(e: any) {
     setHtml(e.target.value);
@@ -36,7 +35,6 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
 
   // Test function to trigger the progress
   const testEmailProgress = () => {
-      setShowPopup(true);
       
       // Hardcoded values
       const totalEmails = 10;
@@ -55,7 +53,6 @@ export default function EmailPopup({ isOpen, onClose }: EmailPopupProps) {
         if (currentProgress >= totalEmails) {
           clearInterval(interval);
           completeProgress(true);
-          setShowPopup(false);
         }
       }, 2000);
 
