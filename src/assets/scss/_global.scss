@@ -131,12 +131,10 @@
         .closeBtn { position: absolute; top: 20px; right: 20px; background-color: var(--color-gray-200); border-radius: 50%; @include para(20px, 400, 0, 5px); line-height: 1; min-width: 30px; cursor: pointer; color: var(--txt-color); }
         h2 { @include para(24px, 600, 0, 20px); color: #000; }
         .fieldDv {
-            margin-bottom: 10px; display: flex; gap: 10px; flex-direction: column;
-            label { @include para(14px, 600, 0, 0); color: #000; }
-            input { @include para(14px, 400, 0, 10px); color: #000; border: 1px solid var(--table-border-color); border-radius: 5px; padding: 10px; width: 100%; }
             .emailInputCol{
-                display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border: 1px solid var(--table-border-color); padding: 5px; border-radius: 5px; position: relative;
-                &:focus-within{outline: 2px solid var(--base-color-primary);}
+                display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 5px; border-radius: 5px; position: relative; max-height: 150px; overflow: auto;
+                border: 1px solid var(--table-border-color);
+                // &:focus-within{outline: 2px solid var(--base-color-primary);}
                 .emailItem{
                     display: flex; align-items: center; gap: 10px; background-color: var(--table-border-color);border-radius: 50px;padding: 4px;
                     figure {
@@ -163,7 +161,7 @@
             }
         }
         .rsw-editor {
-            .rsw-ce { min-height: 300px; }
+            .rsw-ce { height: 300px; max-height: calc(100vh - 540px); }
         }
         .btnRow { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding-top: 20px; }
     }

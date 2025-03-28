@@ -115,8 +115,8 @@ export default function PageHeader({
                                             ))}
                                         </div>
                                         <div className='btnRow'>
-                                            <Button className='btn btn-outline-grey'>Reset</Button>
-                                            <Button className='btn btn-primary'>Apply</Button>
+                                            <Button className='btn btn-link' disabled>Reset</Button>
+                                            <Button className='btn btn-primary' disabled>Apply</Button>
                                         </div>
                                     </div>
                                     </PopoverPanel>

@@ -74,7 +74,7 @@ useEffect(()=>{
             <i onClick={removeReciepent}><FontAwesomeIcon icon={faXmark} /></i>
           </div>)}
             
-            <div className='textInput'>
+            {/* <div className='textInput'>
               <span>{to}</span><Input name="to" placeholder='Type email address' value={to} onChange={(e) => setTo(e.target.value)} />
             </div>
             {to && <div className='emailDroplist'>
@@ -87,7 +87,7 @@ useEffect(()=>{
                 <li>user06@gmail.com</li>
                 <li>user07@gmail.com</li>
               </ul>
-            </div>}
+            </div>} */}
           </div>
         </Field>
         <Field className='fieldDv'>
