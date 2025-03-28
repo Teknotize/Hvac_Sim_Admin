@@ -28,3 +28,13 @@
 .fancybox__container{
     --fancybox-bg: rgb(255 255 255 / 93%);
 }
+
+
+
+
+//------- Datepicker ------- Start
+.rdrMonthAndYearPickers{
+    select{padding: 0px;padding-right: 20px; min-width: 100px;}
+}
+.rdrDayToday .rdrDayNumber span:after{background: var(--base-color-primary);}
+//------- Datepicker ------- End

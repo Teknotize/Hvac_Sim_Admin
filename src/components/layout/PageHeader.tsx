@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faPlus, faChevronDown, faXmark, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Link } from "react-router-dom";
+import { DateRangePicker, Range } from 'react-date-range';
+import { addDays } from 'date-fns';
 
 const tags = [
     {
@@ -48,6 +50,14 @@ export default function PageHeader({
     const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
         setSelectedTags(prev => [...prev, id]);
     };
+    const [datSstate, setDateState] = useState<Range[]>([
+        {
+          startDate: new Date(),
+          endDate: addDays(new Date(), 7),
+          key: 'selection'
+        }
+    ]);
+   
       
     return (
         <div className="page-header">
@@ -83,16 +93,41 @@ export default function PageHeader({
                         {filterActive && <div className='filters'>
                             <div className='filter-item'>
                                 
+                                
                                 <Popover className="action-drop">
-                                    <PopoverButton className="block">
-                                        <Button className="btn btn-outline-grey icon-end active--">
-                                            <span>
-                                                Filter <FontAwesomeIcon icon={faChevronDown} />
-                                            </span>
-                                            <span className='active'>
-                                                Filter <FontAwesomeIcon icon={faXmark} />
-                                            </span>
-                                        </Button>
+                                    <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
+                                        <span>
+                                            Date <FontAwesomeIcon icon={faChevronDown} />
+                                        </span>
+                                        <span className='active'>
+                                            {datSstate[0]?.startDate?.toLocaleDateString()} - {datSstate[0]?.endDate?.toLocaleDateString()} <FontAwesomeIcon icon={faXmark} />
+                                        </span>
+                                    </PopoverButton>
+                                    <PopoverPanel
+                                    transition
+                                    anchor="bottom end"
+                                    className="action-popover w-5xl shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                                    >
+                                    
+                                        <DateRangePicker
+                                        onChange={item => setDateState([item.selection])}
+                                        moveRangeOnFirstSelection={false}
+                                        months={2}
+                                        ranges={datSstate}
+                                        direction="horizontal"
+                                        rangeColors={['#B92825']}
+                                        />
+                                    </PopoverPanel>
+                                </Popover>
+
+                                <Popover className="action-drop">
+                                    <PopoverButton className="block btn btn-outline-grey icon-end active--">
+                                        <span>
+                                            Tags <FontAwesomeIcon icon={faChevronDown} />
+                                        </span>
+                                        <span className='active'>
+                                            Tags <FontAwesomeIcon icon={faXmark} />
+                                        </span>
                                     </PopoverButton>
                                     <PopoverPanel
                                     transition
@@ -126,6 +161,7 @@ export default function PageHeader({
                             </div>
                         </div>}
                         <Button className="btn btn-outline-grey icon-start" onClick={()=>{ setFilterActive(!filterActive); }}><FilterIcon /> Filter <b>2</b></Button>
+
                     </div>
                 )}
                 {route === 'pdf-manual' && (
