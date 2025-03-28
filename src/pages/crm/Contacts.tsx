@@ -26,8 +26,11 @@ export default function Contacts() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [checkedUser,setCheckedUser]=useState<CRMUser[]>([])
-  const itemsPerPage = 8; 
+  const itemsPerPage = 10; 
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
   const [showEmail,setShowEmail] = useState(false)
+  const [reRun,setReRun] = useState(false)
   
   useEffect(() => {
     const hasCheckedUser = crmUsers.some(user => user.isChecked) || originalUsers.some(user => user.isChecked);
@@ -35,20 +38,60 @@ export default function Contacts() {
   }, [crmUsers, originalUsers]);
 
   const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
-    let updatedUsers;
-    
     if (type === "single") {
-      updatedUsers = crmUsers.map(user => 
+      const newSelectedIds = new Set(selectedIds);
+      if (checked) {
+        newSelectedIds.add(id);
+      } else {
+        newSelectedIds.delete(id);
+      }
+      setSelectedIds(newSelectedIds);
+      
+      // Update the isChecked state for display
+      const updatedUsers = crmUsers.map(user => 
         user._id === id ? { ...user, isChecked: checked } : user
       );
+      setCRMUsers(updatedUsers);
     } else {
-      updatedUsers = crmUsers.map(user => ({ ...user, isChecked: !enabled }));
-      setEnabled(!enabled);
+      // "Select All" for current page
+      const newSelectedIds = new Set(selectedIds);
+      const currentPageIds = paginatedUsers.map(user => user._id);
+      const allChecked = paginatedUsers.every(user => selectedIds.has(user._id));
+      
+      currentPageIds.forEach(id => {
+        if (allChecked) {
+          newSelectedIds.delete(id);
+        } else {
+          newSelectedIds.add(id);
+        }
+      });
+      
+      setSelectedIds(newSelectedIds);
+      setEnabled(!allChecked);
+      
+      // Update isChecked for display
+      const updatedUsers = crmUsers.map(user => {
+        const shouldCheck = currentPageIds.includes(user._id) ? !allChecked : user.isChecked;
+        return { ...user, isChecked: shouldCheck };
+      });
+      setCRMUsers(updatedUsers);
     }
-    
-    setCRMUsers(updatedUsers);
-    setCheckedUser(updatedUsers.filter(user => user.isChecked));
   };
+  const uncheckAllUsers = () => {
+    // Update all users in the main array
+    const updatedUsers = crmUsers.map(user => ({
+      ...user,
+      isChecked: false
+    }));
+  
+    // Update all relevant states
+    setCRMUsers(updatedUsers);
+    setOriginalUsers(prev => prev.map(user => ({ ...user, isChecked: false }))); // Also update originalUsers if needed
+    setEnabled(false); // Uncheck the "Select All" checkbox
+    setCheckedUser([]); // Clear all checked users
+    setSelectedIds(new Set()); // Clear the selected IDs if using Set approach
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
@@ -66,30 +109,50 @@ export default function Contacts() {
   
     if (crmUsers.length===0) fetchData();
   }, [setCRMUsers]);
+
   useEffect(() => {
-    setCheckedUser(crmUsers.filter(user => user.isChecked));
-  }, [crmUsers]); // Remove empty dependency array
-  const handleSearchChange = (value: string) => {
-    const searchTerm = value.trim().toLowerCase();
-    
-    if (!searchTerm) {
-      setCRMUsers(originalUsers);
-      return;
-    }
-    const filteredUsers = originalUsers.filter(user =>
-      user.name?.toLowerCase().includes(searchTerm) ||
-      user.email?.toLowerCase().includes(searchTerm) ||
-      user.phone?.toLowerCase().includes(searchTerm)
-    );
+  setCheckedUser(crmUsers.filter(user => selectedIds.has(user._id)));
+}, [selectedIds, crmUsers,reRun]);
+
+const handleSearchChange = (value: string) => {
+  const searchTerm = value.trim().toLowerCase();
   
-    setCRMUsers(filteredUsers);
-  };
+  if (!searchTerm) {
+    // When search is cleared, return to original users but preserve selections
+    const updatedUsers = originalUsers.map(user => ({
+      ...user,
+      isChecked: selectedIds.has(user._id) // Maintain checked state from selections
+    }));
+    setCRMUsers(updatedUsers);
+    return;
+  }
+
+  // Filter users but preserve their checked state
+  const filteredUsers = originalUsers
+    .filter(user => (
+      (user.name?.toLowerCase().includes(searchTerm)) ||
+      (user.email?.toLowerCase().includes(searchTerm)) ||
+      (user.phone?.toLowerCase().includes(searchTerm)) ||
+      (user.business?.toLowerCase().includes(searchTerm)) ||
+      (user.tags?.toLowerCase().includes(searchTerm))
+    ))
+    .map(user => ({
+      ...user,
+      isChecked: selectedIds.has(user._id) 
+    }));
+
+  setCRMUsers(filteredUsers);
+  setCurrentPage(1);};
   const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
   const paginatedUsers = crmUsers.slice(
     (currentPage - 1) * itemsPerPage, 
     currentPage * itemsPerPage
   );
-
+  useEffect(() => {
+    const allChecked = paginatedUsers.length > 0 && 
+                     paginatedUsers.every(user => selectedIds.has(user._id));
+    setEnabled(allChecked);
+  }, [paginatedUsers, selectedIds]);
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
@@ -216,10 +279,9 @@ export default function Contacts() {
 >
   <FontAwesomeIcon icon={faChevronLeft} />
 </button>
-
 <div className='pagination-numbers'>
   {totalPages <= 5 ? (
-    /* Show all pages if 5 or fewer */
+    // Show all pages if 5 or fewer
     Array.from({ length: totalPages }, (_, i) => (
       <p
         key={i + 1}
@@ -230,7 +292,7 @@ export default function Contacts() {
       </p>
     ))
   ) : (
-    /* Show smart pagination for more than 5 pages */
+    // Smart pagination for more than 5 pages
     <>
       {/* Always show first page */}
       <p
@@ -243,7 +305,7 @@ export default function Contacts() {
       {/* Show left ellipsis if needed */}
       {currentPage > 3 && <p>...</p>}
 
-      {/* Show middle pages - always exactly 3 in the middle */}
+      {/* Show middle pages */}
       {(() => {
         let start, end;
         
@@ -311,7 +373,7 @@ export default function Contacts() {
     </div>
     }
 
-      <EmailPopup isOpen={showEmailPopup} recipients={checkedUser} onClose={() => setShowEmailPopup(false)} />   
+      <EmailPopup isOpen={showEmailPopup} recipients={checkedUser} onClose={() => {setShowEmailPopup(false);setReRun(!reRun);uncheckAllUsers()}} />   
     </>
   );
 }
