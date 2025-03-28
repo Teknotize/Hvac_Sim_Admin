@@ -15,10 +15,15 @@ button{
         border: 1px solid var(--button-border-color); background-color: #fff; color: var(--txt-color);
         svg{ @include svgColor(var(--txt-color)); }
     }
+    &-link{
+        border: none; background-color: transparent; color: var(--base-color-primary); font-weight: 500;
+        &:hover{ background-color: transparent; }
+    }
     &.icon-start{
         svg{ margin-right: 5px; margin-left: 0px; }
     }
     &.icon-end{
         svg{ margin-right: 0px; margin-left: 5px; }
     }
+    b{background-color: var(--base-color-primary); color: #fff; border-radius: 50%; @include para(12px, 500, 0px 0px 0px 5px, 0 5px);}
 }

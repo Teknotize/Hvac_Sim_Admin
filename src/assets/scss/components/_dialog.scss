@@ -1,0 +1,21 @@
+@use '../base/mixins' as *;
+
+.dialog-item{
+    background-color: rgba(0, 0, 0, 0.5);
+    .dialog-panel{
+        .dialog-header{
+            display: flex; align-items: center; justify-content: space-between;
+            .closeBtn{
+                width: 30px; height: 30px; border-radius: 50%; background-color: #fff; display: flex; align-items: center; justify-content: center;
+                svg{ width: 14px; height: 14px; color: #000; }
+            }
+        }
+        .dialog-body{
+            p{ @include para(14px, 400, 0, 0); }
+        }
+        .dialog-footer{
+            display: flex; align-items: center; justify-content: space-between;
+            
+        }
+    }
+}

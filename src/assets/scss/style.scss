@@ -9,11 +9,14 @@
 
 @use 'components/pagination';
 @use 'components/popover';
+@use 'components/filters';
 
 @use 'components/login';
 @use 'components/header';
 @use 'components/footer';
 @use 'components/sidebar';
 @use 'components/pageHeader';
+@use 'components/dialog';
+
 @use 'global';
 

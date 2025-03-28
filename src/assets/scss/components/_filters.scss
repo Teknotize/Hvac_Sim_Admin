@@ -1,0 +1,21 @@
+@use '../base/mixins' as *;
+
+.filters{
+    .filter-item{
+        display: flex; align-items: center; gap: 10px;
+        .action-drop{
+            button{
+                span{
+                    &.active{display: none;}
+                }
+                &.active{
+                    background-color: rgba(var(--base-color-primary-rgb),0.1);
+                    span{
+                        display: none; align-items: center; gap: 5px;
+                        &.active{display: flex;}
+                    }
+                }
+            }
+        }
+    }
+}

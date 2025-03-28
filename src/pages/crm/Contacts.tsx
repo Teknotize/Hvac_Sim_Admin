@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import PageHeader from '../../components/layout/PageHeader'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical, faCheck, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { Popover, PopoverButton, PopoverPanel,  } from '@headlessui/react';
 import { Checkbox } from '@headlessui/react'
-import { useState } from 'react';
 import { ApprovedEmailIcon } from '../../components/svg/icons';
 import { apiClient } from '../../config';
 import { useEffect } from 'react';
@@ -27,7 +27,7 @@ export default function Contacts() {
   const [currentPage, setCurrentPage] = useState(1);
   const [checkedUser,setCheckedUser]=useState<CRMUser[]>([])
   const itemsPerPage = 8; 
-  const [showEmail,setShowEmail] = useState(false)
+  const [showEmail,setShowEmail] = useState(false);
   
   useEffect(() => {
     const hasCheckedUser = crmUsers.some(user => user.isChecked) || originalUsers.some(user => user.isChecked);
@@ -311,7 +311,8 @@ export default function Contacts() {
     </div>
     }
 
-      <EmailPopup isOpen={showEmailPopup} recipients={checkedUser} onClose={() => setShowEmailPopup(false)} />   
+      <EmailPopup isOpen={showEmailPopup} recipients={checkedUser} onClose={() => setShowEmailPopup(false)} />
+
     </>
   );
 }
