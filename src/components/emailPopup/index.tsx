@@ -23,12 +23,6 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
   const [subject, setSubject] = useState('');
   const [to, setTo] = useState('');
   const [tempRecipients, setTempRecipients] = useState<Recipient[]>([]);
-  const [progress, setProgress] = useState({
-    current: 0,
-    total: 0,
-    percentage: 0,
-    lastEmail: ''
-  });
   
   const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
 
@@ -55,6 +49,8 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
     
     // Close the modal immediately
     onClose();
+    setHtml('')
+    setSubject('')
     
     try {
       const eventSource = new EventSource(
@@ -77,12 +73,16 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
         eventSource.close();
         completeProgress(false);
         onClose()
+        setHtml('')
+        setSubject('')
       };
       
     } catch (error) {
       console.error('Error sending emails:', error);
       completeProgress(false);
       onClose()
+      setHtml('')
+      setSubject('')
     }
   };
 
@@ -94,23 +94,7 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
         <Button className='closeBtn' onClick={onClose}>
           <FontAwesomeIcon icon={faXmark} />
         </Button>
-        <h2>Send Email</h2>
-        
-          <div className="email-progress">
-            <div className="progress-bar">
-              <div 
-                className="progress-fill" 
-                style={{ width: `${progress.percentage}%` }}
-              ></div>
-            </div>
-            <div className="progress-text">
-              Sending {progress.current} of {progress.total} emails...
-              {progress.lastEmail && (
-                <span className="last-email">(Last: {progress.lastEmail})</span>
-              )}
-            </div>
-          </div>
-        
+        <h2>Send Email</h2>        
         <Field className='fieldDv'>
           <Label>To</Label>
           <div className='emailInputCol'>
@@ -150,14 +134,19 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
         </Field>
         
         <div className='btnRow'>
-          <Button 
-            className='btn btn-primary' 
-            onClick={handleSendEmail}
-            disabled={!html.trim() || !subject.trim()}
-
-          >
-            Send
-          </Button>
+        <Button 
+  className='btn btn-primary'
+  onClick={handleSendEmail}
+  disabled={!html.trim() || !subject.trim()}
+  style={{
+    ...(!html.trim() || !subject.trim()) ? {
+      opacity: 0.6,
+      cursor: 'not-allowed'
+    } : {}
+  }}
+>
+  Send
+</Button>
         </div>
       </div>
     </div>
