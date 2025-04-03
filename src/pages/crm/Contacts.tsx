@@ -1,4 +1,4 @@
-import { data, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import PageHeader from '../../components/layout/PageHeader'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
