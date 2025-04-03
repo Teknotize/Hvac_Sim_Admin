@@ -8,13 +8,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import { Link } from "react-router-dom";
 import { DownloadIcon } from "../components/svg/icons";
-
+import ToastButtons from "../components/toast/toastTesting";
 export default function AppData() {
     return (
         <>
+        <ToastButtons/>
             <PageHeader title="Templates" route="app-data" />
-
-
             <div className="flex gap-6 flex-wrap mb-20">
                 <div className="fileDownloadDv">
                     <Button className="downloadBtn">
