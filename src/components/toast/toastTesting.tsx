@@ -1,4 +1,4 @@
-import React from 'react';
+
 import useEmailToastStore from '../../store/userEmailToastStore';
 
 const ToastButtons = () => {
