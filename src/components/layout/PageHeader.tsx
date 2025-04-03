@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Button, Checkbox } from '@headlessui/react';
 import { FilterIcon } from '../../components/svg/icons';
 import { Field, Input } from '@headlessui/react';
@@ -8,33 +8,16 @@ import { faSearch, faPlus, faChevronDown, faXmark, faCheck } from '@fortawesome/
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Link } from "react-router-dom";
 import { DateRangePicker, Range } from 'react-date-range';
-import { addDays } from 'date-fns';
-
-const tags = [
-    {
-        id: 1,
-        name: 'Membership',
-        checked: true
-    },
-    {
-        id: 2,
-        name: 'Curriculum',
-        checked: false
-    },
-    {
-        id: 3,
-        name: 'App User',
-        checked: false
-    }
-]
-
+import { tags,defaultDate } from '../../utils/constants';
 export default function PageHeader({ 
     title, 
     route, 
     onSendEmailClick,
     onSearchChange,
     showEmail,
-    onAddNewPdfClick
+    onAddNewPdfClick,
+    onTagsFilterChange,
+    clearFilter
   }: { 
     title: string, 
     route?: string,
@@ -42,22 +25,68 @@ export default function PageHeader({
     onSearchChange?: (value: string) => void,
     onAddNewPdfClick?: () => void,
     showEmail?: boolean
+    onTagsFilterChange?: (filters: { tags: string[]
+        // ; dateRange: Range[] 
+    }) => void; 
+    clearFilter?:()=>void
   }) {
 
-    const [filterActive, setFilterActive] = useState(false);
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
-    const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
-        setSelectedTags(prev => [...prev, id]);
-    };
+    const [filterActive, setFilterActive] = useState(false); 
+    const [filterCount,setFilterCount]=useState(0)
+    const [selectedTags, setSelectedTags] = useState(tags.map(tag => ({ ...tag, checked: false })));
+    const handleReset=()=>{
+        setSelectedTags(  tags.map(tag => ({ ...tag, checked: false })) 
+        )
+    }
     const [datSstate, setDateState] = useState<Range[]>([
-        {
-          startDate: new Date(),
-          endDate: addDays(new Date(), 7),
-          key: 'selection'
-        }
+        defaultDate
     ]);
-   
+    const handleApplyFilters = () => {
+        const selectedTagNames = selectedTags
+          .filter(tag => tag.checked)
+          .map(tag => tag.name);
+        
+          onTagsFilterChange?.({
+          tags: selectedTagNames,
+        });
+      };
+      useEffect(() => {
+        const totalSelectedFilters = () => {
+          let count = 0;
+          let isCheckedCount = 0;
+          
+          selectedTags.forEach((tag) => {
+            if (tag.checked) isCheckedCount += 1;
+          });
+      
+          if (isCheckedCount > 0) {
+            count += 1;
+          }
+      
+          const { startDate, endDate } = datSstate[0];
+          if (startDate && endDate && startDate.toDateString() !== endDate.toDateString()) {
+            count += 1;
+          }
+      
+          return count;
+        };
+      
+        const newCount = totalSelectedFilters();
+        setFilterCount(newCount);
+      
+        // Only call clearFilter if count transitions from >0 to 0
+        if (filterCount > 0 && newCount === 0) {
+          clearFilter?.();
+        }
+      }, [selectedTags, datSstate]);
+      
+    const handleCheckboxChange = (id: number, checked: boolean) => {
+        setSelectedTags((prev) =>
+            prev.map((tag) =>
+                tag.id === id ? { ...tag, checked } : tag
+            )
+        );
+    };
       
     return (
         <div className="page-header">
@@ -110,8 +139,14 @@ export default function PageHeader({
                                     >
                                     
                                         <DateRangePicker
-                                        onChange={item => setDateState([item.selection])}
-                                        moveRangeOnFirstSelection={false}
+                                       onChange={item => {
+                                        setDateState([item.selection]);
+                                        // onFilterChange?.({
+                                        //   tags: selectedTags.filter(tag => tag.checked).map(tag => tag.name),
+                                        //   dateRange: [item.selection]
+                                        // });
+                                      }}
+                                       moveRangeOnFirstSelection={false}
                                         months={2}
                                         ranges={datSstate}
                                         direction="horizontal"
@@ -136,11 +171,11 @@ export default function PageHeader({
                                     >
                                     <div className="list-menu">
                                         <div className='list-group'>
-                                            {tags.map((tag) => (
+                                            {selectedTags.map((tag) => (
                                             <div className='list-group-item'>
                                                 <Checkbox
                                                     checked={tag.checked}
-                                                    onChange={(checked) => handleCheckboxChange(tag.id.toString(), checked,"single")}
+                                                    onChange={(checked) => handleCheckboxChange(tag.id, checked)}
                                                     className="group list-checkbox-item data-[checked]:checked"
                                                 >
                                                     <FontAwesomeIcon icon={faCheck} className='opacity-0 group-data-[checked]:opacity-100' />
@@ -150,18 +185,20 @@ export default function PageHeader({
                                             ))}
                                         </div>
                                         <div className='btnRow'>
-                                            <Button className='btn btn-link' disabled>Reset</Button>
-                                            <Button className='btn btn-primary' disabled>Apply</Button>
+                                            <Button className='btn btn-link' onClick={handleReset}>Reset</Button>
+                                            <Button className='btn btn-primary' onClick={handleApplyFilters} disabled={selectedTags.every(tag => !tag.checked)}>Apply</Button>
+                                        
                                         </div>
                                     </div>
                                     </PopoverPanel>
                                 </Popover>
                                 
-                                <Button className="btn btn-link">Clear Filter</Button>
+                              {filterCount>0 && <Button className="btn btn-link"onClick={()=>{handleReset();setDateState([defaultDate]);clearFilter?.() }}>Clear Filter</Button>}
                             </div>
                         </div>}
-                        <Button className="btn btn-outline-grey icon-start" onClick={()=>{ setFilterActive(!filterActive); }}><FilterIcon /> Filter <b>2</b></Button>
-
+                        <Button className="btn btn-outline-grey icon-start" onClick={() => { setFilterActive(!filterActive); }}>
+                            <FilterIcon /> Filter <b>{filterCount}</b>
+                        </Button>
                     </div>
                 )}
                 {route === 'pdf-manual' && (
