@@ -4,7 +4,7 @@ import { FilterIcon } from '../../components/svg/icons';
 import { Field, Input } from '@headlessui/react';
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus, faChevronDown, faXmark, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faPlus, faChevronDown, faXmark, faCheck, faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Link } from "react-router-dom";
 import { DateRangePicker, Range } from 'react-date-range';
@@ -97,7 +97,7 @@ export default function PageHeader({
                                 <Popover className="action-drop">
                                     <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
                                         <span>
-                                            Date <FontAwesomeIcon icon={faChevronDown} />
+                                            Date <FontAwesomeIcon icon={faCalendar} />
                                         </span>
                                         <span className='active'>
                                             {datSstate[0]?.startDate?.toLocaleDateString()} - {datSstate[0]?.endDate?.toLocaleDateString()} <FontAwesomeIcon icon={faXmark} />
