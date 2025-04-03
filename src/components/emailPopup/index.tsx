@@ -31,7 +31,8 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
   }, [recipients]);
 
   const removeRecipient = (user: any) => {
-    setTempRecipients((prev) => prev.filter((recipient) => recipient !== user));
+    console.log('hi',tempRecipients)
+    setTempRecipients((prev) => prev.filter((recipient) => recipient._id !== user._id));
   };
 
   function onChange(e: any) {
@@ -98,24 +99,27 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
         <Field className='fieldDv'>
           <Label>To</Label>
           <div className='emailInputCol'>
-            {tempRecipients?.map((recipient) => (
-              <div className='emailItem' key={recipient.email}>
-                <figure><span>{recipient.name.charAt(0)}</span></figure>
-                <span>{recipient.name}</span>
-                <i onClick={() => removeRecipient(recipient)}>
-                  <FontAwesomeIcon icon={faXmark} />
-                </i>
-              </div>
-            ))}
+            {tempRecipients?.map((recipient)=>
+            <div className='emailItem'>
+            <figure><span>{recipient.name.charAt(0)}</span></figure>
+            <span>{recipient.name}</span>
+            <i onClick={() => removeRecipient(recipient)}><FontAwesomeIcon icon={faXmark} /></i>
+          </div>)}
+            
             {/* <div className='textInput'>
-              <span>{to}</span>
-              <Input 
-                name="to" 
-                placeholder='Type email address' 
-                value={to} 
-                onChange={(e) => setTo(e.target.value)} 
-              />
-            </div> */}
+              <span>{to}</span><Input name="to" placeholder='Type email address' value={to} onChange={(e) => setTo(e.target.value)} />
+            </div>
+            {to && <div className='emailDroplist'>
+              <ul>
+                <li>user01@gmail.com</li>
+                <li>user02@gmail.com</li>
+                <li>user03@gmail.com</li>
+                <li>user04@gmail.com</li>
+                <li>user05@gmail.com</li>
+                <li>user06@gmail.com</li>
+                <li>user07@gmail.com</li>
+              </ul>
+            </div>} */}
           </div>
         </Field>
         
@@ -137,7 +141,7 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
         <Button 
   className='btn btn-primary'
   onClick={handleSendEmail}
-  disabled={!html.trim() || !subject.trim()}
+  disabled={!html.trim() || !subject.trim() || tempRecipients.length===0}
   style={{
     ...(!html.trim() || !subject.trim()) ? {
       opacity: 0.6,

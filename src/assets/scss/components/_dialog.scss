@@ -1,0 +1,20 @@
+@use '../base/mixins' as *;
+
+.dialog-item{
+    background-color: rgba(0, 0, 0, 0.5);
+    .dialog-panel{
+        .dialog-header{
+            display: flex; align-items: center; justify-content: space-between; position: relative; box-shadow: 0 2px 1px rgba(0, 0, 0, 0.03); margin: -24px -24px 24px; padding: 24px;
+            .closeBtn { position: absolute; top: 20px; right: 20px; background-color: var(--color-gray-200); border-radius: 50%; @include para(20px, 400, 0, 5px); line-height: 1; min-width: 30px; cursor: pointer; color: var(--txt-color); }
+            h3{ @include para(18px, 600, 0, 0); color: #000; }
+        }
+        .dialog-body{
+            min-height: 200px;
+            p{ @include para(14px, 400, 0, 0); }
+        }
+        .dialog-footer{
+            display: flex; align-items: center; justify-content: flex-end; position: relative; box-shadow: 0 -2px 1px rgba(0, 0, 0, 0.03); margin: 24px -24px -24px; padding: 24px;
+            
+        }
+    }
+}
