@@ -21,7 +21,7 @@ interface Recipient {
 export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPopupProps) {
   const [html, setHtml] = useState('');
   const [subject, setSubject] = useState('');
-  const [to, setTo] = useState('');
+  // const [to, setTo] = useState('');
   const [tempRecipients, setTempRecipients] = useState<Recipient[]>([]);
   
   const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
@@ -107,7 +107,7 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
                 </i>
               </div>
             ))}
-            <div className='textInput'>
+            {/* <div className='textInput'>
               <span>{to}</span>
               <Input 
                 name="to" 
@@ -115,7 +115,7 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
                 value={to} 
                 onChange={(e) => setTo(e.target.value)} 
               />
-            </div>
+            </div> */}
           </div>
         </Field>
         
