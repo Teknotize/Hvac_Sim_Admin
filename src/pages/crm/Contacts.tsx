@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { data, Link } from 'react-router-dom';
 import { useState } from 'react';
 import PageHeader from '../../components/layout/PageHeader'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,11 +16,14 @@ import Loader from '../../components/loader';
 interface CRMUser {
   [key: string]: any;
 }
-
+interface TagsFilterData {
+  tags: string[];
+}
 export default function Contacts() {
   const [enabled, setEnabled] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const crmUsers = useCRMStore((state) => state.crmUsers);
   const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]); // Renamed for clarity
   const [loading, setLoading] = useState(false);
@@ -114,36 +117,55 @@ export default function Contacts() {
   setCheckedUser(crmUsers.filter(user => selectedIds.has(user._id)));
 }, [selectedIds, crmUsers,reRun]);
 
-const handleSearchChange = (value: string) => {
-  const searchTerm = value.trim().toLowerCase();
-  
-  if (!searchTerm) {
-    // When search is cleared, return to original users but preserve selections
-    const updatedUsers = originalUsers.map(user => ({
-      ...user,
-      isChecked: selectedIds.has(user._id) // Maintain checked state from selections
-    }));
-    setCRMUsers(updatedUsers);
-    return;
+const filterUsers = (users: CRMUser[], searchTerm: string, tags: string[]) => {
+  let filteredUsers = [...users];
+  console.log('users',users)
+  // Apply search filter if search term exists
+  if (searchTerm.trim()) {
+    const term = searchTerm.trim().toLowerCase();
+    filteredUsers = filteredUsers.filter(user => (
+      (user.name?.toLowerCase().includes(term)) ||
+      (user.email?.toLowerCase().includes(term)) ||
+      (user.phone?.toLowerCase().includes(term)) ||
+      (user.business?.toLowerCase().includes(term))
+    ));
   }
-
-  // Filter users but preserve their checked state
-  const filteredUsers = originalUsers
-    .filter(user => (
-      (user.name?.toLowerCase().includes(searchTerm)) ||
-      (user.email?.toLowerCase().includes(searchTerm)) ||
-      (user.phone?.toLowerCase().includes(searchTerm)) ||
-      (user.business?.toLowerCase().includes(searchTerm)) ||
-      (user.tags?.toLowerCase().includes(searchTerm))
-    ))
-    .map(user => ({
-      ...user,
-      isChecked: selectedIds.has(user._id) 
-    }));
-
+  
+  if (tags.length > 0) {
+    filteredUsers = filteredUsers.filter(user => {
+      if (typeof user.tags === 'string') {
+        return tags.some(tag => 
+          String(user.tags).toLowerCase() === String(tag).toLowerCase()
+        );
+      }
+      // Case 3: user.tags is null, undefined, or invalid → exclude
+      else {
+        return false;
+      }
+    });
+  }
+  
+  // Maintain checked state
+  return filteredUsers.map(user => ({
+    ...user,
+    isChecked: selectedIds.has(user._id)
+  }));
+};
+const handleTagsFilterChange = (data: TagsFilterData) => {
+  const tags = data.tags; // Extract the array from the object
+  setActiveTags(tags);
+  const filteredUsers = filterUsers(originalUsers, '', tags);
   setCRMUsers(filteredUsers);
-  setCurrentPage(1);};
-  const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
+  setCurrentPage(1);
+};
+
+const handleSearchChange = (value: string) => {
+  const filteredUsers = filterUsers(originalUsers, value, activeTags);
+  setCRMUsers(filteredUsers);
+  setCurrentPage(1);
+};
+
+const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
   const paginatedUsers = crmUsers.slice(
     (currentPage - 1) * itemsPerPage, 
     currentPage * itemsPerPage
@@ -158,6 +180,13 @@ const handleSearchChange = (value: string) => {
       setCurrentPage(page);
     }
   };
+  const handleClearFilters = () => {
+    setCRMUsers(originalUsers);
+    setActiveTags([]);
+    setCurrentPage(1);
+    setSelectedIds(new Set()); 
+    setEnabled(false);
+  };
   return (
     <>
     <PageHeader 
@@ -166,6 +195,8 @@ const handleSearchChange = (value: string) => {
       route="contacts" 
       onSendEmailClick={() => setShowEmailPopup(true)}
       showEmail={showEmail}
+      onTagsFilterChange={(data) => handleTagsFilterChange(data)}
+      clearFilter={()=>{handleClearFilters()}}
     />
     {!loading ?
     <div className='table-container table-contacts-page'>
