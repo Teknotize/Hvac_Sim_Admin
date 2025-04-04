@@ -118,7 +118,8 @@ export default function PageHeader({
                         </Field>
 
                         </>}
-
+                        {filterCount>0 && <Button className="btn btn-link"onClick={()=>{handleReset();setDateState([defaultDate]);clearFilter?.() }}>Clear Filter</Button>}
+                          
                         {filterActive && <div className='filters'>
                             <div className='filter-item'>
                                 
@@ -156,48 +157,59 @@ export default function PageHeader({
                                 </Popover>
 
                                 <Popover className="action-drop">
-                                    <PopoverButton className="block btn btn-outline-grey icon-end active--">
-                                        <span>
-                                            Tags <FontAwesomeIcon icon={faChevronDown} />
-                                        </span>
-                                        <span className='active'>
-                                            Tags <FontAwesomeIcon icon={faXmark} />
-                                        </span>
-                                    </PopoverButton>
-                                    <PopoverPanel
+                            {({ open, close }) => (
+                                <>
+                                <PopoverButton className="block btn btn-outline-grey icon-end active--">
+                                    <span>
+                                    Tags <FontAwesomeIcon icon={faChevronDown} />
+                                    </span>
+                                    <span className='active'>
+                                    Tags <FontAwesomeIcon icon={faXmark} />
+                                    </span>
+                                </PopoverButton>
+                                <PopoverPanel
                                     transition
                                     anchor="bottom end"
                                     className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                                    >
+                                >
                                     <div className="list-menu">
-                                        <div className='list-group'>
-                                            {selectedTags.map((tag) => (
-                                            <div className='list-group-item'>
-                                                <Checkbox
-                                                    checked={tag.checked}
-                                                    onChange={(checked) => handleCheckboxChange(tag.id, checked)}
-                                                    className="group list-checkbox-item data-[checked]:checked"
-                                                >
-                                                    <FontAwesomeIcon icon={faCheck} className='opacity-0 group-data-[checked]:opacity-100' />
-                                                </Checkbox>
-                                                <span>{tag.name}</span>
-                                            </div>
-                                            ))}
+                                    <div className='list-group'>
+                                        {selectedTags.map((tag) => (
+                                        <div className='list-group-item' key={tag.id}>
+                                            <Checkbox
+                                            checked={tag.checked}
+                                            onChange={(checked) => handleCheckboxChange(tag.id, checked)}
+                                            className="group list-checkbox-item data-[checked]:checked"
+                                            >
+                                            <FontAwesomeIcon icon={faCheck} className='opacity-0 group-data-[checked]:opacity-100' />
+                                            </Checkbox>
+                                            <span>{tag.name}</span>
                                         </div>
-                                        <div className='btnRow'>
-                                            <Button className='btn btn-link' onClick={handleReset}>Reset</Button>
-                                            <Button className='btn btn-primary' onClick={handleApplyFilters} disabled={selectedTags.every(tag => !tag.checked)}>Apply</Button>
-                                        
-                                        </div>
+                                        ))}
                                     </div>
-                                    </PopoverPanel>
-                                </Popover>
-                                
-                              {filterCount>0 && <Button className="btn btn-link"onClick={()=>{handleReset();setDateState([defaultDate]);clearFilter?.() }}>Clear Filter</Button>}
+                                    <div className='btnRow'>
+                                        <Button className='btn btn-link' onClick={handleReset}>Reset</Button>
+                                        <Button
+                                        className='btn btn-primary'
+                                        onClick={() => {
+                                            handleApplyFilters();
+                                            close(); // Close dropdown
+                                        }}
+                                        disabled={selectedTags.every(tag => !tag.checked)}
+                                        >
+                                        Apply
+                                        </Button>
+                                    </div>
+                                    </div>
+                                </PopoverPanel>
+                                </>
+                            )}
+                            </Popover>
+
                             </div>
                         </div>}
-                        <Button className="btn btn-outline-grey icon-start" onClick={() => { setFilterActive(!filterActive); }}>
-                            <FilterIcon /> Filter <b>{filterCount}</b>
+                        <Button className={`btn btn-outline-grey icon-start ${filterActive ? "bg-primary text-white" : ""}`} onClick={() => { setFilterActive(!filterActive);console.log('clciked') }}>
+                            <FilterIcon /> Filter <b>{filterCount>0?filterCount:""}</b>
                         </Button>
                     </div>
                 )}
