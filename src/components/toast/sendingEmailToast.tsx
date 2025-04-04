@@ -36,20 +36,21 @@ const ProgressToast = () => {
             leaveFrom="translate-x-0 opacity-100"
             leaveTo="translate-x-10 opacity-0"
         >
-            <div className={`fixed bottom-4 right-4 w-80 px-4 py-3 rounded-lg shadow-lg text-white transition-all duration-300 
-                ${type === 'success' ? 'bg-green-600' :
-                    type === 'error' ? 'bg-red-600' :
-                        'bg-red-600'}`}>
+            <div className={`fixed bottom-4 right-4 w-80 px-4 py-3 rounded-lg shadow-lg text-white transition-all duration-300 hvac-toast
+                ${type === 'success' ? 'toast-success' :
+                    type === 'error' ? 'toast-error' :
+                    type === 'progress' ? 'toast-progress' :
+                        'toast-error'}`}>
 
                 {type === 'progress' && (
-                    <div className="mb-2">
+                    <div className="flex-1">
                         <div className="flex justify-between text-xs mb-1">
                             <span>{message}</span>
                             <span>{progress}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div
-                                className="bg-red-700 h-2.5 rounded-full transition-all duration-300 ease-out"
+                                className="progress-bar h-2.5 rounded-full transition-all duration-300 ease-out"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>

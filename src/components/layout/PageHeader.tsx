@@ -238,7 +238,7 @@ export default function PageHeader({
                             </div> 
                         </>}
                         <Button className={`btn icon-start ${filterActive ? "btn-primary" : "btn-outline-grey"}`} onClick={() => { setFilterActive(!filterActive);console.log('clciked') }}>
-                            <FilterIcon /> Filter <b>{filterCount>0?filterCount:""}</b>
+                            <FilterIcon /> Filter <b>{filterCount>0?filterCount:""}</b> 
                         </Button>
                     </div>
                 )}

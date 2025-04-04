@@ -198,3 +198,22 @@
         .fileLockIcon { opacity: 1; }
     }
 }
+
+
+.hvac-toast{
+    background-color: #fff; color: var(--txt-color); font-size: 14px; border-radius: 5px 0px 0px 5px; border-left: 5px solid #ccc; padding:10px 20px; box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1); display: flex; align-items: center; min-height: 70px;
+    &.toast{
+        &-success{
+            border-color: var(--color-success);
+        }
+        &-error{
+            border-color: var(--color-error);
+        }
+        &-progress{
+            border-color: var(--color-progress);
+        }
+    }
+    .progress-bar{
+        background-color: var(--color-progress);
+    }
+}
