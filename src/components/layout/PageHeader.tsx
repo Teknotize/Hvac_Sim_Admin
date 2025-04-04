@@ -32,6 +32,7 @@ export default function PageHeader({
   }) {
 
     const [filterActive, setFilterActive] = useState(false); 
+    const [dateChanged, setDateChanged] = useState(false); 
     const [filterCount,setFilterCount]=useState(0)
     const [selectedTags, setSelectedTags] = useState(tags.map(tag => ({ ...tag, checked: false })));
     const handleReset=()=>{
@@ -66,6 +67,7 @@ export default function PageHeader({
           const { startDate, endDate } = datSstate[0];
           if (startDate && endDate && startDate.toDateString() !== endDate.toDateString()) {
             count += 1;
+            setDateChanged(true)
           }
       
           return count;
@@ -122,39 +124,53 @@ export default function PageHeader({
                           
                         {filterActive && <div className='filters'>
                             <div className='filter-item'>
-                                
-                                
-                                <Popover className="action-drop">
-                                    <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
-                                        <span>
-                                            Date <FontAwesomeIcon icon={faChevronDown} />
-                                        </span>
-                                        <span className='active'>
-                                            {datSstate[0]?.startDate?.toLocaleDateString()} - {datSstate[0]?.endDate?.toLocaleDateString()} <FontAwesomeIcon icon={faXmark} />
-                                        </span>
-                                    </PopoverButton>
-                                    <PopoverPanel
-                                    transition
-                                    anchor="bottom end"
-                                    className="action-popover w-5xl shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                                    >
-                                    
-                                        <DateRangePicker
-                                       onChange={item => {
-                                        setDateState([item.selection]);
-                                        // onFilterChange?.({
-                                        //   tags: selectedTags.filter(tag => tag.checked).map(tag => tag.name),
-                                        //   dateRange: [item.selection]
-                                        // });
-                                      }}
-                                       moveRangeOnFirstSelection={false}
-                                        months={2}
-                                        ranges={datSstate}
-                                        direction="horizontal"
-                                        rangeColors={['#B92825']}
-                                        />
-                                    </PopoverPanel>
-                                </Popover>
+                            <> 
+    <Popover className="action-drop">
+        {({ open, close }) => (
+            <>
+                <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
+                    <span>
+                        Date <FontAwesomeIcon icon={faChevronDown} />
+                    </span>
+                    <span className='active'>
+                        {datSstate[0]?.startDate?.toLocaleDateString()} - {datSstate[0]?.endDate?.toLocaleDateString()} 
+                        <FontAwesomeIcon icon={faXmark} />
+                    </span>
+                </PopoverButton>
+                
+                <PopoverPanel
+                    transition
+                    anchor="bottom end"
+                    className="action-popover w-5xl shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                >
+                    <DateRangePicker
+                        onChange={item => {
+                            setDateState([item.selection]);
+                        }}
+                        moveRangeOnFirstSelection={false}
+                        months={2}
+                        ranges={datSstate}
+                        direction="horizontal"
+                        rangeColors={['#B92825']}
+                    />
+
+                    <div className='btnRow'>
+                        <Button className='btn btn-link' onClick={handleReset}>Reset</Button>
+                        <Button
+                            className='btn btn-primary'
+                            onClick={() => {
+                                close(); // Close dropdown
+                            }}
+                            disabled={!datSstate[0]?.startDate || !datSstate[0]?.endDate} 
+                        >
+                            Apply
+                        </Button>
+                    </div>
+                </PopoverPanel>
+            </>
+        )}
+    </Popover>
+</>
 
                                 <Popover className="action-drop">
                             {({ open, close }) => (
