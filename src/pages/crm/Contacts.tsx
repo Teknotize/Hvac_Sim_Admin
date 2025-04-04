@@ -116,10 +116,9 @@ export default function Contacts() {
   useEffect(() => {
   setCheckedUser(crmUsers.filter(user => selectedIds.has(user._id)));
 }, [selectedIds, crmUsers,reRun]);
-
-const filterUsers = (users: CRMUser[], searchTerm: string, tags: string[]) => {
+const filterUsers = (users: CRMUser[], searchTerm: string, tags: string[], startDate?: string, endDate?: string) => {
   let filteredUsers = [...users];
-  console.log('users',users)
+
   // Apply search filter if search term exists
   if (searchTerm.trim()) {
     const term = searchTerm.trim().toLowerCase();
@@ -130,27 +129,43 @@ const filterUsers = (users: CRMUser[], searchTerm: string, tags: string[]) => {
       (user.business?.toLowerCase().includes(term))
     ));
   }
-  
+
+  // Apply tags filter if tags exist
   if (tags.length > 0) {
     filteredUsers = filteredUsers.filter(user => {
       if (typeof user.tags === 'string') {
         return tags.some(tag => 
           String(user.tags).toLowerCase() === String(tag).toLowerCase()
         );
-      }
-      // Case 3: user.tags is null, undefined, or invalid → exclude
-      else {
+      } else {
         return false;
       }
     });
   }
-  
-  // Maintain checked state
+
+  // Apply date range filter if both startDate and endDate are provided
+  if (startDate && endDate) {
+    const start = new Date(startDate).setHours(0, 0, 0, 0);
+    const end = new Date(endDate).setHours(23, 59, 59, 999);
+
+    filteredUsers = filteredUsers.filter(user => {
+      const userDate = new Date(user.createdAt).getTime();
+      return userDate >= start && userDate <= end;
+    });
+  }
+
   return filteredUsers.map(user => ({
     ...user,
     isChecked: selectedIds.has(user._id)
   }));
 };
+const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+  const filteredUsers = filterUsers(originalUsers, '', activeTags, startDate.toISOString(), endDate.toISOString());
+  setCRMUsers(filteredUsers);
+  setCurrentPage(1);
+};
+
+
 const handleTagsFilterChange = (data: TagsFilterData) => {
   const tags = data.tags; // Extract the array from the object
   setActiveTags(tags);
@@ -197,6 +212,8 @@ const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
       showEmail={showEmail}
       onTagsFilterChange={(data) => handleTagsFilterChange(data)}
       clearFilter={()=>{handleClearFilters()}}
+      // dateSelectedCallback={(startDate, endDate) => {console.log(startDate, endDate)}}
+  dateSelectedCallback={handleDateFilterChange}
     />
     {!loading ?
     <div className='table-container table-contacts-page'>

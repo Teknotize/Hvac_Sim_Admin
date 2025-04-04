@@ -17,7 +17,8 @@ export default function PageHeader({
     showEmail,
     onAddNewPdfClick,
     onTagsFilterChange,
-    clearFilter
+    clearFilter,
+    dateSelectedCallback
   }: { 
     title: string, 
     route?: string,
@@ -29,6 +30,7 @@ export default function PageHeader({
         // ; dateRange: Range[] 
     }) => void; 
     clearFilter?:()=>void
+    dateSelectedCallback?:(startDate:Date,endDate:Date)=>void
   }) {
 
     const [filterActive, setFilterActive] = useState(false); 
@@ -37,6 +39,7 @@ export default function PageHeader({
     const [selectedTags, setSelectedTags] = useState(tags.map(tag => ({ ...tag, checked: false })));
     const handleReset=()=>{
         setSelectedTags(  tags.map(tag => ({ ...tag, checked: false })) 
+
         )
     }
     const [datSstate, setDateState] = useState<Range[]>([
@@ -66,7 +69,6 @@ export default function PageHeader({
       
           const { startDate, endDate } = datSstate[0];
           if (startDate && endDate && startDate.toDateString() !== endDate.toDateString()) {
-            count += 1;
             setDateChanged(true)
           }
       
@@ -125,52 +127,62 @@ export default function PageHeader({
                         {filterActive && <div className='filters'>
                             <div className='filter-item'>
                             <> 
-    <Popover className="action-drop">
-        {({ open, close }) => (
-            <>
-                <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
-                    <span>
-                        Date <FontAwesomeIcon icon={faChevronDown} />
-                    </span>
-                    <span className='active'>
-                        {datSstate[0]?.startDate?.toLocaleDateString()} - {datSstate[0]?.endDate?.toLocaleDateString()} 
-                        <FontAwesomeIcon icon={faXmark} />
-                    </span>
-                </PopoverButton>
-                
-                <PopoverPanel
-                    transition
-                    anchor="bottom end"
-                    className="action-popover w-5xl shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                >
-                    <DateRangePicker
-                        onChange={item => {
-                            setDateState([item.selection]);
-                        }}
-                        moveRangeOnFirstSelection={false}
-                        months={2}
-                        ranges={datSstate}
-                        direction="horizontal"
-                        rangeColors={['#B92825']}
-                    />
+                                <Popover className="action-drop">
+                                    {({ open, close }) => (
+                                        <>
+                                            <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
+                                                <span>
+                                                    Date <FontAwesomeIcon icon={faChevronDown} />
+                                                </span>
+                                                <span className='active'>
+                                                    {datSstate[0]?.startDate?.toLocaleDateString()} - {datSstate[0]?.endDate?.toLocaleDateString()} 
+                                                    <FontAwesomeIcon icon={faXmark} />
+                                                </span>
+                                            </PopoverButton>
+                                            
+                                            <PopoverPanel
+                                                transition
+                                                anchor="bottom end"
+                                                className="action-popover w-5xl shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                                            >
+                                                <DateRangePicker
+                                                    onChange={item => {
+                                                        setDateState([item.selection]);
+                                                    }}
+                                                    moveRangeOnFirstSelection={false}
+                                                    months={2}
+                                                    ranges={datSstate}
+                                                    direction="horizontal"
+                                                    rangeColors={['#B92825']}
+                                                />
 
-                    <div className='btnRow'>
-                        <Button className='btn btn-link' onClick={handleReset}>Reset</Button>
-                        <Button
-                            className='btn btn-primary'
-                            onClick={() => {
-                                close(); // Close dropdown
-                            }}
-                            disabled={!datSstate[0]?.startDate || !datSstate[0]?.endDate} 
-                        >
-                            Apply
-                        </Button>
-                    </div>
-                </PopoverPanel>
-            </>
-        )}
-    </Popover>
-</>
+                                                <div className='btnRow'>
+                                                    <Button className='btn btn-link' onClick={()=>setDateState([defaultDate])}>Reset</Button>
+                                                    <Button
+    className='btn btn-primary'
+    onClick={() => {
+        const startDate = datSstate[0]?.startDate;
+        const endDate = datSstate[0]?.endDate;
+        
+        if (startDate instanceof Date && endDate instanceof Date) {
+            dateSelectedCallback?.(startDate, endDate);
+            setDateChanged(true)
+            setFilterCount(prevCount => prevCount + 1); 
+            
+            close(); // Close dropdown
+        }
+    }}
+    disabled={!datSstate[0]?.startDate || !datSstate[0]?.endDate} 
+>
+    Apply
+</Button>
+
+                                                </div>
+                                            </PopoverPanel>
+                                        </>
+                                    )}
+                                </Popover>
+                            </>
 
                                 <Popover className="action-drop">
                             {({ open, close }) => (
