@@ -128,7 +128,7 @@ export default function PageHeader({
                             <div className='filter-item'>
                             <> 
                                 <Popover className="action-drop">
-                                    {({ open, close }) => (
+                                    {({  close }) => (
                                         <>
                                             <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
                                                 <span>
@@ -166,13 +166,12 @@ export default function PageHeader({
         
         if (startDate instanceof Date && endDate instanceof Date) {
             dateSelectedCallback?.(startDate, endDate);
-            setDateChanged(true)
             setFilterCount(prevCount => prevCount + 1); 
             
             close(); // Close dropdown
         }
     }}
-    disabled={!datSstate[0]?.startDate || !datSstate[0]?.endDate} 
+    disabled={!dateChanged} 
 >
     Apply
 </Button>
@@ -185,7 +184,7 @@ export default function PageHeader({
                             </>
 
                                 <Popover className="action-drop">
-                            {({ open, close }) => (
+                            {({  close }) => (
                                 <>
                                 <PopoverButton className="block btn btn-outline-grey icon-end active--">
                                     <span>
