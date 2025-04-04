@@ -159,22 +159,22 @@ export default function PageHeader({
                                                 <div className='btnRow'>
                                                     <Button className='btn btn-link' onClick={()=>setDateState([defaultDate])}>Reset</Button>
                                                     <Button
-    className='btn btn-primary'
-    onClick={() => {
-        const startDate = datSstate[0]?.startDate;
-        const endDate = datSstate[0]?.endDate;
-        
-        if (startDate instanceof Date && endDate instanceof Date) {
-            dateSelectedCallback?.(startDate, endDate);
-            setFilterCount(prevCount => prevCount + 1); 
-            
-            close(); // Close dropdown
-        }
-    }}
-    disabled={!dateChanged} 
->
-    Apply
-</Button>
+                                                        className='btn btn-primary'
+                                                        onClick={() => {
+                                                            const startDate = datSstate[0]?.startDate;
+                                                            const endDate = datSstate[0]?.endDate;
+                                                            
+                                                            if (startDate instanceof Date && endDate instanceof Date) {
+                                                                dateSelectedCallback?.(startDate, endDate);
+                                                                setFilterCount(prevCount => prevCount + 1); 
+                                                                
+                                                                close(); // Close dropdown
+                                                            }
+                                                        }}
+                                                        disabled={!dateChanged} 
+                                                    >
+                                                        Apply
+                                                    </Button>
 
                                                 </div>
                                             </PopoverPanel>

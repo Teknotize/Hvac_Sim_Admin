@@ -104,13 +104,22 @@ export default function Contacts() {
         setOriginalUsers(users); 
         setCRMUsers(users);
         setLoading(false)     
+        useCRMStore.setState({ originalUsers: users });
+        
       } catch (error) {
         setLoading(false)
         console.error('Error fetching CRM users:', error);
       }
     };
   
+    const storedOriginalUsers = useCRMStore.getState().originalUsers;
+
     if (crmUsers.length===0) fetchData();
+    console.log("CRM Users",crmUsers.length,originalUsers.length)
+    if (crmUsers.length!==0  && crmUsers.length!== storedOriginalUsers.length) fetchData()
+      if(originalUsers.length===0 && storedOriginalUsers.length!==0){
+        setOriginalUsers(storedOriginalUsers)
+      }
   }, [setCRMUsers]);
 
   useEffect(() => {
