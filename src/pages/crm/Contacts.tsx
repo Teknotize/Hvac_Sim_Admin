@@ -16,11 +16,14 @@ import Loader from '../../components/loader';
 interface CRMUser {
   [key: string]: any;
 }
-
+interface TagsFilterData {
+  tags: string[];
+}
 export default function Contacts() {
   const [enabled, setEnabled] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const crmUsers = useCRMStore((state) => state.crmUsers);
   const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]); // Renamed for clarity
   const [loading, setLoading] = useState(false);
@@ -113,37 +116,71 @@ export default function Contacts() {
   useEffect(() => {
   setCheckedUser(crmUsers.filter(user => selectedIds.has(user._id)));
 }, [selectedIds, crmUsers,reRun]);
+const filterUsers = (users: CRMUser[], searchTerm: string, tags: string[], startDate?: string, endDate?: string) => {
+  let filteredUsers = [...users];
 
-const handleSearchChange = (value: string) => {
-  const searchTerm = value.trim().toLowerCase();
-  
-  if (!searchTerm) {
-    // When search is cleared, return to original users but preserve selections
-    const updatedUsers = originalUsers.map(user => ({
-      ...user,
-      isChecked: selectedIds.has(user._id) // Maintain checked state from selections
-    }));
-    setCRMUsers(updatedUsers);
-    return;
+  // Apply search filter if search term exists
+  if (searchTerm.trim()) {
+    const term = searchTerm.trim().toLowerCase();
+    filteredUsers = filteredUsers.filter(user => (
+      (user.name?.toLowerCase().includes(term)) ||
+      (user.email?.toLowerCase().includes(term)) ||
+      (user.phone?.toLowerCase().includes(term)) ||
+      (user.business?.toLowerCase().includes(term))
+    ));
   }
 
-  // Filter users but preserve their checked state
-  const filteredUsers = originalUsers
-    .filter(user => (
-      (user.name?.toLowerCase().includes(searchTerm)) ||
-      (user.email?.toLowerCase().includes(searchTerm)) ||
-      (user.phone?.toLowerCase().includes(searchTerm)) ||
-      (user.business?.toLowerCase().includes(searchTerm)) ||
-      (user.tags?.toLowerCase().includes(searchTerm))
-    ))
-    .map(user => ({
-      ...user,
-      isChecked: selectedIds.has(user._id) 
-    }));
+  // Apply tags filter if tags exist
+  if (tags.length > 0) {
+    filteredUsers = filteredUsers.filter(user => {
+      if (typeof user.tags === 'string') {
+        return tags.some(tag => 
+          String(user.tags).toLowerCase() === String(tag).toLowerCase()
+        );
+      } else {
+        return false;
+      }
+    });
+  }
 
+  // Apply date range filter if both startDate and endDate are provided
+  if (startDate && endDate) {
+    const start = new Date(startDate).setHours(0, 0, 0, 0);
+    const end = new Date(endDate).setHours(23, 59, 59, 999);
+
+    filteredUsers = filteredUsers.filter(user => {
+      const userDate = new Date(user.createdAt).getTime();
+      return userDate >= start && userDate <= end;
+    });
+  }
+
+  return filteredUsers.map(user => ({
+    ...user,
+    isChecked: selectedIds.has(user._id)
+  }));
+};
+const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+  const filteredUsers = filterUsers(originalUsers, '', activeTags, startDate.toISOString(), endDate.toISOString());
   setCRMUsers(filteredUsers);
-  setCurrentPage(1);};
-  const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
+  setCurrentPage(1);
+};
+
+
+const handleTagsFilterChange = (data: TagsFilterData) => {
+  const tags = data.tags; // Extract the array from the object
+  setActiveTags(tags);
+  const filteredUsers = filterUsers(originalUsers, '', tags);
+  setCRMUsers(filteredUsers);
+  setCurrentPage(1);
+};
+
+const handleSearchChange = (value: string) => {
+  const filteredUsers = filterUsers(originalUsers, value, activeTags);
+  setCRMUsers(filteredUsers);
+  setCurrentPage(1);
+};
+
+const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
   const paginatedUsers = crmUsers.slice(
     (currentPage - 1) * itemsPerPage, 
     currentPage * itemsPerPage
@@ -158,6 +195,13 @@ const handleSearchChange = (value: string) => {
       setCurrentPage(page);
     }
   };
+  const handleClearFilters = () => {
+    setCRMUsers(originalUsers);
+    setActiveTags([]);
+    setCurrentPage(1);
+    setSelectedIds(new Set()); 
+    setEnabled(false);
+  };
   return (
     <>
     <PageHeader 
@@ -166,6 +210,10 @@ const handleSearchChange = (value: string) => {
       route="contacts" 
       onSendEmailClick={() => setShowEmailPopup(true)}
       showEmail={showEmail}
+      onTagsFilterChange={(data) => handleTagsFilterChange(data)}
+      clearFilter={()=>{handleClearFilters()}}
+      // dateSelectedCallback={(startDate, endDate) => {console.log(startDate, endDate)}}
+  dateSelectedCallback={handleDateFilterChange}
     />
     {!loading ?
     <div className='table-container table-contacts-page'>

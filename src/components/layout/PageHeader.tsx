@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Button, Checkbox } from '@headlessui/react';
 import { FilterIcon } from '../../components/svg/icons';
 import { Field, Input } from '@headlessui/react';
@@ -8,33 +8,17 @@ import { faSearch, faPlus, faChevronDown, faXmark, faCheck, faCalendar } from '@
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Link } from "react-router-dom";
 import { DateRangePicker, Range } from 'react-date-range';
-import { addDays } from 'date-fns';
-
-const tags = [
-    {
-        id: 1,
-        name: 'Membership',
-        checked: true
-    },
-    {
-        id: 2,
-        name: 'Curriculum',
-        checked: false
-    },
-    {
-        id: 3,
-        name: 'App User',
-        checked: false
-    }
-]
-
+import { tags,defaultDate } from '../../utils/constants';
 export default function PageHeader({ 
     title, 
     route, 
     onSendEmailClick,
     onSearchChange,
     showEmail,
-    onAddNewPdfClick
+    onAddNewPdfClick,
+    onTagsFilterChange,
+    clearFilter,
+    dateSelectedCallback
   }: { 
     title: string, 
     route?: string,
@@ -42,22 +26,71 @@ export default function PageHeader({
     onSearchChange?: (value: string) => void,
     onAddNewPdfClick?: () => void,
     showEmail?: boolean
+    onTagsFilterChange?: (filters: { tags: string[]
+        // ; dateRange: Range[] 
+    }) => void; 
+    clearFilter?:()=>void
+    dateSelectedCallback?:(startDate:Date,endDate:Date)=>void
   }) {
 
-    const [filterActive, setFilterActive] = useState(false);
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [filterActive, setFilterActive] = useState(false); 
+    const [dateChanged, setDateChanged] = useState(false); 
+    const [filterCount,setFilterCount]=useState(0)
+    const [selectedTags, setSelectedTags] = useState(tags.map(tag => ({ ...tag, checked: false })));
+    const handleReset=()=>{
+        setSelectedTags(  tags.map(tag => ({ ...tag, checked: false })) 
 
-    const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
-        setSelectedTags(prev => [...prev, id]);
-    };
+        )
+    }
     const [datSstate, setDateState] = useState<Range[]>([
-        {
-          startDate: new Date(),
-          endDate: addDays(new Date(), 7),
-          key: 'selection'
-        }
+        defaultDate
     ]);
-   
+    const handleApplyFilters = () => {
+        const selectedTagNames = selectedTags
+          .filter(tag => tag.checked)
+          .map(tag => tag.name);
+        
+          onTagsFilterChange?.({
+          tags: selectedTagNames,
+        });
+      };
+      useEffect(() => {
+        const totalSelectedFilters = () => {
+          let count = 0;
+          let isCheckedCount = 0;
+          
+          selectedTags.forEach((tag) => {
+            if (tag.checked) isCheckedCount += 1;
+          });
+      
+          if (isCheckedCount > 0) {
+            count += 1;
+          }
+      
+          const { startDate, endDate } = datSstate[0];
+          if (startDate && endDate && startDate.toDateString() !== endDate.toDateString()) {
+            setDateChanged(true)
+          }
+      
+          return count;
+        };
+      
+        const newCount = totalSelectedFilters();
+        setFilterCount(newCount);
+      
+        // Only call clearFilter if count transitions from >0 to 0
+        if (filterCount > 0 && newCount === 0) {
+          clearFilter?.();
+        }
+      }, [selectedTags, datSstate]);
+      
+    const handleCheckboxChange = (id: number, checked: boolean) => {
+        setSelectedTags((prev) =>
+            prev.map((tag) =>
+                tag.id === id ? { ...tag, checked } : tag
+            )
+        );
+    };
       
     return (
         <div className="page-header">
@@ -89,79 +122,122 @@ export default function PageHeader({
                         </Field>
 
                         </>}
-
+                        {filterCount>0 && <Button className="btn btn-link"onClick={()=>{handleReset();setDateState([defaultDate]);clearFilter?.() }}>Clear Filter</Button>}
+                          
                         {filterActive && <div className='filters'>
                             <div className='filter-item'>
-                                
-                                
+                            <> 
                                 <Popover className="action-drop">
-                                    <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
-                                        <span>
-                                            Date <FontAwesomeIcon icon={faCalendar} />
-                                        </span>
-                                        <span className='active'>
-                                            {datSstate[0]?.startDate?.toLocaleDateString()} - {datSstate[0]?.endDate?.toLocaleDateString()} <FontAwesomeIcon icon={faXmark} />
-                                        </span>
-                                    </PopoverButton>
-                                    <PopoverPanel
-                                    transition
-                                    anchor="bottom end"
-                                    className="action-popover w-5xl shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                                    >
-                                    
-                                        <DateRangePicker
-                                        onChange={item => setDateState([item.selection])}
-                                        moveRangeOnFirstSelection={false}
-                                        months={2}
-                                        ranges={datSstate}
-                                        direction="horizontal"
-                                        rangeColors={['#B92825']}
-                                        />
-                                    </PopoverPanel>
+                                    {({  close }) => (
+                                        <>
+                                            <PopoverButton className={clsx("block btn btn-outline-grey icon-end", 'active--')}>
+                                                <span>
+                                                    Date <FontAwesomeIcon icon={faChevronDown} />
+                                                </span>
+                                                <span className='active'>
+                                                    {datSstate[0]?.startDate?.toLocaleDateString()} - {datSstate[0]?.endDate?.toLocaleDateString()} 
+                                                    <FontAwesomeIcon icon={faXmark} />
+                                                </span>
+                                            </PopoverButton>
+                                            
+                                            <PopoverPanel
+                                                transition
+                                                anchor="bottom end"
+                                                className="action-popover w-5xl shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                                            >
+                                                <DateRangePicker
+                                                    onChange={item => {
+                                                        setDateState([item.selection]);
+                                                    }}
+                                                    moveRangeOnFirstSelection={false}
+                                                    months={2}
+                                                    ranges={datSstate}
+                                                    direction="horizontal"
+                                                    rangeColors={['#B92825']}
+                                                />
+
+                                                <div className='btnRow'>
+                                                    <Button className='btn btn-link' onClick={()=>setDateState([defaultDate])}>Reset</Button>
+                                                    <Button
+    className='btn btn-primary'
+    onClick={() => {
+        const startDate = datSstate[0]?.startDate;
+        const endDate = datSstate[0]?.endDate;
+        
+        if (startDate instanceof Date && endDate instanceof Date) {
+            dateSelectedCallback?.(startDate, endDate);
+            setFilterCount(prevCount => prevCount + 1); 
+            
+            close(); // Close dropdown
+        }
+    }}
+    disabled={!dateChanged} 
+>
+    Apply
+</Button>
+
+                                                </div>
+                                            </PopoverPanel>
+                                        </>
+                                    )}
                                 </Popover>
+                            </>
 
                                 <Popover className="action-drop">
-                                    <PopoverButton className="block btn btn-outline-grey icon-end active--">
-                                        <span>
-                                            Tags <FontAwesomeIcon icon={faChevronDown} />
-                                        </span>
-                                        <span className='active'>
-                                            Tags <FontAwesomeIcon icon={faXmark} />
-                                        </span>
-                                    </PopoverButton>
-                                    <PopoverPanel
+                            {({  close }) => (
+                                <>
+                                <PopoverButton className="block btn btn-outline-grey icon-end active--">
+                                    <span>
+                                    Tags <FontAwesomeIcon icon={faChevronDown} />
+                                    </span>
+                                    <span className='active'>
+                                    Tags <FontAwesomeIcon icon={faXmark} />
+                                    </span>
+                                </PopoverButton>
+                                <PopoverPanel
                                     transition
                                     anchor="bottom end"
                                     className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                                    >
+                                >
                                     <div className="list-menu">
-                                        <div className='list-group'>
-                                            {tags.map((tag) => (
-                                            <div className='list-group-item'>
-                                                <Checkbox
-                                                    checked={tag.checked}
-                                                    onChange={(checked) => handleCheckboxChange(tag.id.toString(), checked,"single")}
-                                                    className="group list-checkbox-item data-[checked]:checked"
-                                                >
-                                                    <FontAwesomeIcon icon={faCheck} className='opacity-0 group-data-[checked]:opacity-100' />
-                                                </Checkbox>
-                                                <span>{tag.name}</span>
-                                            </div>
-                                            ))}
+                                    <div className='list-group'>
+                                        {selectedTags.map((tag) => (
+                                        <div className='list-group-item' key={tag.id}>
+                                            <Checkbox
+                                            checked={tag.checked}
+                                            onChange={(checked) => handleCheckboxChange(tag.id, checked)}
+                                            className="group list-checkbox-item data-[checked]:checked"
+                                            >
+                                            <FontAwesomeIcon icon={faCheck} className='opacity-0 group-data-[checked]:opacity-100' />
+                                            </Checkbox>
+                                            <span>{tag.name}</span>
                                         </div>
-                                        <div className='btnRow'>
-                                            <Button className='btn btn-link' disabled>Reset</Button>
-                                            <Button className='btn btn-primary' disabled>Apply</Button>
-                                        </div>
+                                        ))}
                                     </div>
-                                    </PopoverPanel>
-                                </Popover>
-                                
-                                <Button className="btn btn-link">Clear Filter</Button>
+                                    <div className='btnRow'>
+                                        <Button className='btn btn-link' onClick={handleReset}>Reset</Button>
+                                        <Button
+                                        className='btn btn-primary'
+                                        onClick={() => {
+                                            handleApplyFilters();
+                                            close(); // Close dropdown
+                                        }}
+                                        disabled={selectedTags.every(tag => !tag.checked)}
+                                        >
+                                        Apply
+                                        </Button>
+                                    </div>
+                                    </div>
+                                </PopoverPanel>
+                                </>
+                            )}
+                            </Popover>
+
                             </div>
                         </div>}
-                        <Button className="btn btn-outline-grey icon-start" onClick={()=>{ setFilterActive(!filterActive); }}><FilterIcon /> Filter <b>2</b></Button>
-
+                        <Button className={`btn btn-outline-grey icon-start ${filterActive ? "bg-primary text-white" : ""}`} onClick={() => { setFilterActive(!filterActive);console.log('clciked') }}>
+                            <FilterIcon /> Filter <b>{filterCount>0?filterCount:""}</b>
+                        </Button>
                     </div>
                 )}
                 {route === 'pdf-manual' && (
