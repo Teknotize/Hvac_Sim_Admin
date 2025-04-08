@@ -6,7 +6,7 @@ import { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout
 import { useNavigate } from 'react-router-dom';
 import useLogout from '../logout';
 import { useSidebar } from '../../context/SidebarContext';
-import { useEffect,useState } from 'react';
+import { useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { apiClient } from '../../config';
 import { useUserInfoStore } from '../../store/useUserInfoStore';
