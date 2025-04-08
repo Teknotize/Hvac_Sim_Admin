@@ -1,10 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import logo from '../../assets/images/logo.png';
+import profileImage from '../../assets/images/profileImageAdmin.png';
 import { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavCMS, MainMenuNavCRM, MainMenuNavDistributors, MainMenuNavAppData } from '../svg/icons';
 import { useNavigate } from 'react-router-dom';
 import useLogout from '../logout';
 import { useSidebar } from '../../context/SidebarContext';
+import { useEffect,useState } from 'react';
+import { useAuthStore } from '../../store/useAuthStore';
+import { apiClient } from '../../config';
+import { useUserInfoStore } from '../../store/useUserInfoStore';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: <MainMenuNavDashboard /> },
@@ -27,11 +32,27 @@ export default function Sidebar() {
   const logout = useLogout();
   const navigate = useNavigate();
   const { isOpen } = useSidebar();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const { name, email, setUser } = useUserInfoStore();
 
   const handleLogout = () => {
     logout()
     navigate('/login');
   };
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (!accessToken) return;
+  
+      try {
+        const response = await apiClient.get("admin/profile-info");
+        setUser(response.data); // Expects { name, email }
+      } catch (error: any) {
+        console.error("Failed to fetch user info:", error);
+      }
+    };
+  
+    fetchUserInfo();
+  }, [accessToken, setUser]);
    
   return (
     <div className={`flex h-full flex-col sidebar ${isOpen ? 'active' : ''}`}>
@@ -52,7 +73,7 @@ export default function Sidebar() {
             >
               <div className="user-label border-b-1 border-gray-200 pb-3 mb-3">
                 <p>Signed in as</p>
-                <p>umairfarooq@gmail.com</p>
+                <p>{email}</p>
               </div>
               <div className="user-menu">
                 <Link to="/profile" className="user-menu-item">
@@ -67,6 +88,7 @@ export default function Sidebar() {
                   <UserMenuIconLogout />
                   <p>Logout</p>
                 </Link> */}
+                
                 <button onClick={handleLogout} className="user-menu-item" style={{ width: "100%",cursor:'pointer'}} >
                         <UserMenuIconLogout />
                         <p>Logout</p>
@@ -81,11 +103,11 @@ export default function Sidebar() {
         <div className="flex justify-center">
           <div className='user-card'>
             <figure className='user-dp'>
-              <img src="https://placehold.co/400" alt="Umair Farooq" />
+              <img src={profileImage} alt="Umair Farooq" />
             </figure>
             <div className='user-card-body'>
-              <h4>Umair Farooq</h4>
-              <p>umairfarooq@gmail.com</p>
+              <h4>{name}</h4>
+              <p>{email}</p>
             </div>
           </div>
         </div>

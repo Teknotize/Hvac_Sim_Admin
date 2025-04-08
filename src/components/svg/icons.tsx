@@ -102,4 +102,20 @@ const DownloadIcon = () => {
     )
 }
 
-export { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavDistributors, MainMenuNavAppData, MainMenuNavCRM, MainMenuNavCMS, FilterIcon, ApprovedEmailIcon, PdfManualIcon, DownloadIcon };
+const DialogueCheckMarkIcon = () => {
+    return (
+        <>
+        <svg width="72" height="73" viewBox="0 0 72 73" fill="none" xmlns="http://www.w3.org/2000/svg"> <ellipse cx="36" cy="36.0126" rx="36" ry="36.0126" fill="url(#paint0_linear_1838_14039)"/> <path d="M48.8708 27.8208L32.4908 44.2058L24.3008 36.0136" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/> <defs> <linearGradient id="paint0_linear_1838_14039" x1="35.9521" y1="0.594817" x2="35.9521" y2="69.2347" gradientUnits="userSpaceOnUse"> <stop stop-color="#F44336"/> <stop offset="1" stop-color="#880B0F"/> </linearGradient> </defs> </svg>
+        </>
+    )
+}
+
+const DialogDeleteIcon = () => {
+    return (
+        <>
+        <svg width="72" height="73" viewBox="0 0 72 73" fill="none" xmlns="http://www.w3.org/2000/svg"> <ellipse cx="36" cy="36.0126" rx="36" ry="36.0126" fill="url(#paint0_linear_1863_4496)" fill-opacity="0.2"/> <path d="M29.332 48C28.5987 48 27.9711 47.7391 27.4494 47.2173C26.9276 46.6956 26.6663 46.0676 26.6654 45.3333V28H25.332V25.3333H31.9987V24H39.9987V25.3333H46.6654V28H45.332V45.3333C45.332 46.0667 45.0711 46.6947 44.5494 47.2173C44.0276 47.74 43.3996 48.0009 42.6654 48H29.332ZM42.6654 28H29.332V45.3333H42.6654V28ZM31.9987 42.6667H34.6654V30.6667H31.9987V42.6667ZM37.332 42.6667H39.9987V30.6667H37.332V42.6667Z" fill="#C90119"/> <defs> <linearGradient id="paint0_linear_1863_4496" x1="35.9521" y1="0.594817" x2="35.9521" y2="69.2347" gradientUnits="userSpaceOnUse"> <stop stop-color="#F44336"/> <stop offset="1" stop-color="#880B0F"/> </linearGradient> </defs> </svg>
+        </>
+    )
+}
+
+export { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavDistributors, MainMenuNavAppData, MainMenuNavCRM, MainMenuNavCMS, FilterIcon, ApprovedEmailIcon, PdfManualIcon, DownloadIcon, DialogueCheckMarkIcon, DialogDeleteIcon };

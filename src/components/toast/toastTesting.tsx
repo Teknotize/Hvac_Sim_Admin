@@ -26,7 +26,7 @@ const ToastButtons = () => {
   return (
     <div>
       <button
-        onClick={() => showToast('Emails sent successfully!', 'success')}
+        onClick={() => {showToast('Emails sent successfully!', 'success');}}
         className="btn btn-success"
       >
         Success Toast
