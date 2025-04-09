@@ -14,6 +14,11 @@ button{
         svg{ @include svgColor(#fff); }
         b{background-color: #fff; color: var(--base-color-primary);}
     }
+    &-primary-outline{
+        border: 1px solid var(--base-color-primary); background-color: #fff; color: var(--base-color-primary);
+        svg{ @include svgColor(var(--base-color-primary)); }
+        b{background-color: var(--base-color-primary); color: #fff;}
+    }
     &-outline-grey{
         border: 1px solid var(--button-border-color); background-color: #fff; color: var(--txt-color);
         svg{ @include svgColor(var(--txt-color)); }
