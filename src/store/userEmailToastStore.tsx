@@ -28,7 +28,7 @@ const useEmailToastStore = create<ToastState>((set) => ({
     startProgress: (total) => set({
         isOpen: true,
         type: 'progress',
-        message: 'Starting email sending...',
+        message: 'Sending emails...',
         total,
         completed: 0,
         progress: 0
@@ -39,7 +39,7 @@ const useEmailToastStore = create<ToastState>((set) => ({
         return {
             completed,
             progress,
-            message: `Sending emails... (${completed}/${state.total})`
+            message: `Sending emails... `
         };
     }),
 

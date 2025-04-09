@@ -24,7 +24,7 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
   // const [to, setTo] = useState('');
   const [tempRecipients, setTempRecipients] = useState<Recipient[]>([]);
   
-  const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
+  const { startProgress, updateProgress, completeProgress,hideToast } = useEmailToastStore();
 
   useEffect(() => {
     setTempRecipients(recipients);
@@ -64,6 +64,9 @@ export default function EmailPopup({ isOpen, onClose, recipients = [] }: EmailPo
         if (data.completed) {
           eventSource.close();
           completeProgress(true);
+          setTimeout(() => {
+            hideToast();
+          }, 5000);
           return;
         }
         

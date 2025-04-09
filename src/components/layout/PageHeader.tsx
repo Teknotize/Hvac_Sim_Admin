@@ -4,7 +4,7 @@ import { FilterIcon } from '../../components/svg/icons';
 import { Field, Input } from '@headlessui/react';
 import clsx from 'clsx'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus, faChevronDown, faXmark, faCheck, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faPlus, faChevronDown, faXmark, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Link } from "react-router-dom";
 import { DateRangePicker, Range } from 'react-date-range';
@@ -124,8 +124,7 @@ export default function PageHeader({
                         </>}
                           
                         {filterActive && <>
-                            {filterCount>0 && <Button className="btn btn-link"onClick={()=>{handleReset();setDateState([defaultDate]);clearFilter?.() }}>Clear Filter</Button>}
-                            <div className='filters'>
+                             <div className='filters'>
                                 <div className='filter-item'>
                                 <> 
                                     <Popover className="action-drop">
@@ -194,6 +193,8 @@ export default function PageHeader({
                                         <span className='active'>
                                         Tags <FontAwesomeIcon icon={faXmark} />
                                         </span>
+                                        <b>{selectedTags.filter((tag)=>{return tag.checked}).length!==0?
+                                        selectedTags.filter((tag)=>{return tag.checked}).length:""}</b>
                                     </PopoverButton>
                                     <PopoverPanel
                                         transition
@@ -203,7 +204,7 @@ export default function PageHeader({
                                         <div className="list-menu">
                                         <div className='list-group'>
                                             {selectedTags.map((tag) => (
-                                            <div className='list-group-item' key={tag.id}>
+                                            <div className='list-group-item' key={tag.id} onClick={() => handleCheckboxChange(tag.id, !tag.checked)}>
                                                 <Checkbox
                                                 checked={tag.checked}
                                                 onChange={(checked) => handleCheckboxChange(tag.id, checked)}
@@ -237,7 +238,9 @@ export default function PageHeader({
                                 </div>
                             </div> 
                         </>}
-                        <Button className={`btn icon-start ${filterActive ? "btn-primary" : "btn-outline-grey"}`} onClick={() => { setFilterActive(!filterActive);console.log('clciked') }}>
+                         {filterActive&&<Button disabled={filterCount===0} className="btn btn-link"onClick={()=>{handleReset();setDateState([defaultDate]);clearFilter?.() }}>Clear Filter</Button>}
+                           
+                        <Button className={`btn icon-start ${filterActive ? "btn-primary" : "btn-outline-grey"}`} onClick={() => { setFilterActive(!filterActive) }}>
                             <FilterIcon /> Filter <b>{filterCount>0?filterCount:""}</b> 
                         </Button>
                     </div>
