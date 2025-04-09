@@ -238,7 +238,7 @@ export default function PageHeader({
                                 </div>
                             </div> 
                         </>}
-                         <Button disabled={filterCount===0} className="btn btn-link"onClick={()=>{handleReset();setDateState([defaultDate]);clearFilter?.() }}>Clear Filter</Button>
+                         {filterActive&&<Button disabled={filterCount===0} className="btn btn-link"onClick={()=>{handleReset();setDateState([defaultDate]);clearFilter?.() }}>Clear Filter</Button>}
                            
                         <Button className={`btn icon-start ${filterActive ? "btn-primary" : "btn-outline-grey"}`} onClick={() => { setFilterActive(!filterActive) }}>
                             <FilterIcon /> Filter <b>{filterCount>0?filterCount:""}</b> 

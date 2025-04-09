@@ -37,6 +37,7 @@ export default function Contacts() {
   
   useEffect(() => {
     const hasCheckedUser = crmUsers.some(user => user.isChecked) || originalUsers.some(user => user.isChecked);
+
     setShowEmail(hasCheckedUser);
   }, [crmUsers, originalUsers]);
 
@@ -318,7 +319,8 @@ const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
           }
         </div>
       </div>
-      <div className='table-footer'>
+
+{crmUsers.length && <div className='table-footer'>
   <div className='table-row'>
     <div className='table-cell'></div>
     <div className='table-cell pagination-cell'>
@@ -420,7 +422,7 @@ const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
 
     </div>
   </div>
-</div>
+</div>}
 
 
     </div>
