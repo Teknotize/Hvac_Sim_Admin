@@ -241,7 +241,11 @@ export default function PageHeader({
                     <Popover className="action-drop">
                       {({ close }) => (
                         <>
-                          <PopoverButton className="block btn btn-outline-grey icon-end active">
+                          <PopoverButton
+                            className={`block btn btn-outline-grey icon-end ${
+                              filterCount && "active"
+                            }`}
+                          >
                             <span>
                               Tags <FontAwesomeIcon icon={faChevronDown} />
                             </span>
