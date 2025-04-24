@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { Button, Checkbox } from "@headlessui/react";
 import { FilterIcon } from "../../components/svg/icons";
-import { Field, Input } from "@headlessui/react";
+import { Field, Input, Label } from "@headlessui/react";
 import clsx from "clsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,6 +15,10 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Link } from "react-router-dom";
 import { DateRangePicker, Range } from "react-date-range";
 import { tags, defaultDate } from "../../utils/constants";
+import { Dialog, DialogPanel } from "@headlessui/react";
+import { createBadgeWithCSV } from "../../api/AppData";
+import useToastStore from "../../store/useToastStore";
+
 export default function PageHeader({
   title,
   route,
@@ -43,6 +47,22 @@ export default function PageHeader({
   const [dateChanged, setDateChanged] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
   const [filtersApplied, setFiltersApplied] = useState(false);
+  const [isFileUploadOpen, setIsFileUploadOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
+  const { showToast } = useToastStore();
+  const [formData, setFormData] = useState({
+    name: "",
+    icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new",
+    is_locked: false,
+    unlock_condition: "Unlock with Fingerprint",
+    type: "Conditional",
+    condition_type: "free",
+    AppCategory: "Knowledge Evaluator",
+    category: "",
+  });
 
   const [selectedTags, setSelectedTags] = useState(
     tags.map((tag) => ({ ...tag, checked: false }))
@@ -117,6 +137,84 @@ export default function PageHeader({
     );
   };
 
+  const handleFileUpload = (category: string) => {
+    setSelectedCategory(category);
+    setFormData((prev) => ({
+      ...prev,
+      category: category,
+    }));
+    setIsFileUploadOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileError(""); // Reset error message
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
+      if (fileExtension !== "csv") {
+        setFileError("Please select a CSV file only");
+        setSelectedFile(null);
+        e.target.value = ""; // Clear the file input
+        return;
+      }
+
+      setSelectedFile(file);
+      // Remove .csv extension from the name
+      const fileNameWithoutExtension = file.name.replace(".csv", "");
+      setFormData((prev) => ({
+        ...prev,
+        name: fileNameWithoutExtension,
+      }));
+    }
+  };
+
+  const handleUploadSubmit = async (e) => {
+    if (selectedFile) {
+      // Validate required fields
+      if (
+        !formData.name ||
+        !formData.icon ||
+        !formData.unlock_condition ||
+        !formData.type ||
+        !formData.category ||
+        !formData.AppCategory ||
+        !formData.category
+      ) {
+        setFileError("All fields are required");
+        return;
+      }
+
+      try {
+        e.preventDefault();
+        setIsUploading(true);
+
+        const result = await createBadgeWithCSV(formData, selectedFile);
+        showToast(result.message || "File uploaded successfully!", "success");
+
+        // Close dialog and reset state
+        setIsFileUploadOpen(false);
+        setSelectedFile(null);
+        setSelectedCategory("");
+        setFormData({
+          name: "",
+          icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new",
+          is_locked: false,
+          unlock_condition: "Unlock with Fingerprint",
+          type: "Conditional",
+          condition_type: "free",
+          AppCategory: "Knowledge Evaluator",
+          category: "",
+        });
+      } catch (error) {
+        setFileError("Error uploading file. Please try again.");
+        console.error("Upload error:", error);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
   return (
     <div className="page-header">
       <div className="flex items-center">
@@ -125,18 +223,18 @@ export default function PageHeader({
         </div>
         {route === "contacts" && (
           <div className="filterArea">
+            {showEmail && (
+              <Button
+                className="btn btn-primary"
+                onClick={() => {
+                  onSendEmailClick?.();
+                }}
+              >
+                Send Email
+              </Button>
+            )}
             {!filterActive && (
               <>
-                {showEmail && (
-                  <Button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      onSendEmailClick?.();
-                    }}
-                  >
-                    Send Email
-                  </Button>
-                )}
                 <Field className="search-field">
                   <FontAwesomeIcon icon={faSearch} />
                   <Input as={Fragment}>
@@ -377,18 +475,66 @@ export default function PageHeader({
                 className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
               >
                 <div className="action-menu">
-                  <Link to="/" className="action-menu-item">
+                  <button
+                    className="action-menu-item"
+                    onClick={() => handleFileUpload("Combustion")}
+                  >
                     <p>Combustion</p>
-                  </Link>
-                  <Link to="/" className="action-menu-item">
+                  </button>
+                  <button
+                    className="action-menu-item"
+                    onClick={() => handleFileUpload("Refrigerant")}
+                  >
                     <p>Refrigerant</p>
-                  </Link>
+                  </button>
                 </div>
               </PopoverPanel>
             </Popover>
           </div>
         )}
       </div>
+
+      {/* File Upload Dialog */}
+      <Dialog
+        open={isFileUploadOpen}
+        onClose={() => setIsFileUploadOpen(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4 bg-black/40 dialog-item">
+          <DialogPanel className="max-w-full w-xl space-y-4 border bg-white p-6 rounded-xl dialog-panel">
+            <div className="dialog-header">
+              <h3>Upload {selectedCategory} File</h3>
+              <Button
+                className="closeBtn"
+                onClick={() => {
+                  setIsFileUploadOpen(false);
+                  setFileError("");
+                }}
+              >
+                <FontAwesomeIcon icon={faXmark} />
+              </Button>
+            </div>
+            <div className="dialog-body">
+              <Field className="fieldDv">
+                <Label>CSV File</Label>
+                <Input type="file" accept=".csv" onChange={handleFileChange} />
+                {fileError && (
+                  <p className="text-red-500 text-sm mt-1">{fileError}</p>
+                )}
+              </Field>
+            </div>
+            <div className="dialog-footer">
+              <Button
+                className="btn btn-primary"
+                onClick={handleUploadSubmit}
+                disabled={!selectedFile || isUploading}
+              >
+                {isUploading ? "Uploading..." : "Upload"}
+              </Button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
     </div>
   );
 }

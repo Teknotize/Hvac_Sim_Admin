@@ -1,8 +1,8 @@
-
-import useEmailToastStore from '../../store/userEmailToastStore';
+import useEmailToastStore from "../../store/userEmailToastStore";
 
 const ToastButtons = () => {
-  const { showToast, startProgress, updateProgress, completeProgress } = useEmailToastStore();
+  const { showToast, startProgress, updateProgress, completeProgress } =
+    useEmailToastStore();
 
   const handleProgressToast = () => {
     const totalEmails = 10; // Example total
@@ -26,21 +26,22 @@ const ToastButtons = () => {
   return (
     <div>
       <button
-        onClick={() => {showToast('Emails sent successfully!', 'success');}}
+        onClick={() => {
+          showToast("Emails sent successfully!", "success");
+        }}
         className="btn btn-success"
       >
         Success Toast
       </button>
       <button
-        onClick={() => showToast('An error occurred while sending emails!', 'error')}
+        onClick={() =>
+          showToast("An error occurred while sending emails!", "error")
+        }
         className="btn btn-danger"
       >
         Error Toast
       </button>
-      <button
-        onClick={handleProgressToast}
-        className="btn btn-primary"
-      >
+      <button onClick={handleProgressToast} className="btn btn-primary">
         Open Toast Progress
       </button>
     </div>
