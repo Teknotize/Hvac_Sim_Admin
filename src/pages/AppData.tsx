@@ -14,7 +14,34 @@ import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { DownloadIcon } from "../components/svg/icons";
 import ToastButtons from "../components/toast/toastTesting";
+import { useEffect, useState } from "react";
+import { getAllSubCategoriesWithBadges } from "../api/AppData";
 export default function AppData() {
+  const [subcategories, setSubcategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const combustionSubcategories = subcategories.filter(
+    (sub) => sub.name.toLowerCase() === "combustion"
+  );
+  const refrigerantSubcategories = subcategories.filter(
+    (sub) => sub.name.toLowerCase() === "refrigerant"
+  );
+
+  console.log(combustionSubcategories);
+  useEffect(() => {
+    const fetchSubCategories = async () => {
+      try {
+        const res = await getAllSubCategoriesWithBadges();
+        setSubcategories(res.data);
+      } catch (err) {
+        console.error("Error fetching subcategories:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubCategories();
+  }, []);
+
   return (
     <>
       <ToastButtons />
@@ -105,37 +132,42 @@ export default function AppData() {
           </div>
           <h3>No Flame</h3>
         </div>
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
+        {combustionSubcategories.map((sub) =>
+          sub?.subcategories.map((subcat) => (
+            <div key={subcat._id} className="fileDownloadDv">
+              <Popover className="action-drop">
+                <PopoverButton className="block">
+                  <FontAwesomeIcon icon={faEllipsisVertical} />
+                </PopoverButton>
+                <PopoverPanel
+                  transition
+                  anchor="bottom end"
+                  className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                >
+                  <div className="action-menu">
+                    <Link to="/" className="action-menu-item">
+                      <p>Enable</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Disable</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Edit</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Delete</p>
+                    </Link>
+                  </div>
+                </PopoverPanel>
+              </Popover>
+              <div className="iconDv">
+                <img src={CsvFileIcon} alt="CSV File" />
               </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <img src={CsvFileIcon} alt="CSV File" />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
+              <h3>{subcat?.name}</h3>
+            </div>
+          ))
+        )}
+
         <div className="fileDownloadDv">
           <Popover className="action-drop">
             <PopoverButton className="block">
@@ -243,37 +275,42 @@ export default function AppData() {
           </div>
           <h3>No Flame</h3>
         </div>
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
+        {refrigerantSubcategories?.map((sub) =>
+          sub?.subcategories?.map((subcat) => (
+            <div key={subcat._id} className="fileDownloadDv">
+              <Popover className="action-drop">
+                <PopoverButton className="block">
+                  <FontAwesomeIcon icon={faEllipsisVertical} />
+                </PopoverButton>
+                <PopoverPanel
+                  transition
+                  anchor="bottom end"
+                  className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                >
+                  <div className="action-menu">
+                    <Link to="/" className="action-menu-item">
+                      <p>Enable</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Disable</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Edit</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Delete</p>
+                    </Link>
+                  </div>
+                </PopoverPanel>
+              </Popover>
+              <div className="iconDv">
+                <img src={CsvFileIcon} alt="CSV File" />
               </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <img src={CsvFileIcon} alt="CSV File" />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
+              <h3>{subcat.name}</h3>
+            </div>
+          ))
+        )}
+
         <div className="fileDownloadDv">
           <Popover className="action-drop">
             <PopoverButton className="block">

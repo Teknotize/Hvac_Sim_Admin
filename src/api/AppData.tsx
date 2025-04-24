@@ -30,3 +30,14 @@ export const createBadgeWithCSV = async (formValues, file) => {
 
   return response.data;
 };
+
+export const getBadges = async () => {
+  const response = await axios.get(`${BASE_URL}/api/megacore`);
+  return response.data;
+};
+export const getAllSubCategoriesWithBadges = async () => {
+  const response = await axios.get(
+    `${BASE_URL}/api/getAllSubCategoriesWithBadges`
+  );
+  return response.data;
+};
