@@ -1,0 +1,94 @@
+@use '../base/mixins' as *;
+
+.sidebar{
+    width: 0px; background-color: #070113; color: var(--txt-color-dark); @include transDefault;
+    &.active{width: 250px;}
+    .sidebar-inner{width: 250px;}
+    .logo{
+        flex-grow: 1;
+        img{width: 160px;}
+    }
+    .user-info{
+        svg{
+            width: 20px;cursor: pointer;
+            @include svgColor(#8B8D98);
+        }
+    }
+    .user-card{
+        padding: 30px 0; text-align: center;
+        .user-dp{ width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 20px; @include imgCover; }
+        .user-card-body{
+            h4{ @include para(16px, 500, 0); color:#fff; }
+            p{ @include para(14px, 400, 0); }
+        }
+    }
+    .mainNav{
+        .nav-item-group{
+            @include transDefault;
+            .nav-item{
+                display: flex; align-items: center; padding: 10px 10px; border-radius: 30px; color: var(--txt-color); margin: 0 0 5px;
+                &.has-sub-items{cursor: pointer;}
+                .nav-item-inner{
+                    display: flex; align-items: center; gap: 10px; flex-grow: 1;
+                    span{ @include para(14px, 500, 0); @include transDefault;}
+                }
+                svg{ width: 20px; @include svgColor(var(--txt-color)); &, *{@include transDefault;}
+                    &.sub-item-arrow{transform: rotate(-90deg);}
+                }
+                &:hover,
+                &.active{
+                    background-color: var(--base-color-primary); color:#fff;
+                    svg{ @include svgColor(#fff);}
+                }
+            }
+            .sub-item-group{
+                max-height: 0px; overflow: hidden; @include transDefault;
+                .nav-sub-item{
+                    display: flex; align-items: center; padding: 10px 10px; padding-left: 40px; border-radius: 30px; color: var(--txt-color); margin: 0 0 5px;
+                    &:hover,
+                    &.active{
+                        // background-color: var(--base-color-primary); 
+                        color:#fff;
+                    }
+                }
+            }
+            &.active{
+                .nav-item{
+                    background-color: var(--base-color-primary); color:#fff;
+                    svg{
+                        @include svgColor(#fff);
+                        &.sub-item-arrow{transform: rotate(0deg);}
+                    }
+                }
+                .sub-item-group{max-height: 1000px;}
+            }
+        }
+    }
+}
+
+.user-info-popover{
+    background-color: #fff; border-radius: 10px; padding: 10px;
+    .user-label{
+        padding: 10px;
+        p{
+            @include para(12px, 500, 0);
+            +p{font-size: 14px;}
+        }
+    }
+    .user-menu{
+        .user-menu-item{
+            display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 5px; background-color: transparent;
+            &, *{@include transDefault;}
+            svg{
+                width: 20px;
+                @include svgColor(var(--txt-color));
+            }
+            p{ @include para(14px, 500, 0); }
+            &:hover{
+                background-color: rgba(var(--base-color-primary-rgb), 0.1);
+                svg{@include svgColor(var(--base-color-primary));}
+                p{color: var(--base-color-primary);}
+            }
+        }
+    }
+}

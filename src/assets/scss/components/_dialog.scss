@@ -1,0 +1,35 @@
+@use '../base/mixins' as *;
+
+.dialog{
+    &-item{
+        background-color: rgba(0, 0, 0, 0.5);
+        .dialog-panel{
+            .dialog-header{
+                display: flex; align-items: center; justify-content: space-between; position: relative; box-shadow: 0 2px 1px rgba(0, 0, 0, 0.03); margin: -24px -24px 24px; padding: 24px;
+                .closeBtn { position: absolute; top: 20px; right: 20px; background-color: var(--color-gray-200); border-radius: 50%; @include para(20px, 400, 0, 5px); line-height: 1; min-width: 30px; cursor: pointer; color: var(--txt-color); }
+                h3{ @include para(18px, 600, 0, 0); color: #000; }
+            }
+            .dialog-body{
+                min-height: 200px; position: relative;
+                p{ @include para(14px, 400, 0, 0); }
+            }
+            .dialog-footer{
+                display: flex; align-items: center; justify-content: flex-end; position: relative; box-shadow: 0 -2px 1px rgba(0, 0, 0, 0.03); margin: 24px -24px -24px; padding: 24px;
+                
+            }
+        }
+    }
+    &-notification{
+        .dialog-panel{
+            .dialog-body{
+                min-height: 200px; position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px; text-align: center; padding: 60px 0px;
+                .closeBtn { position: absolute; top: 0px; right: 0px; background-color: var(--color-gray-200); border-radius: 50%; @include para(20px, 400, 0, 5px); line-height: 1; min-width: 30px; cursor: pointer; color: var(--txt-color); }
+                h3{ @include para(24px, 600, 0, 0); color: #000; }
+                p{ @include para(16px, 400, 0, 0); line-height: 2; color: var(--txt-color-dark);}
+                .btn-row{
+                    display: flex; align-items: center; justify-content: center; gap: 20px;
+                }
+            }
+        }
+    }
+}

@@ -1,5 +1,6 @@
+
 export default function Dashboard() {
-  // Sample data for the dashboard
+  
   const stats = [
     { name: 'Active Systems', value: '24' },
     { name: 'Alerts', value: '3' },
