@@ -31,13 +31,21 @@ export const createBadgeWithCSV = async (formValues, file) => {
   return response.data;
 };
 
-export const getBadges = async () => {
-  const response = await axios.get(`${BASE_URL}/api/megacore`);
-  return response.data;
-};
 export const getAllSubCategoriesWithBadges = async () => {
   const response = await axios.get(
     `${BASE_URL}/api/getAllSubCategoriesWithBadges`
   );
+  return response.data;
+};
+
+export const updateBadge = async (id: any, is_locked: any) => {
+  const response = await axios.patch(`${BASE_URL}/api/updatebadge/${id}`, {
+    is_locked,
+  });
+  return response.data;
+};
+
+export const deleteBadge = async (id: any) => {
+  const response = await axios.delete(`${BASE_URL}/api/badge/${id}`);
   return response.data;
 };

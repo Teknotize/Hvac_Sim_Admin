@@ -15,10 +15,32 @@ import { Link } from "react-router-dom";
 import { DownloadIcon } from "../components/svg/icons";
 import ToastButtons from "../components/toast/toastTesting";
 import { useEffect, useState } from "react";
-import { getAllSubCategoriesWithBadges } from "../api/AppData";
+
+import useToastStore from "../store/useToastStore";
+import {
+  updateBadge,
+  getAllSubCategoriesWithBadges,
+  deleteBadge,
+} from "../api/AppData";
+
+interface SubCategory {
+  _id: string;
+  name: string;
+  subcategories: Badge[];
+}
+
+interface Badge {
+  _id: string;
+  name: string;
+  is_locked: boolean;
+  // Add other badge properties as needed
+}
+
 export default function AppData() {
-  const [subcategories, setSubcategories] = useState([]);
+  const [subcategories, setSubcategories] = useState<SubCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToastStore();
+  const [refreshFlag, setRefreshFlag] = useState(false);
   const combustionSubcategories = subcategories.filter(
     (sub) => sub.name.toLowerCase() === "combustion"
   );
@@ -26,7 +48,39 @@ export default function AppData() {
     (sub) => sub.name.toLowerCase() === "refrigerant"
   );
 
-  console.log(combustionSubcategories);
+  const handleEnableDisable = async (id: string, is_locked: boolean) => {
+    try {
+      const response = await updateBadge(id, is_locked);
+      if (response.status === 200) {
+        showToast(
+          response.message || "Status updated successfully!",
+          "success"
+        );
+        setRefreshFlag((prev) => !prev);
+      } else {
+        throw new Error(response.message || "Failed to update status");
+      }
+    } catch (error: any) {
+      showToast(error.message || "Error updating status", "error");
+      console.error("Update error:", error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await deleteBadge(id);
+      if (response.status === 200) {
+        showToast(response.message || "Badge deleted successfully!", "success");
+        setRefreshFlag((prev) => !prev);
+      } else {
+        throw new Error(response.message || "Failed to delete badge");
+      }
+    } catch (error: any) {
+      showToast(error.message || "Error deleting badge", "error");
+      console.error("Delete error:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchSubCategories = async () => {
       try {
@@ -40,7 +94,7 @@ export default function AppData() {
     };
 
     fetchSubCategories();
-  }, []);
+  }, [refreshFlag]);
 
   return (
     <>
@@ -134,7 +188,12 @@ export default function AppData() {
         </div>
         {combustionSubcategories.map((sub) =>
           sub?.subcategories.map((subcat) => (
-            <div key={subcat._id} className="fileDownloadDv">
+            <div key={subcat._id} className="fileDownloadDv locked">
+              {subcat.is_locked && (
+                <span className="fileLockIcon">
+                  <img src={FileLockIcon} alt="File Lock" />
+                </span>
+              )}
               <Popover className="action-drop">
                 <PopoverButton className="block">
                   <FontAwesomeIcon icon={faEllipsisVertical} />
@@ -145,18 +204,24 @@ export default function AppData() {
                   className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                 >
                   <div className="action-menu">
-                    <Link to="/" className="action-menu-item">
+                    <button
+                      className="action-menu-item"
+                      onClick={() => handleEnableDisable(subcat._id, false)}
+                    >
                       <p>Enable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
+                    </button>
+                    <button
+                      className="action-menu-item"
+                      onClick={() => handleEnableDisable(subcat._id, true)}
+                    >
                       <p>Disable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Edit</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
+                    </button>
+                    <button
+                      className="action-menu-item"
+                      onClick={() => handleDelete(subcat._id)}
+                    >
                       <p>Delete</p>
-                    </Link>
+                    </button>
                   </div>
                 </PopoverPanel>
               </Popover>
@@ -167,69 +232,6 @@ export default function AppData() {
             </div>
           ))
         )}
-
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <img src={CsvFileIcon} alt="CSV File" />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <img src={CsvFileIcon} alt="CSV File" />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
       </div>
 
       <div className="page-header">
@@ -261,9 +263,7 @@ export default function AppData() {
                 <Link to="/" className="action-menu-item">
                   <p>Disable</p>
                 </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
+
                 <Link to="/" className="action-menu-item">
                   <p>Delete</p>
                 </Link>
@@ -277,7 +277,12 @@ export default function AppData() {
         </div>
         {refrigerantSubcategories?.map((sub) =>
           sub?.subcategories?.map((subcat) => (
-            <div key={subcat._id} className="fileDownloadDv">
+            <div key={subcat._id} className="fileDownloadDv locked">
+              {subcat.is_locked && (
+                <span className="fileLockIcon">
+                  <img src={FileLockIcon} alt="File Lock" />
+                </span>
+              )}
               <Popover className="action-drop">
                 <PopoverButton className="block">
                   <FontAwesomeIcon icon={faEllipsisVertical} />
@@ -288,18 +293,24 @@ export default function AppData() {
                   className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                 >
                   <div className="action-menu">
-                    <Link to="/" className="action-menu-item">
+                    <button
+                      className="action-menu-item"
+                      onClick={() => handleEnableDisable(subcat._id, false)}
+                    >
                       <p>Enable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
+                    </button>
+                    <button
+                      className="action-menu-item"
+                      onClick={() => handleEnableDisable(subcat._id, true)}
+                    >
                       <p>Disable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Edit</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
+                    </button>
+                    <button
+                      className="action-menu-item"
+                      onClick={() => handleDelete(subcat._id)}
+                    >
                       <p>Delete</p>
-                    </Link>
+                    </button>
                   </div>
                 </PopoverPanel>
               </Popover>
@@ -311,37 +322,6 @@ export default function AppData() {
           ))
         )}
 
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <img src={CsvFileIcon} alt="CSV File" />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
         <div className="fileDownloadDv">
           <Popover className="action-drop">
             <PopoverButton className="block">
