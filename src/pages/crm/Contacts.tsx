@@ -272,7 +272,7 @@ export default function Contacts() {
                 </div>
                 <div className='table-cell cell-user'>
                   <div className='user-dp-card'>
-                    <figure><span>{contact.name.charAt(0)}</span></figure>
+                    <figure><span>{contact.name?.charAt(0)}</span></figure>
                     <span>{contact.name}</span>
                   </div>
                 </div>

@@ -2,8 +2,11 @@ import axios from "axios";
 import refreshAccessToken from "./utils/refreshAccessToken";
 import { useAuthStore } from "./store/useAuthStore";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+// const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 // const BASE_URL = "http://localhost:3000/api";
+// const BASE_URL="hvac-sim-server"
+// const BASE_URL="https://hvac-simulator.vercel.app/api"
+const BASE_URL = "http://localhost:3000/api";
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
