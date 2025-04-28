@@ -19,6 +19,7 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 
 import useToastStore from "../../store/useToastStore";
 import { createBadgeWithCSV } from "../../api/AppData";
+import { set } from "date-fns";
 
 export default function PageHeader({
   title,
@@ -30,12 +31,14 @@ export default function PageHeader({
   onTagsFilterChange,
   clearFilter,
   dateSelectedCallback,
+  setRefreshFlag,
 }: {
   title: string;
   route?: string;
   onSendEmailClick?: () => void;
   onSearchChange?: (value: string) => void;
   onAddNewPdfClick?: () => void;
+  setRefreshFlag: any;
   showEmail?: boolean;
   onTagsFilterChange?: (filters: {
     tags: string[];
@@ -191,6 +194,7 @@ export default function PageHeader({
         setIsUploading(true);
 
         const result = await createBadgeWithCSV(formData, selectedFile);
+        setRefreshFlag((prev) => !prev); // Trigger refresh in parent component
         showToast(result.message || "File uploaded successfully!", "success");
 
         // Close dialog and reset state

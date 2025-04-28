@@ -22,6 +22,7 @@ import {
   getAllSubCategoriesWithBadges,
   deleteBadge,
 } from "../api/AppData";
+import Loader from "../components/loader";
 
 interface SubCategory {
   _id: string;
@@ -82,6 +83,7 @@ export default function AppData() {
   };
 
   useEffect(() => {
+    setLoading(true);
     const fetchSubCategories = async () => {
       try {
         const res = await getAllSubCategoriesWithBadges();
@@ -99,7 +101,11 @@ export default function AppData() {
   return (
     <>
       <ToastButtons />
-      <PageHeader title="Templates" route="app-data" />
+      <PageHeader
+        title="Templates"
+        route="app-data"
+        setRefreshFlag={setRefreshFlag}
+      />
       <div className="flex gap-6 flex-wrap mb-20">
         <div className="fileDownloadDv">
           <a
@@ -145,55 +151,22 @@ export default function AppData() {
           </div>
         </div>
       </div>
-
-      <div className="page-header">
-        <div className="flex items-center">
-          <div className="flex-1">
-            <h1 className="page-title">Combustion Data</h1>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex gap-6 flex-wrap mb-20">
-        <div className="fileDownloadDv locked">
-          <span className="fileLockIcon">
-            <img src={FileLockIcon} alt="File Lock" />
-          </span>
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
+      {loading ? (
+        <Loader size="xl" />
+      ) : (
+        <>
+          <div className="page-header">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <h1 className="page-title">Combustion Data</h1>
               </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <img src={CsvFileIcon} alt="CSV File" />
+            </div>
           </div>
-          <h3>No Flame</h3>
-        </div>
-        {combustionSubcategories.map((sub) =>
-          sub?.subcategories.map((subcat) => (
-            <div key={subcat._id} className="fileDownloadDv locked">
-              {subcat.is_locked && (
-                <span className="fileLockIcon">
-                  <img src={FileLockIcon} alt="File Lock" />
-                </span>
-              )}
+          <div className="flex gap-6 flex-wrap mb-20">
+            <div className="fileDownloadDv locked">
+              <span className="fileLockIcon">
+                <img src={FileLockIcon} alt="File Lock" />
+              </span>
               <Popover className="action-drop">
                 <PopoverButton className="block">
                   <FontAwesomeIcon icon={faEllipsisVertical} />
@@ -204,85 +177,88 @@ export default function AppData() {
                   className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                 >
                   <div className="action-menu">
-                    <button
-                      className="action-menu-item"
-                      onClick={() => handleEnableDisable(subcat._id, false)}
-                    >
+                    <Link to="/" className="action-menu-item">
                       <p>Enable</p>
-                    </button>
-                    <button
-                      className="action-menu-item"
-                      onClick={() => handleEnableDisable(subcat._id, true)}
-                    >
+                    </Link>
+                    <Link to="/" className="action-menu-item">
                       <p>Disable</p>
-                    </button>
-                    <button
-                      className="action-menu-item"
-                      onClick={() => handleDelete(subcat._id)}
-                    >
+                    </Link>
+                    <Link to="/" className="action-menu-item">
                       <p>Delete</p>
-                    </button>
+                    </Link>
                   </div>
                 </PopoverPanel>
               </Popover>
               <div className="iconDv">
                 <img src={CsvFileIcon} alt="CSV File" />
               </div>
-              <h3>{subcat?.name}</h3>
+              <h3>No Flame</h3>
             </div>
-          ))
-        )}
-      </div>
-
-      <div className="page-header">
-        <div className="flex items-center">
-          <div className="flex-1">
-            <h1 className="page-title">Refrigerant Data</h1>
+            {combustionSubcategories.map((sub) =>
+              sub?.subcategories.map((subcat) => (
+                <div key={subcat._id} className="fileDownloadDv locked">
+                  {subcat.is_locked && (
+                    <span className="fileLockIcon">
+                      <img src={FileLockIcon} alt="File Lock" />
+                    </span>
+                  )}
+                  <Popover className="action-drop">
+                    <PopoverButton className="block">
+                      <FontAwesomeIcon icon={faEllipsisVertical} />
+                    </PopoverButton>
+                    <PopoverPanel
+                      transition
+                      anchor="bottom end"
+                      className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                    >
+                      <div className="action-menu">
+                        <button
+                          className={`action-menu-item ${
+                            subcat.is_locked ? "" : "disabled"
+                          }`}
+                          onClick={() => handleEnableDisable(subcat._id, false)}
+                          disabled={!subcat.is_locked}
+                        >
+                          <p>Enable</p>
+                        </button>
+                        <button
+                          className={`action-menu-item ${
+                            subcat.is_locked ? "disabled" : ""
+                          }`}
+                          onClick={() => handleEnableDisable(subcat._id, true)}
+                          disabled={subcat.is_locked}
+                        >
+                          <p>Disable</p>
+                        </button>
+                        <button
+                          className="action-menu-item"
+                          onClick={() => handleDelete(subcat._id)}
+                        >
+                          <p>Delete</p>
+                        </button>
+                      </div>
+                    </PopoverPanel>
+                  </Popover>
+                  <div className="iconDv">
+                    <img src={CsvFileIcon} alt="CSV File" />
+                  </div>
+                  <h3>{subcat?.name}</h3>
+                </div>
+              ))
+            )}
           </div>
-        </div>
-      </div>
-
-      <div className="flex gap-6 flex-wrap">
-        <div className="fileDownloadDv locked">
-          <span className="fileLockIcon">
-            <img src={FileLockIcon} alt="File Lock" />
-          </span>
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
+          <div className="page-header">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <h1 className="page-title">Refrigerant Data</h1>
               </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <img src={CsvFileIcon} alt="CSV File" />
+            </div>
           </div>
-          <h3>No Flame</h3>
-        </div>
-        {refrigerantSubcategories?.map((sub) =>
-          sub?.subcategories?.map((subcat) => (
-            <div key={subcat._id} className="fileDownloadDv locked">
-              {subcat.is_locked && (
-                <span className="fileLockIcon">
-                  <img src={FileLockIcon} alt="File Lock" />
-                </span>
-              )}
+          <div className="flex gap-6 flex-wrap">
+            <div className="fileDownloadDv locked">
+              <span className="fileLockIcon">
+                <img src={FileLockIcon} alt="File Lock" />
+              </span>
               <Popover className="action-drop">
                 <PopoverButton className="block">
                   <FontAwesomeIcon icon={faEllipsisVertical} />
@@ -293,67 +269,111 @@ export default function AppData() {
                   className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                 >
                   <div className="action-menu">
-                    <button
-                      className="action-menu-item"
-                      onClick={() => handleEnableDisable(subcat._id, false)}
-                    >
+                    <Link to="/" className="action-menu-item">
                       <p>Enable</p>
-                    </button>
-                    <button
-                      className="action-menu-item"
-                      onClick={() => handleEnableDisable(subcat._id, true)}
-                    >
+                    </Link>
+                    <Link to="/" className="action-menu-item">
                       <p>Disable</p>
-                    </button>
-                    <button
-                      className="action-menu-item"
-                      onClick={() => handleDelete(subcat._id)}
-                    >
+                    </Link>
+
+                    <Link to="/" className="action-menu-item">
                       <p>Delete</p>
-                    </button>
+                    </Link>
                   </div>
                 </PopoverPanel>
               </Popover>
               <div className="iconDv">
                 <img src={CsvFileIcon} alt="CSV File" />
               </div>
-              <h3>{subcat.name}</h3>
+              <h3>No Flame</h3>
             </div>
-          ))
-        )}
+            {refrigerantSubcategories?.map((sub) =>
+              sub?.subcategories?.map((subcat) => (
+                <div key={subcat._id} className="fileDownloadDv locked">
+                  {subcat.is_locked && (
+                    <span className="fileLockIcon">
+                      <img src={FileLockIcon} alt="File Lock" />
+                    </span>
+                  )}
+                  <Popover className="action-drop">
+                    <PopoverButton className="block">
+                      <FontAwesomeIcon icon={faEllipsisVertical} />
+                    </PopoverButton>
+                    <PopoverPanel
+                      transition
+                      anchor="bottom end"
+                      className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                    >
+                      <div className="action-menu">
+                        <button
+                          className={`action-menu-item ${
+                            subcat.is_locked ? "" : "disabled"
+                          }`}
+                          onClick={() => handleEnableDisable(subcat._id, false)}
+                          disabled={!subcat.is_locked}
+                        >
+                          <p>Enable</p>
+                        </button>
+                        <button
+                          className={`action-menu-item ${
+                            subcat.is_locked ? "disabled" : ""
+                          }`}
+                          onClick={() => handleEnableDisable(subcat._id, true)}
+                          disabled={subcat.is_locked}
+                        >
+                          <p>Disable</p>
+                        </button>
+                        <button
+                          className="action-menu-item"
+                          onClick={() => handleDelete(subcat._id)}
+                        >
+                          <p>Delete</p>
+                        </button>
+                      </div>
+                    </PopoverPanel>
+                  </Popover>
+                  <div className="iconDv">
+                    <img src={CsvFileIcon} alt="CSV File" />
+                  </div>
+                  <h3>{subcat.name}</h3>
+                </div>
+              ))
+            )}
 
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
+            <div className="fileDownloadDv">
+              <Popover className="action-drop">
+                <PopoverButton className="block">
+                  <FontAwesomeIcon icon={faEllipsisVertical} />
+                </PopoverButton>
+                <PopoverPanel
+                  transition
+                  anchor="bottom end"
+                  className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                >
+                  <div className="action-menu">
+                    <Link to="/" className="action-menu-item">
+                      <p>Enable</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Disable</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Edit</p>
+                    </Link>
+                    <Link to="/" className="action-menu-item">
+                      <p>Delete</p>
+                    </Link>
+                  </div>
+                </PopoverPanel>
+              </Popover>
+              <div className="iconDv">
+                <img src={CsvFileIcon} alt="CSV File" />
               </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <img src={CsvFileIcon} alt="CSV File" />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
-      </div>
+              <h3>PDF Manual</h3>
+            </div>
+          </div>{" "}
+        </>
+      )}
     </>
   );
 }
