@@ -53,11 +53,11 @@ export default function AppData() {
     try {
       const response = await updateBadge(id, is_locked);
       if (response.status === 200) {
+        setRefreshFlag((prev) => !prev);
         showToast(
           response.message || "Status updated successfully!",
           "success"
         );
-        setRefreshFlag((prev) => !prev);
       } else {
         throw new Error(response.message || "Failed to update status");
       }
@@ -71,8 +71,8 @@ export default function AppData() {
     try {
       const response = await deleteBadge(id);
       if (response.status === 200) {
-        showToast(response.message || "Badge deleted successfully!", "success");
         setRefreshFlag((prev) => !prev);
+        showToast(response.message || "Badge deleted successfully!", "success");
       } else {
         throw new Error(response.message || "Failed to delete badge");
       }
@@ -163,37 +163,6 @@ export default function AppData() {
             </div>
           </div>
           <div className="flex gap-6 flex-wrap mb-20">
-            <div className="fileDownloadDv locked">
-              <span className="fileLockIcon">
-                <img src={FileLockIcon} alt="File Lock" />
-              </span>
-              <Popover className="action-drop">
-                <PopoverButton className="block">
-                  <FontAwesomeIcon icon={faEllipsisVertical} />
-                </PopoverButton>
-                <PopoverPanel
-                  transition
-                  anchor="bottom end"
-                  className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                >
-                  <div className="action-menu">
-                    <Link to="/" className="action-menu-item">
-                      <p>Enable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Disable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Delete</p>
-                    </Link>
-                  </div>
-                </PopoverPanel>
-              </Popover>
-              <div className="iconDv">
-                <img src={CsvFileIcon} alt="CSV File" />
-              </div>
-              <h3>No Flame</h3>
-            </div>
             {combustionSubcategories.map((sub) =>
               sub?.subcategories.map((subcat) => (
                 <div key={subcat._id} className="fileDownloadDv locked">
@@ -239,7 +208,11 @@ export default function AppData() {
                       </div>
                     </PopoverPanel>
                   </Popover>
-                  <div className="iconDv">
+                  <div
+                    className={`iconDv ${
+                      subcat.is_locked ? "grayscale-100" : ""
+                    }`}
+                  >
                     <img src={CsvFileIcon} alt="CSV File" />
                   </div>
                   <h3>{subcat?.name}</h3>
@@ -255,7 +228,7 @@ export default function AppData() {
             </div>
           </div>
           <div className="flex gap-6 flex-wrap">
-            <div className="fileDownloadDv locked">
+            {/* <div className="fileDownloadDv locked">
               <span className="fileLockIcon">
                 <img src={FileLockIcon} alt="File Lock" />
               </span>
@@ -286,10 +259,10 @@ export default function AppData() {
                 <img src={CsvFileIcon} alt="CSV File" />
               </div>
               <h3>No Flame</h3>
-            </div>
+            </div> */}
             {refrigerantSubcategories?.map((sub) =>
               sub?.subcategories?.map((subcat) => (
-                <div key={subcat._id} className="fileDownloadDv locked">
+                <div key={subcat._id} className="fileDownloadDv locked ">
                   {subcat.is_locked && (
                     <span className="fileLockIcon">
                       <img src={FileLockIcon} alt="File Lock" />
@@ -332,45 +305,17 @@ export default function AppData() {
                       </div>
                     </PopoverPanel>
                   </Popover>
-                  <div className="iconDv">
+                  <div
+                    className={`iconDv ${
+                      subcat.is_locked ? "grayscale-100" : ""
+                    }`}
+                  >
                     <img src={CsvFileIcon} alt="CSV File" />
                   </div>
                   <h3>{subcat.name}</h3>
                 </div>
               ))
             )}
-
-            <div className="fileDownloadDv">
-              <Popover className="action-drop">
-                <PopoverButton className="block">
-                  <FontAwesomeIcon icon={faEllipsisVertical} />
-                </PopoverButton>
-                <PopoverPanel
-                  transition
-                  anchor="bottom end"
-                  className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                >
-                  <div className="action-menu">
-                    <Link to="/" className="action-menu-item">
-                      <p>Enable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Disable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Edit</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Delete</p>
-                    </Link>
-                  </div>
-                </PopoverPanel>
-              </Popover>
-              <div className="iconDv">
-                <img src={CsvFileIcon} alt="CSV File" />
-              </div>
-              <h3>PDF Manual</h3>
-            </div>
           </div>{" "}
         </>
       )}
