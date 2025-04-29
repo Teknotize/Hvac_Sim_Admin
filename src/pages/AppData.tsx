@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import { DownloadIcon } from "../components/svg/icons";
-import ToastButtons from "../components/toast/toastTesting";
+// import ToastButtons from "../components/toast/toastTesting";
 import { useEffect, useState } from "react";
 
 import useToastStore from "../store/useToastStore";
@@ -95,7 +95,7 @@ export default function AppData() {
 
   return (
     <>
-      <ToastButtons />
+      {/* <ToastButtons /> */}
       <PageHeader
         title="Templates"
         route="app-data"
@@ -158,7 +158,7 @@ export default function AppData() {
             </div>
           </div>
           <div className="flex gap-6 flex-wrap mb-20">
-            <div className="fileDownloadDv locked">
+            {/* <div className="fileDownloadDv locked">
               <span className="fileLockIcon">
                 <img src={FileLockIcon} alt="File Lock" />
               </span>
@@ -188,7 +188,7 @@ export default function AppData() {
                 <img src={CsvFileIcon} alt="CSV File" />
               </div>
               <h3>No Flame</h3>
-            </div>
+            </div> */}
             {combustionSubcategories.map((sub) =>
               sub?.subcategories.map((subcat) => (
                 <div key={subcat._id} className="fileDownloadDv locked">
@@ -343,7 +343,7 @@ export default function AppData() {
               ))
             )}
 
-            <div className="fileDownloadDv">
+            {/* <div className="fileDownloadDv">
               <Popover className="action-drop">
                 <PopoverButton className="block">
                   <FontAwesomeIcon icon={faEllipsisVertical} />
@@ -373,7 +373,7 @@ export default function AppData() {
                 <img src={CsvFileIcon} alt="CSV File" />
               </div>
               <h3>PDF Manual</h3>
-            </div>
+            </div> */}
           </div>{" "}
         </>
       )}
