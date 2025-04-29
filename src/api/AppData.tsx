@@ -1,7 +1,6 @@
-import axios from "axios";
 import { apiClient } from "../config";
 
-export const createBadgeWithCSV = async (formValues, file) => {
+export const createBadgeWithCSV = async (formValues: any, file: any) => {
   const formData = new FormData();
 
   // Add fields
