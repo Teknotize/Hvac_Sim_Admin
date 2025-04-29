@@ -207,24 +207,26 @@ export default function AppData() {
                       className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                     >
                       <div className="action-menu">
-                        <button
-                          className={`action-menu-item ${
-                            subcat.is_locked ? "" : "disabled"
-                          }`}
-                          onClick={() => handleEnableDisable(subcat._id, false)}
-                          disabled={!subcat.is_locked}
-                        >
-                          <p>Enable</p>
-                        </button>
-                        <button
-                          className={`action-menu-item ${
-                            subcat.is_locked ? "disabled" : ""
-                          }`}
-                          onClick={() => handleEnableDisable(subcat._id, true)}
-                          disabled={subcat.is_locked}
-                        >
-                          <p>Disable</p>
-                        </button>
+                        {subcat.is_locked ? (
+                          <button
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, false)
+                            }
+                          >
+                            <p>Unlock</p>
+                          </button>
+                        ) : (
+                          <button
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, true)
+                            }
+                          >
+                            <p>Lock</p>
+                          </button>
+                        )}
+
                         <button
                           className="action-menu-item"
                           onClick={() => handleDelete(subcat._id)}
@@ -254,7 +256,7 @@ export default function AppData() {
             </div>
           </div>
           <div className="flex gap-6 flex-wrap">
-            <div className="fileDownloadDv locked">
+            {/* <div className="fileDownloadDv locked">
               <span className="fileLockIcon">
                 <img src={FileLockIcon} alt="File Lock" />
               </span>
@@ -285,7 +287,7 @@ export default function AppData() {
                 <img src={CsvFileIcon} alt="CSV File" />
               </div>
               <h3>No Flame</h3>
-            </div>
+            </div> */}
             {refrigerantSubcategories?.map((sub) =>
               sub?.subcategories?.map((subcat) => (
                 <div key={subcat._id} className="fileDownloadDv locked ">
@@ -304,24 +306,26 @@ export default function AppData() {
                       className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                     >
                       <div className="action-menu">
-                        <button
-                          className={`action-menu-item ${
-                            subcat.is_locked ? "" : "disabled"
-                          }`}
-                          onClick={() => handleEnableDisable(subcat._id, false)}
-                          disabled={!subcat.is_locked}
-                        >
-                          <p>Enable</p>
-                        </button>
-                        <button
-                          className={`action-menu-item ${
-                            subcat.is_locked ? "disabled" : ""
-                          }`}
-                          onClick={() => handleEnableDisable(subcat._id, true)}
-                          disabled={subcat.is_locked}
-                        >
-                          <p>Disable</p>
-                        </button>
+                        {subcat.is_locked ? (
+                          <button
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, false)
+                            }
+                          >
+                            <p>Unlock</p>
+                          </button>
+                        ) : (
+                          <button
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, true)
+                            }
+                          >
+                            <p>Lock</p>
+                          </button>
+                        )}
+
                         <button
                           className="action-menu-item"
                           onClick={() => handleDelete(subcat._id)}
