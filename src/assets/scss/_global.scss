@@ -255,27 +255,9 @@
     }
 
     .sendEmailPop-wrapper {
-        background-color: #fff;
-        border-radius: 10px;
-        width: 50%;
-        padding: 20px;
-        margin: 0px 30px 20px 0px;
-        border: 1px solid var(--table-border-color);
-        cursor: pointer;
-        position: relative;
+        background-color: #fff; border-radius: 10px; width: 50%; padding: 20px; margin: 0px 30px 20px 0px; border: 1px solid var(--table-border-color); cursor: pointer; position: relative;
 
-        .closeBtn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: var(--color-gray-200);
-            border-radius: 50%;
-            @include para(20px, 400, 0, 5px);
-            line-height: 1;
-            min-width: 30px;
-            cursor: pointer;
-            color: var(--txt-color);
-        }
+        .closeBtn { position: absolute; top: 20px; right: 20px; background-color: var(--color-gray-200); border-radius: 50%; @include para(20px, 400, 0, 5px); line-height: 1; min-width: 30px; cursor: pointer; color: var(--txt-color); }
 
         h2 {
             @include para(24px, 600, 0, 20px);
@@ -284,49 +266,20 @@
 
         .fieldDv {
             .emailInputCol {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                flex-wrap: wrap;
-                padding: 5px;
-                border-radius: 5px;
-                position: relative;
-                max-height: 150px;
-                overflow: auto;
-                border: 1px solid var(--table-border-color);
+                display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 5px; border-radius: 5px; position: relative; max-height: 150px; overflow: auto; border: 1px solid var(--table-border-color);
 
                 // &:focus-within{outline: 2px solid var(--base-color-primary);}
                 .emailItem {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    background-color: var(--table-border-color);
-                    border-radius: 50px;
-                    padding: 4px;
-
+                    display: flex; align-items: center; gap: 10px; background-color: var(--table-border-color); border-radius: 50px; padding: 4px; transition: var(--trans-primary);
                     figure {
-                        width: 30px;
-                        height: 30px;
-                        border-radius: 50%;
-                        background-color: #fff;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-
-                        span {
-                            @include para(14px, 400, 0, 0);
-                            color: var(--txt-color);
-                        }
+                        width: 30px; height: 30px; border-radius: 50%; background-color: #fff; display: flex; align-items: center; justify-content: center;
+                        span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
                     }
-
-                    span {
-                        @include para(14px, 400, 0, 0);
-                        color: var(--txt-color);
-                    }
-
-                    i {
-                        @include para(20px, 400, 0px 10px 0px 0px, 0);
-                        color: var(--txt-color-dark);
+                    span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
+                    i { @include para(20px, 400, 0px 10px 0px 0px, 0); color: var(--txt-color-dark);  transition: var(--trans-primary);}
+                    &:hover{
+                        background-color: rgba(var(--base-color-primary-rgb), 0.1);
+                        i{color: var(--base-color-primary);}
                     }
                 }
 
