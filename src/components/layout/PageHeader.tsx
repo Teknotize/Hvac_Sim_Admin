@@ -345,7 +345,7 @@ export default function PageHeader({
                         <>
                           <PopoverButton
                             className={`block btn btn-outline-grey icon-end ${
-                              filterCount && "active"
+                              selectedTags.filter((tag) => tag.checked).length > 0  && "active"
                             }`}
                           >
                             <span>

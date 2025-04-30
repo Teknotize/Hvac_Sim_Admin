@@ -23,6 +23,8 @@ import formatDateTime from "../../utils/DateConversion";
 import EmailPopup from "../../components/emailPopup";
 import Loader from "../../components/loader";
 import { Calendar } from "react-date-range";
+import { deleteContactUserById } from "../../api/ContactsApi";
+import useToastStore from "../../store/useToastStore";
 
 interface CRMUser {
   [key: string]: any;
@@ -42,10 +44,26 @@ export default function Contacts() {
   const [checkedUser, setCheckedUser] = useState<CRMUser[]>([]);
   const itemsPerPage = 10;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
+  const { showToast } = useToastStore();
   const [showEmail, setShowEmail] = useState(false);
   const [reRun, setReRun] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [refreshFlag, setRefreshFlag] = useState(false);
 
+  const [isEditContactItem, setIsEditContactItem] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [isEmailSentSuccess, setIsEmailSentSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    business: "",
+    tags: "",
+    date: new Date(),
+  });
+
+  const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
+    useState(false);
   useEffect(() => {
     const hasCheckedUser =
       crmUsers.some((user) => user.isChecked) ||
@@ -114,6 +132,23 @@ export default function Contacts() {
     setCheckedUser([]); // Clear all checked users
     setSelectedIds(new Set()); // Clear the selected IDs if using Set approach
   };
+  const handleDelete = async (userId) => {
+    try {
+      const res = await deleteContactUserById(userId);
+      if (res.status !== 200) {
+        showToast("Failed to delete user", "error");
+        return;
+      }
+      // First update the refresh flag
+      setRefreshFlag((prev) => !prev);
+
+      // Then show success message
+      showToast(res.message || "User deleted successfully", "success");
+      setIsDeleteItemConfirmation(false);
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -126,24 +161,27 @@ export default function Contacts() {
         }));
         setOriginalUsers(users);
         setCRMUsers(users);
-        setLoading(false);
         useCRMStore.setState({ originalUsers: users });
       } catch (error) {
-        setLoading(false);
         console.error("Error fetching CRM users:", error);
+        showToast("Error fetching users", "error");
+      } finally {
+        setLoading(false);
       }
     };
 
-    const storedOriginalUsers = useCRMStore.getState().originalUsers;
+    // const storedOriginalUsers = useCRMStore.getState().originalUsers;
 
-    if (crmUsers.length === 0) fetchData();
-    console.log("CRM Users", crmUsers.length, originalUsers.length);
-    if (crmUsers.length !== 0 && crmUsers.length !== storedOriginalUsers.length)
-      fetchData();
-    if (originalUsers.length === 0 && storedOriginalUsers.length !== 0) {
-      setOriginalUsers(storedOriginalUsers);
-    }
-  }, [setCRMUsers]);
+    // if (crmUsers.length === 0) fetchData();
+    // console.log("CRM Users", crmUsers.length, originalUsers.length);
+    // if (crmUsers.length !== 0 && crmUsers.length !== storedOriginalUsers.length)
+    //   fetchData();
+    // if (originalUsers.length === 0 && storedOriginalUsers.length !== 0) {
+    //   setOriginalUsers(storedOriginalUsers);
+    // }
+
+    fetchData();
+  }, [setCRMUsers, refreshFlag]);
 
   useEffect(() => {
     setCheckedUser(crmUsers.filter((user) => selectedIds.has(user._id)));
@@ -248,12 +286,6 @@ export default function Contacts() {
     setSelectedIds(new Set());
     setEnabled(false);
   };
-
-  const [isEditContactItem, setIsEditContactItem] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [isEmailSentSuccess, setIsEmailSentSuccess] = useState(false);
-  const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
-    useState(false);
 
   return (
     <>
@@ -377,9 +409,10 @@ export default function Contacts() {
                             </a>
                             <span
                               onClick={() => {
+                                setSelectedUserId(contact._id);
                                 setIsDeleteItemConfirmation(true);
                               }}
-                              className="action-menu-item"
+                              className="action-menu-item cursor-pointer"
                             >
                               <p>Delete</p>
                             </span>
@@ -543,23 +576,43 @@ export default function Contacts() {
                 <div>
                   <Field className="fieldDv">
                     <Label>Name</Label>
-                    <Input name="name" placeholder="Enter Name" />
+                    <Input
+                      name="name"
+                      placeholder="Enter Name"
+                      value={formData.name}
+                    />
                   </Field>
                   <Field className="fieldDv">
                     <Label>Phone</Label>
-                    <Input name="phone" placeholder="Enter Phone" />
+                    <Input
+                      name="phone"
+                      placeholder="Enter Phone"
+                      value={formData.phone}
+                    />
                   </Field>
                   <Field className="fieldDv">
                     <Label>Email</Label>
-                    <Input name="email" placeholder="Enter Email" />
+                    <Input
+                      name="email"
+                      placeholder="Enter Email"
+                      value={formData.email}
+                    />
                   </Field>
                   <Field className="fieldDv">
                     <Label>Business</Label>
-                    <Input name="email" placeholder="Enter Email" />
+                    <Input
+                      name="business"
+                      placeholder="Enter Business"
+                      value={formData.business}
+                    />
                   </Field>
                   <Field className="fieldDv">
                     <Label>Tags</Label>
-                    <Input name="tags" placeholder="Enter Tags" />
+                    <Input
+                      name="tags"
+                      placeholder="Enter Tags"
+                      value={formData.tags}
+                    />
                   </Field>
                 </div>
                 <div>
@@ -659,7 +712,7 @@ export default function Contacts() {
                 </Button>
                 <Button
                   className="btn btn-primary"
-                  onClick={() => setIsDeleteItemConfirmation(false)}
+                  onClick={() => handleDelete(selectedUserId)}
                 >
                   Yes, Delete
                 </Button>
