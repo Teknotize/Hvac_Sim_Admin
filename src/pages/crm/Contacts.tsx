@@ -64,6 +64,22 @@ export default function Contacts() {
 
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
+
+  const tagColors: any = {
+    "app-users": "clr-indigo",
+    "contact-us-form": "clr-orange",
+    "download-manuals": "clr-pink",
+    "product-inquiry": "clr-skyblue",
+    "product-inquiry1": "clr-darkblue",
+    "product-inquiry2": "clr-green",
+    "product-inquiry3": "clr-green",
+  };
+
+  const getTagColor = (tag: string) => {
+    let tagText = tag.toLowerCase().replace(/\s+/g, "-");
+    return tagColors[tagText];
+  };
+
   useEffect(() => {
     const hasCheckedUser =
       crmUsers.some((user) => user.isChecked) ||
@@ -376,7 +392,9 @@ export default function Contacts() {
                         {/* {contact.tags.map((tag:string) => (
                       <span key={tag}>{tag}</span>
                     ))} */}
-                        <span>{contact.tags}</span>
+                        <span className={`${getTagColor(contact.tags)}`}>
+                          {contact.tags}
+                        </span>
                       </p>
                     </div>
                     <div className="table-cell cell-date">

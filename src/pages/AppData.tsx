@@ -54,7 +54,7 @@ export default function AppData() {
           "success"
         );
       } else {
-        throw new Error(response.message || "Failed to update status");
+        showToast(response.message || "Failed to update status", "error");
       }
     } catch (error: any) {
       showToast(error.message || "Error updating status", "error");

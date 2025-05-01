@@ -11,11 +11,21 @@ import {
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import { getPdfManuals } from "../../api/PdfManualApi";
+import {
+  addPdfManuals,
+  deletePdfManuals,
+  getPdfManuals,
+} from "../../api/PdfManualApi";
+import { set } from "date-fns";
+import Loader from "../../components/loader";
+import useToastStore from "../../store/useToastStore";
+import { updateBadge } from "../../api/AppData";
 
 export default function PdfManual() {
   const [manuals, setManuals] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [refreshFlag, setRefreshFlag] = useState(false);
+  const { showToast } = useToastStore();
   const [isAddNewPdfOpen, setIsAddNewPdfOpen] = useState(false);
   const [formData, setFormData] = useState({
     manual_name: "",
@@ -23,7 +33,7 @@ export default function PdfManual() {
     download_link: "",
     status: false,
   });
-  console.log("formData", manuals);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -31,12 +41,64 @@ export default function PdfManual() {
       [name]: value,
     }));
   };
+  const handleAddManual = async () => {
+    const { manual_name, view_link, download_link } = formData;
+
+    if (!manual_name || !view_link || !download_link) {
+      showToast("Please fill in all required fields", "error");
+      return;
+    }
+
+    try {
+      await addPdfManuals(formData);
+      showToast("PDF Manual added successfully", "success");
+
+      setIsAddNewPdfOpen(false);
+      setRefreshFlag(!refreshFlag);
+      setFormData({
+        manual_name: "",
+        view_link: "",
+        download_link: "",
+        status: false,
+      });
+    } catch (error) {
+      console.error("Error adding manual:", error);
+    }
+  };
+
+  const handleDeleteManual = async (id) => {
+    try {
+      await deletePdfManuals(id);
+      showToast("PDF Manual deleted successfully", "success");
+      setRefreshFlag(!refreshFlag);
+    } catch (error) {
+      console.error("Error deleting manual:", error);
+    }
+  };
+  const handleDeleteManual = async (id: any, status: any) => {
+    try {
+      const updated = await updateBadge(id, status);
+
+      if (updated.status === true) {
+        showToast("PDF Manual locked successfully", "success");
+      } else {
+        showToast("PDF Manual unlocked successfully", "success");
+      }
+
+      setRefreshFlag((prev) => !prev);
+    } catch (error) {
+      console.error("Error updating manual status:", error);
+      showToast("Failed to update manual status", "error");
+    }
+  };
 
   useEffect(() => {
+    setLoading(true);
     const fetchManuals = async () => {
       try {
         const data = await getPdfManuals();
         setManuals(data);
+        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch manuals:", error);
       } finally {
@@ -45,7 +107,7 @@ export default function PdfManual() {
     };
 
     fetchManuals();
-  }, []);
+  }, [refreshFlag]);
   return (
     <>
       <PageHeader
@@ -53,205 +115,88 @@ export default function PdfManual() {
         route="pdf-manual"
         onAddNewPdfClick={() => setIsAddNewPdfOpen(true)}
       />
+      {loading ? (
+        <Loader size="xl" />
+      ) : (
+        <div className="flex gap-6 flex-wrap">
+          {manuals.map((manual, index) => {
+            return (
+              <div key={index} className="fileDownloadDv locked">
+                <Popover className="action-drop">
+                  <PopoverButton className="block">
+                    <FontAwesomeIcon icon={faEllipsisVertical} />
+                  </PopoverButton>
+                  <PopoverPanel
+                    transition
+                    anchor="bottom end"
+                    className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                  >
+                    <div className="action-menu">
+                      <Link
+                        onClick={() => console.log("hello")}
+                        className="action-menu-item"
+                        to={""}
+                      >
+                        <p>Enable</p>
+                      </Link>
 
-      <div className="flex gap-6 flex-wrap">
-        {manuals.map((manual, index) => {
-          return (
-            <div key={index} className="fileDownloadDv locked">
-              <Popover className="action-drop">
-                <PopoverButton className="block">
-                  <FontAwesomeIcon icon={faEllipsisVertical} />
-                </PopoverButton>
-                <PopoverPanel
-                  transition
-                  anchor="bottom end"
-                  className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                >
-                  <div className="action-menu">
-                    <Link
-                      onClick={() => console.log("hello")}
-                      className="action-menu-item"
-                      to={""}
-                    >
-                      <p>Enable</p>
-                    </Link>
-
-                    <Link to="/" className="action-menu-item">
-                      <p>Disable</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Edit</p>
-                    </Link>
-                    <Link to="/" className="action-menu-item">
-                      <p>Delete</p>
-                    </Link>
-                  </div>
-                </PopoverPanel>
-              </Popover>
-              <div className="iconDv">
-                <PdfManualIcon />
+                      <Link to={""} className="action-menu-item">
+                        <p>Disable</p>
+                      </Link>
+                      <Link to={""} className="action-menu-item">
+                        <p>Edit</p>
+                      </Link>
+                      <Link
+                        to={""}
+                        className="action-menu-item"
+                        onClick={() => handleDeleteManual(manual._id)}
+                      >
+                        <p>Delete</p>
+                      </Link>
+                    </div>
+                  </PopoverPanel>
+                </Popover>
+                <div className="iconDv">
+                  <PdfManualIcon />
+                </div>
+                <h3>{manual.manual_name}</h3>
               </div>
-              <h3>{manual.manual_name}</h3>
+            );
+          })}
+
+          <div className="fileDownloadDv">
+            <Popover className="action-drop">
+              <PopoverButton className="block">
+                <FontAwesomeIcon icon={faEllipsisVertical} />
+              </PopoverButton>
+              <PopoverPanel
+                transition
+                anchor="bottom end"
+                className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+              >
+                <div className="action-menu">
+                  <Link to="/" className="action-menu-item">
+                    <p>Enable</p>
+                  </Link>
+                  <Link to="/" className="action-menu-item">
+                    <p>Disable</p>
+                  </Link>
+                  <Link to="/" className="action-menu-item">
+                    <p>Edit</p>
+                  </Link>
+                  <Link to="/" className="action-menu-item">
+                    <p>Delete</p>
+                  </Link>
+                </div>
+              </PopoverPanel>
+            </Popover>
+            <div className="iconDv">
+              <PdfManualIcon />
             </div>
-          );
-        })}
-
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <PdfManualIcon />
+            <h3>PDF Manual</h3>
           </div>
-          <h3>PDF Manual</h3>
         </div>
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <PdfManualIcon />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <PdfManualIcon />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <PdfManualIcon />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
-        <div className="fileDownloadDv">
-          <Popover className="action-drop">
-            <PopoverButton className="block">
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </PopoverButton>
-            <PopoverPanel
-              transition
-              anchor="bottom end"
-              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-            >
-              <div className="action-menu">
-                <Link to="/" className="action-menu-item">
-                  <p>Enable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Disable</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Edit</p>
-                </Link>
-                <Link to="/" className="action-menu-item">
-                  <p>Delete</p>
-                </Link>
-              </div>
-            </PopoverPanel>
-          </Popover>
-          <div className="iconDv">
-            <PdfManualIcon />
-          </div>
-          <h3>PDF Manual</h3>
-        </div>
-      </div>
+      )}
 
       <Dialog
         open={isAddNewPdfOpen}
@@ -330,12 +275,7 @@ export default function PdfManual() {
             </div>
             <div className="dialog-footer">
               {/* <Button className="btn btn-primary-outline" onClick={() => setIsAddNewPdfOpen(false)}>Cancel</Button> */}
-              <Button
-                className="btn btn-primary"
-                onClick={() => {
-                  setIsAddNewPdfOpen(false);
-                }}
-              >
+              <Button className="btn btn-primary" onClick={handleAddManual}>
                 Save Changes
               </Button>
             </div>
