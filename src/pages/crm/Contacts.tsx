@@ -58,7 +58,7 @@ export default function Contacts() {
   };
 
   const getTagColor = (tag: string) => {
-    let tagText = tag.toLowerCase().replace(/\s+/g, '-');
+    let tagText = tag?.toLowerCase().replace(/\s+/g, '-');
     return tagColors[tagText];
   };
 
