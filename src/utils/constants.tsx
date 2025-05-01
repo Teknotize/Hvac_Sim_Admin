@@ -1,41 +1,35 @@
+import { addDays } from "date-fns";
 
-import { addDays } from 'date-fns';
-
+// const tagColors = ['clr-indigo', 'clr-skyblue', 'clr-darkblue', 'clr-orange', 'clr-green', 'clr-pink'];
 export const tags = [
-    {
-        id: 1,
-        name: 'contact us',
-        checked: false
-    },
-    {
-        id: 2,
-        name: 'mobile user',
-        checked: false
-    },
-    {
-        id: 3,
-        name: 'app',
-        checked: false
-    },
-    {
-        id: 4,
-        name: 'App User',
-        checked: false
-    },
-    {
-        id: 5,
-        name: 'workbook',
-        checked: false
-    },
-    {
-        id: 6,
-        name: 'contact rep',
-        checked: false
-    }
-]
+  {
+    id: 1,
+    name: "App User",
+    checked: false,
+    cssClass: "clr-indigo",
+  },
+  {
+    id: 2,
+    name: "Contact Us",
+    checked: false,
+    cssClass: "clr-orange",
+  },
+  {
+    id: 3,
+    name: "Download Manuals",
+    checked: false,
+    cssClass: "clr-pink",
+  },
+  {
+    id: 4,
+    name: "Product Inquiry",
+    checked: false,
+    cssClass: "clr-skyblue",
+  },
+];
 
-export const defaultDate ={
-          startDate: new Date(),
-          endDate: addDays(new Date(), 0),
-          key: 'selection'
-        }
+export const defaultDate = {
+  startDate: new Date(),
+  endDate: addDays(new Date(), 0),
+  key: "selection",
+};
