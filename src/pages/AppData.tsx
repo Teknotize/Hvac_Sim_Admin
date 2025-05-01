@@ -208,31 +208,34 @@ export default function AppData() {
                     >
                       <div className="action-menu">
                         {subcat.is_locked ? (
-                          <button
+                          <Link
+                            to={""}
                             className="action-menu-item"
                             onClick={() =>
                               handleEnableDisable(subcat._id, false)
                             }
                           >
                             <p>Unlock</p>
-                          </button>
+                          </Link>
                         ) : (
-                          <button
+                          <Link
+                            to={""}
                             className="action-menu-item"
                             onClick={() =>
                               handleEnableDisable(subcat._id, true)
                             }
                           >
                             <p>Lock</p>
-                          </button>
+                          </Link>
                         )}
 
-                        <button
+                        <Link
+                          to={""}
                           className="action-menu-item"
                           onClick={() => handleDelete(subcat._id)}
                         >
                           <p>Delete</p>
-                        </button>
+                        </Link>
                       </div>
                     </PopoverPanel>
                   </Popover>
@@ -307,31 +310,34 @@ export default function AppData() {
                     >
                       <div className="action-menu">
                         {subcat.is_locked ? (
-                          <button
+                          <Link
+                            to={""}
                             className="action-menu-item"
                             onClick={() =>
                               handleEnableDisable(subcat._id, false)
                             }
                           >
                             <p>Unlock</p>
-                          </button>
+                          </Link>
                         ) : (
-                          <button
+                          <Link
+                            to={""}
                             className="action-menu-item"
                             onClick={() =>
                               handleEnableDisable(subcat._id, true)
                             }
                           >
                             <p>Lock</p>
-                          </button>
+                          </Link>
                         )}
 
-                        <button
+                        <Link
+                          to={""}
                           className="action-menu-item"
                           onClick={() => handleDelete(subcat._id)}
                         >
                           <p>Delete</p>
-                        </button>
+                        </Link>
                       </div>
                     </PopoverPanel>
                   </Popover>

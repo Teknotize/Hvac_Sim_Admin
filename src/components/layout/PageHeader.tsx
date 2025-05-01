@@ -19,6 +19,7 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 
 import useToastStore from "../../store/useToastStore";
 import { createBadgeWithCSV } from "../../api/AppData";
+import { Link } from "react-router-dom";
 
 export default function PageHeader({
   title,
@@ -345,7 +346,8 @@ export default function PageHeader({
                         <>
                           <PopoverButton
                             className={`block btn btn-outline-grey icon-end ${
-                              selectedTags.filter((tag) => tag.checked).length > 0  && "active"
+                              selectedTags.filter((tag) => tag.checked).length >
+                                0 && "active"
                             }`}
                           >
                             <span>
@@ -479,18 +481,20 @@ export default function PageHeader({
                 className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
               >
                 <div className="action-menu">
-                  <button
+                  <Link
+                    to={""}
                     className="action-menu-item"
                     onClick={() => handleFileUpload("Combustion")}
                   >
                     <p>Combustion</p>
-                  </button>
-                  <button
+                  </Link>
+                  <Link
+                    to={""}
                     className="action-menu-item"
                     onClick={() => handleFileUpload("Refrigerant")}
                   >
                     <p>Refrigerant</p>
-                  </button>
+                  </Link>
                 </div>
               </PopoverPanel>
             </Popover>
