@@ -10,7 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { Checkbox, Button, Field, Label, Input } from "@headlessui/react";
+import { Checkbox, Button } from "@headlessui/react";
 import {
   ApprovedEmailIcon,
   DialogDeleteIcon,
@@ -22,7 +22,7 @@ import useCRMStore from "../../store/useCRMStore";
 import formatDateTime from "../../utils/DateConversion";
 import EmailPopup from "../../components/emailPopup";
 import Loader from "../../components/loader";
-import { Calendar } from "react-date-range";
+
 import { deleteContactUserById } from "../../api/ContactsApi";
 import useToastStore from "../../store/useToastStore";
 
@@ -59,17 +59,7 @@ export default function Contacts() {
     endDate: null,
   });
 
-  const [isEditContactItem, setIsEditContactItem] = useState(false);
-  const [date, setDate] = useState(new Date());
   const [isEmailSentSuccess, setIsEmailSentSuccess] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    business: "",
-    tags: "",
-    date: new Date(),
-  });
 
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
@@ -157,7 +147,7 @@ export default function Contacts() {
     setCheckedUser([]); // Clear all checked users
     setSelectedIds(new Set()); // Clear the selected IDs if using Set approach
   };
-  const handleDelete = async (userId) => {
+  const handleDelete = async (userId: any) => {
     try {
       const res = await deleteContactUserById(userId);
       if (res.status !== 200) {
@@ -629,7 +619,6 @@ export default function Contacts() {
           <Loader size="xl" />
         </div>
       )}
-
       <EmailPopup
         isOpen={showEmailPopup}
         recipients={checkedUser}
@@ -640,8 +629,7 @@ export default function Contacts() {
         }}
         onSuccess={() => setIsEmailSentSuccess(true)}
       />
-
-      <Dialog
+      {/* <Dialog
         open={isEditContactItem}
         onClose={() => setIsEditContactItem(false)}
         className="relative z-50"
@@ -715,17 +703,16 @@ export default function Contacts() {
             </div>
             <div className="dialog-footer">
               {/* <Button className="btn btn-primary-outline" onClick={() => setIsEditContactItem(false)}>Cancel</Button> */}
-              <Button
+      {/* <Button
                 className="btn btn-primary"
                 onClick={() => setIsEditContactItem(false)}
               >
                 Save Changes
-              </Button>
-            </div>
+              </Button> */}
+      {/* </div>
           </DialogPanel>
         </div>
-      </Dialog>
-
+      </Dialog> */}{" "}
       <Dialog
         open={isEmailSentSuccess}
         onClose={() => setIsEmailSentSuccess(false)}
@@ -763,7 +750,6 @@ export default function Contacts() {
           </DialogPanel>
         </div>
       </Dialog>
-
       <Dialog
         open={isDeleteItemConfirmation}
         onClose={() => setIsDeleteItemConfirmation(false)}
