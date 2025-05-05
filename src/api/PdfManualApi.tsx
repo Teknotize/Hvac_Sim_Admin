@@ -23,7 +23,15 @@ export const deletePdfManuals = async (id: string) => {
 export const updatePdfManualStatus = async (id: string, status: boolean) => {
   const response = await apiClient.patch(
     `/pdfManuals/update-pdf-manuals/${id}`,
-    status
+    { status }
+  );
+  return response.data;
+};
+
+export const updatePdfManual = async (id: string, formData: any) => {
+  const response = await apiClient.put(
+    `/pdfManuals/update-pdf-manuals-form/${id}`,
+    formData
   );
   return response.data;
 };

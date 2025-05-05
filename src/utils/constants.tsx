@@ -10,7 +10,7 @@ export const tags = [
   },
   {
     id: 2,
-    name: "Contact Us",
+    name: "Contact Us Form",
     checked: false,
     cssClass: "clr-orange",
   },
@@ -22,7 +22,7 @@ export const tags = [
   },
   {
     id: 4,
-    name: "Product Inquiry",
+    name: "Product Inquiry ",
     checked: false,
     cssClass: "clr-skyblue",
   },

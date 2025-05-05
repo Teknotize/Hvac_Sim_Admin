@@ -3,11 +3,18 @@ import CsvFileIcon from "../assets/images/icon-file-csv.png";
 import FileLockIcon from "../assets/images/logo-filelock.png";
 import CombustionIcon from "../assets/images/icon-combustion.png";
 import RefrigerantIcon from "../assets/images/icon-refrigerant.png";
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import {
+  Button,
+  Dialog,
+  DialogPanel,
+  Popover,
+  PopoverButton,
+  PopoverPanel,
+} from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsisVertical, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import { DownloadIcon } from "../components/svg/icons";
+import { DialogDeleteIcon, DownloadIcon } from "../components/svg/icons";
 // import ToastButtons from "../components/toast/toastTesting";
 import { useEffect, useState } from "react";
 
@@ -37,6 +44,9 @@ export default function AppData() {
   const [loading, setLoading] = useState(true);
   const { showToast } = useToastStore();
   const [refreshFlag, setRefreshFlag] = useState(false);
+  const [selectedBadgeId, setSelectedBadgeId] = useState<string>("");
+  const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
+    useState(false);
   const combustionSubcategories = subcategories.filter(
     (sub) => sub.name.toLowerCase() === "combustion"
   );
@@ -67,7 +77,8 @@ export default function AppData() {
       const response = await deleteBadge(id);
       if (response.status === 200) {
         setRefreshFlag((prev) => !prev);
-        showToast(response.message || "Badge deleted successfully!", "success");
+        setIsDeleteItemConfirmation(false);
+        showToast("Badge deleted successfully!", "success");
       } else {
         throw new Error(response.message || "Failed to delete badge");
       }
@@ -191,7 +202,10 @@ export default function AppData() {
             </div> */}
             {combustionSubcategories.map((sub) =>
               sub?.subcategories.map((subcat) => (
-                <div key={subcat._id} className="fileDownloadDv locked">
+                <div
+                  key={subcat._id}
+                  className={`fileDownloadDv  ${subcat.is_locked && "locked"}`}
+                >
                   {subcat.is_locked && (
                     <span className="fileLockIcon">
                       <img src={FileLockIcon} alt="File Lock" />
@@ -232,7 +246,10 @@ export default function AppData() {
                         <Link
                           to={""}
                           className="action-menu-item"
-                          onClick={() => handleDelete(subcat._id)}
+                          onClick={() => {
+                            setSelectedBadgeId(subcat._id);
+                            setIsDeleteItemConfirmation(true);
+                          }}
                         >
                           <p>Delete</p>
                         </Link>
@@ -293,7 +310,10 @@ export default function AppData() {
             </div> */}
             {refrigerantSubcategories?.map((sub) =>
               sub?.subcategories?.map((subcat) => (
-                <div key={subcat._id} className="fileDownloadDv locked ">
+                <div
+                  key={subcat._id}
+                  className={`fileDownloadDv  ${subcat.is_locked && "locked"}`}
+                >
                   {subcat.is_locked && (
                     <span className="fileLockIcon">
                       <img src={FileLockIcon} alt="File Lock" />
@@ -334,7 +354,10 @@ export default function AppData() {
                         <Link
                           to={""}
                           className="action-menu-item"
-                          onClick={() => handleDelete(subcat._id)}
+                          onClick={() => {
+                            setSelectedBadgeId(subcat._id);
+                            setIsDeleteItemConfirmation(true);
+                          }}
                         >
                           <p>Delete</p>
                         </Link>
@@ -387,6 +410,50 @@ export default function AppData() {
           </div>{" "}
         </>
       )}
+
+      <Dialog
+        open={isDeleteItemConfirmation}
+        onClose={() => setIsDeleteItemConfirmation(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4 bg-black/40 dialog-item dialog-notification dialog-email-success">
+          <DialogPanel className="max-w-full w-xl space-y-4 border bg-white p-6 rounded-xl dialog-panel">
+            <div className="dialog-body">
+              <Button
+                className="closeBtn"
+                onClick={() => setIsDeleteItemConfirmation(false)}
+              >
+                <FontAwesomeIcon icon={faXmark} />
+              </Button>
+
+              <div className="icon">
+                <DialogDeleteIcon />
+              </div>
+              <h3>Confirm Deletion?</h3>
+              <p>
+                Before you proceed, double-check your decision to delete. This
+                action cannot be undone, and you may lose important data
+                permanently.
+              </p>
+
+              <div className="btn-row">
+                <Button
+                  className="btn btn-primary-outline"
+                  onClick={() => setIsDeleteItemConfirmation(false)}
+                >
+                  Not Now
+                </Button>
+                <Button
+                  className="btn btn-primary"
+                  onClick={() => handleDelete(selectedBadgeId)}
+                >
+                  Yes, Delete
+                </Button>
+              </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
     </>
   );
 }

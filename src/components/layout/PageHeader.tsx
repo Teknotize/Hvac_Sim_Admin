@@ -32,6 +32,7 @@ export default function PageHeader({
   clearFilter,
   dateSelectedCallback,
   setRefreshFlag,
+  onClearIndividualFilter,
 }: {
   title: string;
   route?: string;
@@ -40,12 +41,10 @@ export default function PageHeader({
   onAddNewPdfClick?: () => void;
   setRefreshFlag?: any;
   showEmail?: boolean;
-  onTagsFilterChange?: (filters: {
-    tags: string[];
-    // ; dateRange: Range[]
-  }) => void;
+  onTagsFilterChange?: (filters: { tags: string[] }) => void;
   clearFilter?: () => void;
   dateSelectedCallback?: (startDate: Date, endDate: Date) => void;
+  onClearIndividualFilter?: (filterType: "date" | "tags") => void;
 }) {
   const [filterActive, setFilterActive] = useState(false);
   const [dateChanged, setDateChanged] = useState(false);
@@ -74,11 +73,13 @@ export default function PageHeader({
   const handleResetTags = () => {
     setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
     setFiltersApplied(false);
+    onClearIndividualFilter?.("tags");
   };
 
   const handleResetDate = () => {
     setDateState([defaultDate]);
     setDateChanged(false);
+    onClearIndividualFilter?.("date");
   };
 
   const handleResetAll = () => {
@@ -121,6 +122,7 @@ export default function PageHeader({
         startDate.toDateString() !== endDate.toDateString()
       ) {
         setDateChanged(true);
+        count += 1;
       }
 
       return count;
@@ -238,7 +240,7 @@ export default function PageHeader({
                 Send Email
               </Button>
             )}
-            {!filterActive && (
+            {!filterActive && !(filterCount > 0) && (
               <>
                 <Field className="search-field">
                   <FontAwesomeIcon icon={faSearch} />
@@ -280,7 +282,10 @@ export default function PageHeader({
                                 {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
                                 - {datSstate[0]?.endDate?.toLocaleDateString()}
                                 <FontAwesomeIcon
-                                  onClick={handleResetDate}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetDate();
+                                  }}
                                   icon={faXmark}
                                 />
                               </span>
@@ -294,6 +299,7 @@ export default function PageHeader({
                               <DateRangePicker
                                 onChange={(item) => {
                                   setDateState([item.selection]);
+                                  setDateChanged(true);
                                 }}
                                 moveRangeOnFirstSelection={false}
                                 months={2}
@@ -366,7 +372,10 @@ export default function PageHeader({
                               </b>
                               {filtersApplied && (
                                 <FontAwesomeIcon
-                                  onClick={handleResetTags}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetTags();
+                                  }}
                                   icon={faXmark}
                                   className="cursor-pointer"
                                 />

@@ -32,13 +32,18 @@ interface CRMUser {
 interface TagsFilterData {
   tags: string[];
 }
+interface DateRange {
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
 export default function Contacts() {
   const [enabled, setEnabled] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const crmUsers = useCRMStore((state) => state.crmUsers);
-  const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]); // Renamed for clarity
+  const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [checkedUser, setCheckedUser] = useState<CRMUser[]>([]);
@@ -49,6 +54,10 @@ export default function Contacts() {
   const [reRun, setReRun] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [refreshFlag, setRefreshFlag] = useState(false);
+  const [currentDateRange, setCurrentDateRange] = useState<DateRange>({
+    startDate: null,
+    endDate: null,
+  });
 
   const [isEditContactItem, setIsEditContactItem] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -66,7 +75,7 @@ export default function Contacts() {
     useState(false);
 
   const tagColors: any = {
-    "app-users": "clr-indigo",
+    "app-user": "clr-indigo",
     "contact-us-form": "clr-orange",
     "download-manuals": "clr-pink",
     "product-inquiry": "clr-skyblue",
@@ -155,12 +164,24 @@ export default function Contacts() {
         showToast("Failed to delete user", "error");
         return;
       }
+
       // First update the refresh flag
       setRefreshFlag((prev) => !prev);
 
       // Then show success message
       showToast(res.message || "User deleted successfully", "success");
       setIsDeleteItemConfirmation(false);
+
+      // After successful deletion, reapply current filters
+      const filteredUsers = filterUsers(
+        originalUsers.filter((user) => user._id !== userId), // Remove deleted user from original data
+        "",
+        activeTags,
+        currentDateRange.startDate?.toISOString(),
+        currentDateRange.endDate?.toISOString()
+      );
+      setCRMUsers(filteredUsers);
+      setOriginalUsers((prev) => prev.filter((user) => user._id !== userId));
     } catch (error) {
       console.error("Delete error:", error);
     }
@@ -176,8 +197,16 @@ export default function Contacts() {
           isChecked: false,
         }));
         setOriginalUsers(users);
-        setCRMUsers(users);
-        useCRMStore.setState({ originalUsers: users });
+
+        // After fetching new data, reapply current filters
+        const filteredUsers = filterUsers(
+          users,
+          "",
+          activeTags,
+          currentDateRange.startDate?.toISOString(),
+          currentDateRange.endDate?.toISOString()
+        );
+        setCRMUsers(filteredUsers);
       } catch (error) {
         console.error("Error fetching CRM users:", error);
         showToast("Error fetching users", "error");
@@ -185,16 +214,6 @@ export default function Contacts() {
         setLoading(false);
       }
     };
-
-    // const storedOriginalUsers = useCRMStore.getState().originalUsers;
-
-    // if (crmUsers.length === 0) fetchData();
-    // console.log("CRM Users", crmUsers.length, originalUsers.length);
-    // if (crmUsers.length !== 0 && crmUsers.length !== storedOriginalUsers.length)
-    //   fetchData();
-    // if (originalUsers.length === 0 && storedOriginalUsers.length !== 0) {
-    //   setOriginalUsers(storedOriginalUsers);
-    // }
 
     fetchData();
   }, [setCRMUsers, refreshFlag]);
@@ -231,9 +250,8 @@ export default function Contacts() {
             (tag) =>
               String(user.tags).toLowerCase() === String(tag).toLowerCase()
           );
-        } else {
-          return false;
         }
+        return false;
       });
     }
 
@@ -253,7 +271,15 @@ export default function Contacts() {
       isChecked: selectedIds.has(user._id),
     }));
   };
+
   const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+    // Update date range state
+    setCurrentDateRange({
+      startDate,
+      endDate,
+    });
+
+    // Apply both date and tags filters together
     const filteredUsers = filterUsers(
       originalUsers,
       "",
@@ -266,9 +292,17 @@ export default function Contacts() {
   };
 
   const handleTagsFilterChange = (data: TagsFilterData) => {
-    const tags = data.tags; // Extract the array from the object
+    const tags = data.tags;
     setActiveTags(tags);
-    const filteredUsers = filterUsers(originalUsers, "", tags);
+
+    // Apply both date and tags filters together
+    const filteredUsers = filterUsers(
+      originalUsers,
+      "",
+      tags,
+      currentDateRange.startDate?.toISOString(),
+      currentDateRange.endDate?.toISOString()
+    );
     setCRMUsers(filteredUsers);
     setCurrentPage(1);
   };
@@ -298,9 +332,45 @@ export default function Contacts() {
   const handleClearFilters = () => {
     setCRMUsers(originalUsers);
     setActiveTags([]);
+    setCurrentDateRange({
+      startDate: null,
+      endDate: null,
+    });
     setCurrentPage(1);
     setSelectedIds(new Set());
     setEnabled(false);
+  };
+
+  // Add new function to handle clearing individual filters
+  const handleClearIndividualFilter = (filterType: "date" | "tags") => {
+    if (filterType === "date") {
+      // Clear only date filter
+      setCurrentDateRange({
+        startDate: null,
+        endDate: null,
+      });
+      // Reapply only tags filter
+      const filteredUsers = filterUsers(originalUsers, "", activeTags);
+      setCRMUsers(filteredUsers);
+    } else if (filterType === "tags") {
+      // Clear only tags filter
+      setActiveTags([]);
+      // Reapply only date filter if it exists
+      if (currentDateRange.startDate && currentDateRange.endDate) {
+        const filteredUsers = filterUsers(
+          originalUsers,
+          "",
+          [],
+          currentDateRange.startDate.toISOString(),
+          currentDateRange.endDate.toISOString()
+        );
+        setCRMUsers(filteredUsers);
+      } else {
+        // If no date filter, show all data
+        setCRMUsers(originalUsers);
+      }
+    }
+    setCurrentPage(1);
   };
 
   return (
@@ -312,11 +382,9 @@ export default function Contacts() {
         onSendEmailClick={() => setShowEmailPopup(true)}
         showEmail={showEmail}
         onTagsFilterChange={(data) => handleTagsFilterChange(data)}
-        clearFilter={() => {
-          handleClearFilters();
-        }}
-        // dateSelectedCallback={(startDate, endDate) => {console.log(startDate, endDate)}}
+        clearFilter={() => handleClearFilters()}
         dateSelectedCallback={handleDateFilterChange}
+        onClearIndividualFilter={handleClearIndividualFilter}
       />
       {!loading ? (
         <div className="table-container table-contacts-page">
@@ -416,7 +484,7 @@ export default function Contacts() {
                           className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                         >
                           <div className="action-menu">
-                            <a
+                            {/* <a
                               href="javascript:void(0)"
                               onClick={() => {
                                 setIsEditContactItem(true);
@@ -424,7 +492,7 @@ export default function Contacts() {
                               className="action-menu-item"
                             >
                               <p>Edit</p>
-                            </a>
+                            </a> */}
                             <span
                               onClick={() => {
                                 setSelectedUserId(contact._id);
