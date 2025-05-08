@@ -16,13 +16,13 @@ export const tags = [
   },
   {
     id: 3,
-    name: "Download Manuals",
+    name: "Download Manual",
     checked: false,
     cssClass: "clr-pink",
   },
   {
     id: 4,
-    name: "Product Inquiry ",
+    name: "Product Inquiry",
     checked: false,
     cssClass: "clr-skyblue",
   },
