@@ -67,7 +67,7 @@ export default function Contacts() {
   const tagColors: any = {
     "app-user": "clr-indigo",
     "contact-us-form": "clr-orange",
-    "download-manuals": "clr-pink",
+    "download-manual": "clr-pink",
     "product-inquiry": "clr-skyblue",
     "product-inquiry1": "clr-darkblue",
     "product-inquiry2": "clr-green",
@@ -75,9 +75,8 @@ export default function Contacts() {
   };
 
   const getTagColor = (tag: string) => {
-
-    let tagText = tag?.toLowerCase().replace(/\s+/g, '-');
-    return tagColors[tagText];
+    let tagText = tag?.toLowerCase().replace(/\s+/g, "-");
+    return tagColors[tagText]; // Default fallback color if tag not found
   };
 
   useEffect(() => {
@@ -309,6 +308,7 @@ export default function Contacts() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  console.log("paginatedUsers", paginatedUsers);
   useEffect(() => {
     const allChecked =
       paginatedUsers.length > 0 &&
@@ -448,12 +448,16 @@ export default function Contacts() {
                     </div>
                     <div className="table-cell cell-tags">
                       <p className="tags">
-                        {/* {contact.tags.map((tag:string) => (
-                      <span key={tag}>{tag}</span>
-                    ))} */}
-                        <span className={`${getTagColor(contact.tags)}`}>
-                          {contact.tags}
-                        </span>
+                        {contact.tags.map((tag: string) => (
+                          <span
+                            key={tag}
+                            className={`${getTagColor(
+                              tag
+                            )} capitalize px-2 py-1 rounded-full mr-2`}
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </p>
                     </div>
                     <div className="table-cell cell-date">

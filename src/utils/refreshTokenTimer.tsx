@@ -16,11 +16,11 @@ const useTokenRefresh = () => {
 
     console.log("Access token exists, setting up refresh");
 
-    if(!accessToken) {
-    // ✅ Refresh once immediately
-    refreshAccessToken().then(() => {
-      console.log("Access token refreshed immediately after login");
-    });
+    if (!accessToken) {
+      // ✅ Refresh once immediately
+      refreshAccessToken().then(() => {
+        console.log("Access token refreshed immediately after login");
+      });
     }
     // ✅ Set interval to refresh token every 14.5 minutes
     const refreshTokenInterval = setInterval(async () => {
@@ -34,7 +34,6 @@ const useTokenRefresh = () => {
       clearInterval(refreshTokenInterval);
     };
   }, []); // ✅ Runs once on mount
-
 };
 
 export default useTokenRefresh;
