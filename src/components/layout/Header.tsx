@@ -1,8 +1,12 @@
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
-import { UserMenuIconLogout } from '../svg/icons';
+import { Button} from '@headlessui/react';
+// import { UserMenuIconLogout } from '../svg/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { faBars } from '@fortawesome/free-solid-svg-icons'
+// import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { useSidebar } from '../../context/SidebarContext';
+
 export default function Header() {
+  const { toggleSidebar } = useSidebar();
 
   // const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
  
@@ -10,13 +14,16 @@ export default function Header() {
   return (
     <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 lg:px-8">
       <div className="flex items-center">
+        <Button className='sidebar-toggle-btn' onClick={toggleSidebar}>
+          <FontAwesomeIcon icon={faBars} />
+        </Button>
         {/* <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1> */}
       </div>
       <div className="flex items-center pe-4">
         <div className="relative ml-3">
           <div className="flex items-center gap-4">
 
-            <Popover className="user-info">
+            {/* <Popover className="user-info">
               <PopoverButton className="block">
                 <span>Umair Farooq</span> <FontAwesomeIcon icon={faChevronDown} />
               </PopoverButton>
@@ -37,7 +44,7 @@ export default function Header() {
                 </div>
 
               </PopoverPanel>
-            </Popover>
+            </Popover> */}
 
           </div>
         </div>

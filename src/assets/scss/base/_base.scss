@@ -20,5 +20,13 @@ html {scroll-padding-top: 140px;}
 body{font-family: var(--font-family-inter); font-size: 16px; color: var(--txt-color); line-height: 1.5; @include mobile{font-size: 14px;}}
 h1,h2,h3,h4,h5,h6{font-family: var(--font-family-inter);}
 .sticky-header{padding-top:var(--header-space);}
-input{outline-color: var(--base-color-primary);}
+input, textarea, select{outline-color: var(--base-color-primary);}
 
+
+
+.row{
+    display: flex; align-items: center; gap: 10px;
+    .col{
+        flex: 1;
+    }
+}

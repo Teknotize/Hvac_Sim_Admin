@@ -1,7 +1,9 @@
 @use '../base/mixins' as *;
 
 .sidebar{
-    width: 250px; background-color: #070113; color: var(--txt-color-dark);
+    width: 0px; background-color: #070113; color: var(--txt-color-dark); @include transDefault;
+    &.active{width: 250px;}
+    .sidebar-inner{width: 250px;}
     .logo{
         flex-grow: 1;
         img{width: 160px;}
@@ -45,7 +47,8 @@
                     display: flex; align-items: center; padding: 10px 10px; padding-left: 40px; border-radius: 30px; color: var(--txt-color); margin: 0 0 5px;
                     &:hover,
                     &.active{
-                        background-color: var(--base-color-primary); color:#fff;
+                        // background-color: var(--base-color-primary); 
+                        color:#fff;
                     }
                 }
             }

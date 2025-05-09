@@ -1,4 +1,4 @@
 @use '../base/mixins' as *;
 header{
-    
+    .sidebar-toggle-btn{cursor: pointer;font-size: 24px;}
 }

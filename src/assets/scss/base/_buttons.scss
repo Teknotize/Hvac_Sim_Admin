@@ -7,13 +7,27 @@ button{
 
 .btn{
     display: flex; align-items: center; justify-content: center; gap: 5px; border-radius: 40px; @include para(14px, 400, 0, 12px 15px); cursor: pointer; min-width: 120px;
+    &[disabled]{opacity: 0.5; pointer-events: none;}
+    b{border-radius: 50%; @include para(12px, 500, 0px 0px 0px 5px, 0 5px); min-width: 17px;}
     &-primary{
         background-color: var(--base-color-primary); color: #fff;
         svg{ @include svgColor(#fff); }
+        b{background-color: #fff; color: var(--base-color-primary);}
+    }
+    &-primary-outline{
+        border: 1px solid var(--base-color-primary); background-color: #fff; color: var(--base-color-primary);
+        svg{ @include svgColor(var(--base-color-primary)); }
+        b{background-color: var(--base-color-primary); color: #fff;}
     }
     &-outline-grey{
         border: 1px solid var(--button-border-color); background-color: #fff; color: var(--txt-color);
         svg{ @include svgColor(var(--txt-color)); }
+        b{background-color: var(--base-color-primary); color: #fff;}
+    }
+    &-link{
+        border: none; background-color: transparent; color: var(--base-color-primary); font-weight: 500;
+        &:hover{ background-color: transparent; }
+        &[disabled]{color: var(--txt-color);}
     }
     &.icon-start{
         svg{ margin-right: 5px; margin-left: 0px; }

@@ -1,14 +1,91 @@
 @use '../base/mixins' as *;
 
 
-.action-popover{
-    background-color: #fff; border-radius: 10px; padding: 10px;
-    .action-menu{
+.action-popover {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 10px;
+
+    .action-menu {
         min-width: 150px;
-        .action-menu-item{
-            display: block; padding: 5px 10px; border-radius: 5px;
-            p{ @include para(14px, 500, 0, 0);}
-            &:hover{ background-color: rgba(var(--base-color-primary-rgb), 0.1); }
+
+        .action-menu-item {
+            display: block;
+            padding: 5px 10px;
+            border-radius: 5px;
+
+            p {
+                @include para(14px, 500, 0, 0);
+            }
+
+            &:hover {
+                background-color: rgba(var(--base-color-primary-rgb), 0.1);
+            }
         }
+        button.action-menu-item{width: 100%; text-align: left; cursor: pointer;}
+    }
+
+    .list-menu {
+        min-width: 160px;
+
+        .list-group {
+            margin: 0 -10px;
+
+            .list-group-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 10px;
+                cursor: pointer;
+
+                .list-checkbox-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 5px;
+                    background-color: transparent;
+                    border: 1px solid #8B8D98;
+
+                    svg {
+                        width: 12px;
+                        height: 12px;
+                        color: #fff;
+                    }
+
+                    &[data-checked] {
+                        background-color: var(--base-color-primary);
+                        border-color: var(--base-color-primary);
+                    }
+                }
+
+                span {
+                    @include para(14px, 400, 0, 0);
+                }
+
+                &:hover {
+                    background-color: rgba(var(--base-color-primary-rgb), 0.1);
+                }
+            }
+        }
+    }
+
+    .btnRow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+
+        .btn {
+            padding: 5px;
+            min-width: 90px;
+            // flex: 1;
+            // &.btn-outline-grey{border: none;}
+        }
+    }
+
+    .rdrDateDisplayWrapper {
+        background-color: transparent;
     }
 }
