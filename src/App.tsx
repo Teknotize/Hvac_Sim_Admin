@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Contacts from "./pages/crm/Contacts";
 import PdfManual from "./pages/crm/PdfManual";
+import Cms from "./pages/Cms";
 import MainLayout from "./components/layout/MainLayout";
 import Toast from "./components/toast/loginToast";
 import useTokenRefresh from "./utils/refreshTokenTimer";
@@ -51,7 +52,7 @@ function App() {
             <Route path="crm/pdf-manual" element={<PdfManual />} />
             <Route
               path="cms"
-              element={<div className="p-4">CMS Page (Coming Soon)</div>}
+              element={<Cms />}
             />
           </Route>
           <Route path="not-found" element={<NotFoundPage />} />

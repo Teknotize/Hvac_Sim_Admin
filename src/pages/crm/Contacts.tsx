@@ -425,7 +425,7 @@ export default function Contacts() {
                       </Checkbox>
                     </div>
                     <div className="table-cell cell-user">
-                      <div className="user-dp-card">
+                      <div className={`user-dp-card type0${Math.floor(Math.random() * 3) + 1}`}>
                         <figure>
                           <span>{contact?.name?.charAt(0)}</span>
                         </figure>

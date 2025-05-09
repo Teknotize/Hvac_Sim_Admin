@@ -118,7 +118,7 @@ export default function EmailPopup({
           <Label>To</Label>
           <div className="emailInputCol">
             {tempRecipients?.map((recipient) => (
-              <div className="emailItem">
+              <div className={`emailItem type0${Math.floor(Math.random() * 3) + 1}`}>
                 <figure>
                   <span>{recipient.name.charAt(0)}</span>
                 </figure>
