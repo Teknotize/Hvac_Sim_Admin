@@ -115,7 +115,7 @@ export default function AppData() {
       <div className="flex gap-6 flex-wrap mb-20">
         <div className="fileDownloadDv">
           <a
-            href="/files/com-Condition 03.csv"
+            href="/files/com-Condition 00 no flame.csv"
             download
             className="downloadBtn flex items-center justify-center"
           >
