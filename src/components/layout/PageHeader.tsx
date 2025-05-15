@@ -12,6 +12,7 @@ import {
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import fileIcon from "../../../public/images/file-icon.png";
 
 import { DateRangePicker, Range } from "react-date-range";
 import { tags, defaultDate } from "../../utils/constants";
@@ -19,6 +20,7 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 
 import useToastStore from "../../store/useToastStore";
 import { createBadgeWithCSV } from "../../api/AppData";
+import { Link } from "react-router-dom";
 
 export default function PageHeader({
   title,
@@ -31,6 +33,7 @@ export default function PageHeader({
   clearFilter,
   dateSelectedCallback,
   setRefreshFlag,
+  onClearIndividualFilter,
 }: {
   title: string;
   route?: string;
@@ -39,12 +42,10 @@ export default function PageHeader({
   onAddNewPdfClick?: () => void;
   setRefreshFlag?: any;
   showEmail?: boolean;
-  onTagsFilterChange?: (filters: {
-    tags: string[];
-    // ; dateRange: Range[]
-  }) => void;
+  onTagsFilterChange?: (filters: { tags: string[] }) => void;
   clearFilter?: () => void;
   dateSelectedCallback?: (startDate: Date, endDate: Date) => void;
+  onClearIndividualFilter?: (filterType: "date" | "tags") => void;
 }) {
   const [filterActive, setFilterActive] = useState(false);
   const [dateChanged, setDateChanged] = useState(false);
@@ -73,11 +74,13 @@ export default function PageHeader({
   const handleResetTags = () => {
     setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
     setFiltersApplied(false);
+    onClearIndividualFilter?.("tags");
   };
 
   const handleResetDate = () => {
     setDateState([defaultDate]);
     setDateChanged(false);
+    onClearIndividualFilter?.("date");
   };
 
   const handleResetAll = () => {
@@ -120,6 +123,7 @@ export default function PageHeader({
         startDate.toDateString() !== endDate.toDateString()
       ) {
         setDateChanged(true);
+        count += 1;
       }
 
       return count;
@@ -148,28 +152,43 @@ export default function PageHeader({
     }));
     setIsFileUploadOpen(true);
   };
+  const validateAndSetFile = (file: File) => {
+    setFileError(""); // Reset error
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
+    if (fileExtension !== "csv") {
+      setFileError("Please select a CSV file only");
+      setSelectedFile(null);
+      return;
+    }
+
+    setSelectedFile(file);
+    const fileNameWithoutExtension = file.name.replace(".csv", "");
+    setFormData((prev) => ({
+      ...prev,
+      name: fileNameWithoutExtension,
+    }));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFileError(""); // Reset error message
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const fileExtension = file.name.split(".").pop()?.toLowerCase();
-
-      if (fileExtension !== "csv") {
-        setFileError("Please select a CSV file only");
-        setSelectedFile(null);
-        e.target.value = ""; // Clear the file input
-        return;
-      }
-
-      setSelectedFile(file);
-      // Remove .csv extension from the name
-      const fileNameWithoutExtension = file.name.replace(".csv", "");
-      setFormData((prev) => ({
-        ...prev,
-        name: fileNameWithoutExtension,
-      }));
+      validateAndSetFile(e.target.files[0]);
+      e.target.value = ""; // Reset input
     }
+  };
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      validateAndSetFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleUploadSubmit = async (e: any) => {
@@ -237,7 +256,7 @@ export default function PageHeader({
                 Send Email
               </Button>
             )}
-            {!filterActive && (
+            {!filterActive && !(filterCount > 0) && (
               <>
                 <Field className="search-field">
                   <FontAwesomeIcon icon={faSearch} />
@@ -279,7 +298,10 @@ export default function PageHeader({
                                 {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
                                 - {datSstate[0]?.endDate?.toLocaleDateString()}
                                 <FontAwesomeIcon
-                                  onClick={handleResetDate}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetDate();
+                                  }}
                                   icon={faXmark}
                                 />
                               </span>
@@ -293,6 +315,7 @@ export default function PageHeader({
                               <DateRangePicker
                                 onChange={(item) => {
                                   setDateState([item.selection]);
+                                  setDateChanged(true);
                                 }}
                                 moveRangeOnFirstSelection={false}
                                 months={2}
@@ -345,7 +368,8 @@ export default function PageHeader({
                         <>
                           <PopoverButton
                             className={`block btn btn-outline-grey icon-end ${
-                              filterCount && "active"
+                              selectedTags.filter((tag) => tag.checked).length >
+                                0 && "active"
                             }`}
                           >
                             <span>
@@ -364,7 +388,10 @@ export default function PageHeader({
                               </b>
                               {filtersApplied && (
                                 <FontAwesomeIcon
-                                  onClick={handleResetTags}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetTags();
+                                  }}
                                   icon={faXmark}
                                   className="cursor-pointer"
                                 />
@@ -479,18 +506,20 @@ export default function PageHeader({
                 className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
               >
                 <div className="action-menu">
-                  <button
+                  <Link
+                    to={""}
                     className="action-menu-item"
                     onClick={() => handleFileUpload("Combustion")}
                   >
                     <p>Combustion</p>
-                  </button>
-                  <button
+                  </Link>
+                  <Link
+                    to={""}
                     className="action-menu-item"
                     onClick={() => handleFileUpload("Refrigerant")}
                   >
                     <p>Refrigerant</p>
-                  </button>
+                  </Link>
                 </div>
               </PopoverPanel>
             </Popover>
@@ -515,13 +544,85 @@ export default function PageHeader({
                   setFileError("");
                 }}
               >
-                <FontAwesomeIcon icon={faXmark} />
+                <FontAwesomeIcon
+                  onClick={() => setSelectedFile(null)}
+                  icon={faXmark}
+                />
               </Button>
             </div>
             <div className="dialog-body">
               <Field className="fieldDv">
-                <Label>CSV File</Label>
-                <Input type="file" accept=".csv" onChange={handleFileChange} />
+                {/* <Label>CSV File</Label> */}
+                <div className="flex flex-col lg:flex-row gap-[25px]">
+                  <div className="basis-full lg:basis-1/2">
+                    <div className="relative mb-[24px]">
+                      <div className="flex items-center justify-center w-full">
+                        <label
+                          htmlFor="dropzone-file1"
+                          onDrop={handleDrop}
+                          onDragOver={handleDragOver}
+                          className={`${
+                            false
+                              ? "error-dropzone-file-container"
+                              : "file-dropzone-container"
+                          } mb-2 flex flex-col items-center justify-center w-full h-64 cursor-pointer bg-gray-50  dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600`}
+                        >
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="mb-4"
+                              width={14}
+                              height={17}
+                              viewBox="0 0 14 18"
+                              fill="none"
+                            >
+                              <path
+                                d="M4 7.5293V13.5293H10V7.5293H14L7 0.529297L0 7.5293H4ZM7 3.3293L9.2 5.5293H8V11.5293H6V5.5293H4.8L7 3.3293ZM14 15.5293H0V17.5293H14V15.5293Z"
+                                fill="#B92825"
+                              />
+                            </svg>
+                            <div className="mb-[10px] fs-14-600 text-color-0F0F0F">
+                              Drag & drop file or{" "}
+                              <span className="dark-red-color underline">
+                                Browse
+                              </span>
+                            </div>
+                            <div className="fs-12-400 text-color-718096 dark:text-gray-400">
+                              Supported formate: csv
+                            </div>
+                          </div>
+                          <input
+                            name="sec4_img"
+                            id="dropzone-file1"
+                            type="file"
+                            className="hidden"
+                            accept=".csv"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="uploaded-thumbnail-files-container">
+                      <div className="uploaded-thumbnail-files-list">
+                        <div className="uploaded-thumbnail-file-item flex items-center justify-between mb-2">
+                          {selectedFile && (
+                            <div className="flex items-center gap-2">
+                              <img src={fileIcon} alt="file icon" />
+                              <div>
+                                <>
+                                  {" "}
+                                  <div className="fs-12-600 text-color-1A202C mb-1">
+                                    {selectedFile?.name}
+                                  </div>
+                                </>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {fileError && (
                   <p className="text-red-500 text-sm mt-1">{fileError}</p>
                 )}

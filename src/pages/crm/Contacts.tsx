@@ -10,7 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { Dialog, DialogPanel } from "@headlessui/react";
-import { Checkbox, Button, Field, Label, Input } from "@headlessui/react";
+import { Checkbox, Button } from "@headlessui/react";
 import {
   ApprovedEmailIcon,
   DialogDeleteIcon,
@@ -22,7 +22,12 @@ import useCRMStore from "../../store/useCRMStore";
 import formatDateTime from "../../utils/DateConversion";
 import EmailPopup from "../../components/emailPopup";
 import Loader from "../../components/loader";
-import { Calendar } from "react-date-range";
+
+import {
+  deleteContactUserById,
+  updateSubscriptionLevel,
+} from "../../api/ContactsApi";
+import useToastStore from "../../store/useToastStore";
 
 interface CRMUser {
   [key: string]: any;
@@ -30,36 +35,51 @@ interface CRMUser {
 interface TagsFilterData {
   tags: string[];
 }
+interface DateRange {
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
 export default function Contacts() {
   const [enabled, setEnabled] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const crmUsers = useCRMStore((state) => state.crmUsers);
-  const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]); // Renamed for clarity
+  const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [checkedUser, setCheckedUser] = useState<CRMUser[]>([]);
   const itemsPerPage = 10;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
+  const { showToast } = useToastStore();
   const [showEmail, setShowEmail] = useState(false);
   const [reRun, setReRun] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [refreshFlag, setRefreshFlag] = useState(false);
+  const [currentDateRange, setCurrentDateRange] = useState<DateRange>({
+    startDate: null,
+    endDate: null,
+  });
+
+  const [isEmailSentSuccess, setIsEmailSentSuccess] = useState(false);
+
+  const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
+    useState(false);
 
   const tagColors: any = {
-    'app-users': 'clr-indigo',
-    'contact-us-form': 'clr-orange',
-    'download-manuals': 'clr-pink',
-    'product-inquiry': 'clr-skyblue',
-    'product-inquiry1': 'clr-darkblue',
-    'product-inquiry2': 'clr-green',
-    'product-inquiry3': 'clr-green',
-
+    "app-user": "clr-indigo",
+    "contact-us-form": "clr-orange",
+    "download-manual": "clr-pink",
+    "product-inquiry": "clr-skyblue",
+    "product-inquiry1": "clr-darkblue",
+    "product-inquiry2": "clr-green",
+    "product-inquiry3": "clr-green",
   };
 
   const getTagColor = (tag: string) => {
-    let tagText = tag?.toLowerCase().replace(/\s+/g, '-');
-    return tagColors[tagText];
+    let tagText = tag?.toLowerCase().replace(/\s+/g, "-");
+    return tagColors[tagText]; // Default fallback color if tag not found
   };
 
   useEffect(() => {
@@ -130,6 +150,35 @@ export default function Contacts() {
     setCheckedUser([]); // Clear all checked users
     setSelectedIds(new Set()); // Clear the selected IDs if using Set approach
   };
+  const handleDelete = async (userId: any) => {
+    try {
+      const res = await deleteContactUserById(userId);
+      if (res.status !== 200) {
+        showToast("Failed to delete user", "error");
+        return;
+      }
+
+      // First update the refresh flag
+      setRefreshFlag((prev) => !prev);
+
+      // Then show success message
+      showToast(res.message || "User deleted successfully", "success");
+      setIsDeleteItemConfirmation(false);
+
+      // After successful deletion, reapply current filters
+      const filteredUsers = filterUsers(
+        originalUsers.filter((user) => user._id !== userId), // Remove deleted user from original data
+        "",
+        activeTags,
+        currentDateRange.startDate?.toISOString(),
+        currentDateRange.endDate?.toISOString()
+      );
+      setCRMUsers(filteredUsers);
+      setOriginalUsers((prev) => prev.filter((user) => user._id !== userId));
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,25 +190,26 @@ export default function Contacts() {
           isChecked: false,
         }));
         setOriginalUsers(users);
-        setCRMUsers(users);
-        setLoading(false);
-        useCRMStore.setState({ originalUsers: users });
+
+        // After fetching new data, reapply current filters
+        const filteredUsers = filterUsers(
+          users,
+          "",
+          activeTags,
+          currentDateRange.startDate?.toISOString(),
+          currentDateRange.endDate?.toISOString()
+        );
+        setCRMUsers(filteredUsers);
       } catch (error) {
-        setLoading(false);
         console.error("Error fetching CRM users:", error);
+        showToast("Error fetching users", "error");
+      } finally {
+        setLoading(false);
       }
     };
 
-    const storedOriginalUsers = useCRMStore.getState().originalUsers;
-
-    if (crmUsers.length === 0) fetchData();
-    console.log("CRM Users", crmUsers.length, originalUsers.length);
-    if (crmUsers.length !== 0 && crmUsers.length !== storedOriginalUsers.length)
-      fetchData();
-    if (originalUsers.length === 0 && storedOriginalUsers.length !== 0) {
-      setOriginalUsers(storedOriginalUsers);
-    }
-  }, [setCRMUsers]);
+    fetchData();
+  }, [setCRMUsers, refreshFlag]);
 
   useEffect(() => {
     setCheckedUser(crmUsers.filter((user) => selectedIds.has(user._id)));
@@ -193,9 +243,8 @@ export default function Contacts() {
             (tag) =>
               String(user.tags).toLowerCase() === String(tag).toLowerCase()
           );
-        } else {
-          return false;
         }
+        return false;
       });
     }
 
@@ -215,7 +264,15 @@ export default function Contacts() {
       isChecked: selectedIds.has(user._id),
     }));
   };
+
   const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+    // Update date range state
+    setCurrentDateRange({
+      startDate,
+      endDate,
+    });
+
+    // Apply both date and tags filters together
     const filteredUsers = filterUsers(
       originalUsers,
       "",
@@ -228,9 +285,17 @@ export default function Contacts() {
   };
 
   const handleTagsFilterChange = (data: TagsFilterData) => {
-    const tags = data.tags; // Extract the array from the object
+    const tags = data.tags;
     setActiveTags(tags);
-    const filteredUsers = filterUsers(originalUsers, "", tags);
+
+    // Apply both date and tags filters together
+    const filteredUsers = filterUsers(
+      originalUsers,
+      "",
+      tags,
+      currentDateRange.startDate?.toISOString(),
+      currentDateRange.endDate?.toISOString()
+    );
     setCRMUsers(filteredUsers);
     setCurrentPage(1);
   };
@@ -241,11 +306,23 @@ export default function Contacts() {
     setCurrentPage(1);
   };
 
+  const handleToggleSubscription = async (id: string) => {
+    try {
+      await updateSubscriptionLevel(id);
+      setRefreshFlag(!refreshFlag);
+      showToast("Subscription level updated successfully", "success");
+    } catch (error) {
+      console.error("Failed to update subscription level:", error);
+      showToast("Failed to update subscription level", "error");
+    }
+  };
+
   const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
   const paginatedUsers = crmUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  console.log("paginatedUsers", paginatedUsers);
   useEffect(() => {
     const allChecked =
       paginatedUsers.length > 0 &&
@@ -260,16 +337,46 @@ export default function Contacts() {
   const handleClearFilters = () => {
     setCRMUsers(originalUsers);
     setActiveTags([]);
+    setCurrentDateRange({
+      startDate: null,
+      endDate: null,
+    });
     setCurrentPage(1);
     setSelectedIds(new Set());
     setEnabled(false);
   };
 
-  const [isEditContactItem, setIsEditContactItem] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [isEmailSentSuccess, setIsEmailSentSuccess] = useState(false);
-  const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
-    useState(false);
+  // Add new function to handle clearing individual filters
+  const handleClearIndividualFilter = (filterType: "date" | "tags") => {
+    if (filterType === "date") {
+      // Clear only date filter
+      setCurrentDateRange({
+        startDate: null,
+        endDate: null,
+      });
+      // Reapply only tags filter
+      const filteredUsers = filterUsers(originalUsers, "", activeTags);
+      setCRMUsers(filteredUsers);
+    } else if (filterType === "tags") {
+      // Clear only tags filter
+      setActiveTags([]);
+      // Reapply only date filter if it exists
+      if (currentDateRange.startDate && currentDateRange.endDate) {
+        const filteredUsers = filterUsers(
+          originalUsers,
+          "",
+          [],
+          currentDateRange.startDate.toISOString(),
+          currentDateRange.endDate.toISOString()
+        );
+        setCRMUsers(filteredUsers);
+      } else {
+        // If no date filter, show all data
+        setCRMUsers(originalUsers);
+      }
+    }
+    setCurrentPage(1);
+  };
 
   return (
     <>
@@ -280,11 +387,9 @@ export default function Contacts() {
         onSendEmailClick={() => setShowEmailPopup(true)}
         showEmail={showEmail}
         onTagsFilterChange={(data) => handleTagsFilterChange(data)}
-        clearFilter={() => {
-          handleClearFilters();
-        }}
-        // dateSelectedCallback={(startDate, endDate) => {console.log(startDate, endDate)}}
+        clearFilter={() => handleClearFilters()}
         dateSelectedCallback={handleDateFilterChange}
+        onClearIndividualFilter={handleClearIndividualFilter}
       />
       {!loading ? (
         <div className="table-container table-contacts-page">
@@ -334,7 +439,11 @@ export default function Contacts() {
                       </Checkbox>
                     </div>
                     <div className="table-cell cell-user">
-                      <div className="user-dp-card">
+                      <div
+                        className={`user-dp-card type0${
+                          Math.floor(Math.random() * 3) + 1
+                        }`}
+                      >
                         <figure>
                           <span>{contact?.name?.charAt(0)}</span>
                         </figure>
@@ -356,12 +465,33 @@ export default function Contacts() {
                       <p>{contact.business || "N/A"}</p>
                     </div>
                     <div className="table-cell cell-tags">
-                      <p className="tags">
-                        {/* {contact.tags.map((tag:string) => (
-                      <span key={tag}>{tag}</span>
-                    ))} */}
-                        <span className={`${getTagColor(contact.tags)}`}>{contact.tags}</span>
-                      </p>
+                      <span className="flex flex-col gap-1">
+                        <p className="subscription">
+                          {contact.subscriptionLevel && (
+                            <span
+                              key={contact.subscriptionLevel}
+                              className={`capitalize `}
+                            >
+                              {contact.subscriptionLevel}
+                            </span>
+                          )}
+                        </p>
+                        <p className="tags">
+                          <div className="flex flex-col gap-1">
+                            {" "}
+                            {contact.tags.map((tag: string) => (
+                              <span
+                                key={tag}
+                                className={`${getTagColor(
+                                  tag
+                                )} capitalize px-2 py-1 rounded-full mr-2`}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </p>
+                      </span>
                     </div>
                     <div className="table-cell cell-date">
                       <p className="date">
@@ -382,7 +512,7 @@ export default function Contacts() {
                           className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                         >
                           <div className="action-menu">
-                            <a
+                            {/* <a
                               href="javascript:void(0)"
                               onClick={() => {
                                 setIsEditContactItem(true);
@@ -390,15 +520,40 @@ export default function Contacts() {
                               className="action-menu-item"
                             >
                               <p>Edit</p>
-                            </a>
+                            </a> */}
                             <span
                               onClick={() => {
+                                setSelectedUserId(contact._id);
                                 setIsDeleteItemConfirmation(true);
                               }}
-                              className="action-menu-item"
+                              className="action-menu-item cursor-pointer"
                             >
                               <p>Delete</p>
                             </span>
+                            {contact.subscriptionLevel && (
+                              <>
+                                {contact.subscriptionLevel === "free" ? (
+                                  <span
+                                    onClick={() =>
+                                      handleToggleSubscription(contact._id)
+                                    }
+                                    className="action-menu-item cursor-pointer"
+                                  >
+                                    <p>Mark As Paid</p>
+                                  </span>
+                                ) : contact.subscriptionLevel ===
+                                  "admin-paid" ? (
+                                  <span
+                                    onClick={() =>
+                                      handleToggleSubscription(contact._id)
+                                    }
+                                    className="action-menu-item cursor-pointer"
+                                  >
+                                    <p>Mark As Free</p>
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
                           </div>
                         </PopoverPanel>
                       </Popover>
@@ -526,7 +681,6 @@ export default function Contacts() {
           <Loader size="xl" />
         </div>
       )}
-
       <EmailPopup
         isOpen={showEmailPopup}
         recipients={checkedUser}
@@ -537,8 +691,7 @@ export default function Contacts() {
         }}
         onSuccess={() => setIsEmailSentSuccess(true)}
       />
-
-      <Dialog
+      {/* <Dialog
         open={isEditContactItem}
         onClose={() => setIsEditContactItem(false)}
         className="relative z-50"
@@ -559,23 +712,43 @@ export default function Contacts() {
                 <div>
                   <Field className="fieldDv">
                     <Label>Name</Label>
-                    <Input name="name" placeholder="Enter Name" />
+                    <Input
+                      name="name"
+                      placeholder="Enter Name"
+                      value={formData.name}
+                    />
                   </Field>
                   <Field className="fieldDv">
                     <Label>Phone</Label>
-                    <Input name="phone" placeholder="Enter Phone" />
+                    <Input
+                      name="phone"
+                      placeholder="Enter Phone"
+                      value={formData.phone}
+                    />
                   </Field>
                   <Field className="fieldDv">
                     <Label>Email</Label>
-                    <Input name="email" placeholder="Enter Email" />
+                    <Input
+                      name="email"
+                      placeholder="Enter Email"
+                      value={formData.email}
+                    />
                   </Field>
                   <Field className="fieldDv">
                     <Label>Business</Label>
-                    <Input name="email" placeholder="Enter Email" />
+                    <Input
+                      name="business"
+                      placeholder="Enter Business"
+                      value={formData.business}
+                    />
                   </Field>
                   <Field className="fieldDv">
                     <Label>Tags</Label>
-                    <Input name="tags" placeholder="Enter Tags" />
+                    <Input
+                      name="tags"
+                      placeholder="Enter Tags"
+                      value={formData.tags}
+                    />
                   </Field>
                 </div>
                 <div>
@@ -592,17 +765,16 @@ export default function Contacts() {
             </div>
             <div className="dialog-footer">
               {/* <Button className="btn btn-primary-outline" onClick={() => setIsEditContactItem(false)}>Cancel</Button> */}
-              <Button
+      {/* <Button
                 className="btn btn-primary"
                 onClick={() => setIsEditContactItem(false)}
               >
                 Save Changes
-              </Button>
-            </div>
+              </Button> */}
+      {/* </div>
           </DialogPanel>
         </div>
-      </Dialog>
-
+      </Dialog> */}{" "}
       <Dialog
         open={isEmailSentSuccess}
         onClose={() => setIsEmailSentSuccess(false)}
@@ -640,7 +812,6 @@ export default function Contacts() {
           </DialogPanel>
         </div>
       </Dialog>
-
       <Dialog
         open={isDeleteItemConfirmation}
         onClose={() => setIsDeleteItemConfirmation(false)}
@@ -675,7 +846,7 @@ export default function Contacts() {
                 </Button>
                 <Button
                   className="btn btn-primary"
-                  onClick={() => setIsDeleteItemConfirmation(false)}
+                  onClick={() => handleDelete(selectedUserId)}
                 >
                   Yes, Delete
                 </Button>

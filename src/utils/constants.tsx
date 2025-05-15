@@ -10,13 +10,13 @@ export const tags = [
   },
   {
     id: 2,
-    name: "Contact Us",
+    name: "Contact Us Form",
     checked: false,
     cssClass: "clr-orange",
   },
   {
     id: 3,
-    name: "Download Manuals",
+    name: "Download Manual",
     checked: false,
     cssClass: "clr-pink",
   },

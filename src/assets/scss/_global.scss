@@ -154,6 +154,24 @@
             span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
         }
         span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
+        &.type01 {
+            figure{
+                background-color: rgba(#0035F1, 0.1);
+                span{color: #0035F1;}
+            }
+        }
+        &.type02 {
+            figure{
+                background-color: rgba(#B72346, 0.1);
+                span{color: #B72346;}
+            }
+        }
+        &.type03 {
+            figure{
+                background-color: rgba(#09132E, 0.1);
+                span{color: #09132E;}
+            }
+        }
     }
 
     .email-item {
@@ -174,12 +192,57 @@
             &.clr-pink{background-color: #FF5275; color: #fff;}
         }
     }
-
+    //added for the subscription-level in contact page
+.subscription {
+        display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+        span {
+            background-color: #f80f0f; border-radius: 30px; @include para(10px, 400, 0, 4px 10px); color: #fff; padding: 5px 10px;
+        }
+    }
     .date {
         .time { @include para(12px, 400, 0, 0); display: block; }
     }
     .action-drop {
         button { font-size: 20px; min-width: 30px; cursor: pointer;
+        }
+    }
+}
+
+.tab-group-01{
+    .tab-list{
+        border-bottom: 1px solid var(--table-border-color); margin: 0 0 20px;
+        button{
+            @include para(14px, 400, 0, 8px 15px); border-bottom: 2px solid transparent; color: var(--txt-color); cursor: pointer;
+            &[data-selected]{
+                color: #000; border-bottom: 2px solid var(--base-color-primary);
+            }
+        }
+    }
+}
+
+.secBtnRow{
+    display: flex; align-items: center; gap: 10px; margin: 0 0 20px;
+    .btn{
+        padding: 5px 20px; background-color: #fff; color: var(--base-color-primary); border: 1px solid var(--base-color-primary);
+        &.active{
+            background-color: var(--base-color-primary); color: #fff;
+        }
+    }
+}
+.secContent{
+    .secContent-item{
+        display: none; background-color: #fff; border-radius: 10px; padding: 20px; border: 1px solid var(--table-border-color);
+        &.active{display: block;}
+
+        .fieldDv{
+            margin-bottom: 20px;
+            label{@include para(14px, 400, 0, 0); color: var(--txt-color);}
+            input{@include para(14px, 400, 0, 12px 10px); color: var(--txt-color); border: 1px solid var(--table-border-color); border-radius: 5px;}
+            textarea{@include para(14px, 400, 0, 12px 10px); color: var(--txt-color); border: 1px solid var(--table-border-color); border-radius: 5px; min-height: calc(100vh - 525px);}
+        }
+
+        .btnRow{
+            display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 20px -20px 0; padding: 0 20px; padding-top: 20px; border-top: 1px solid var(--table-border-color);
         }
     }
 }
@@ -194,7 +257,7 @@
         .closeBtn { position: absolute; top: 20px; right: 20px; background-color: var(--color-gray-200); border-radius: 50%; @include para(20px, 400, 0, 5px); line-height: 1; min-width: 30px; cursor: pointer; color: var(--txt-color); }
 
         h2 {
-            @include para(24px, 600, 0, 20px);
+            @include para(24px, 600, 0, 20px 0);
             color: #000;
         }
 
@@ -211,6 +274,26 @@
                     }
                     span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
                     i { @include para(20px, 400, 0px 10px 0px 0px, 0); color: var(--txt-color-dark);  transition: var(--trans-primary);}
+
+                    &.type01 {
+                        figure{
+                            background-color: rgba(#0035F1, 0.1);
+                            span{color: #0035F1;}
+                        }
+                    }
+                    &.type02 {
+                        figure{
+                            background-color: rgba(#B72346, 0.1);
+                            span{color: #B72346;}
+                        }
+                    }
+                    &.type03 {
+                        figure{
+                            background-color: rgba(#09132E, 0.1);
+                            span{color: #09132E;}
+                        }
+                    }
+                    
                     &:hover{
                         background-color: rgba(var(--base-color-primary-rgb), 0.1);
                         i{color: var(--base-color-primary);}
