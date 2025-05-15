@@ -5,7 +5,6 @@ import profileImage from "../../assets/images/profileImageAdmin.png";
 import {
   UserIcon,
   UserMenuIconProfile,
-  UserMenuIconSettings,
   UserMenuIconLogout,
   MainMenuNavDashboard,
   MainMenuNavCMS,
