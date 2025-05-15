@@ -1,6 +1,12 @@
 import { Field, Input, Label } from "@headlessui/react";
 
-const HomeHeaderSection3 = ({ data, onChange }) => {
+const HomeHeaderSection3 = ({
+  data,
+  onChange,
+}: {
+  data: any;
+  onChange: any;
+}) => {
   return (
     <>
       <div className="row">

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { Button, Checkbox } from "@headlessui/react";
 import { FilterIcon } from "../../components/svg/icons";
-import { Field, Input, Label } from "@headlessui/react";
+import { Field, Input } from "@headlessui/react";
 import clsx from "clsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {

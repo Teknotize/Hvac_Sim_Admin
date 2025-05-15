@@ -1,7 +1,7 @@
 import { Field, Input, Label } from "@headlessui/react";
 import fileIcon from "../../../../public/images/file-icon.png";
 import useToastStore from "../../../store/useToastStore";
-const WhatsNewSection3 = ({ data, onChange }) => {
+const WhatsNewSection3 = ({ data, onChange }: { data: any; onChange: any }) => {
   const { showToast } = useToastStore();
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
