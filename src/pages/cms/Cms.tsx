@@ -17,13 +17,6 @@ import WhatsNewSection2 from "./whatsnext/Section2";
 import WhatsNewSection3 from "./whatsnext/Section3";
 import useToastStore from "../../store/useToastStore";
 import Loader from "../../components/loader";
-import { set } from "date-fns";
-interface SectionData {
-  sec_heading: string;
-  sec_link: string;
-  sec_description: string;
-  sec_image: File | string | null; // <-- important
-}
 
 interface WhatsNewDataType {
   section1: {
