@@ -23,7 +23,10 @@ import formatDateTime from "../../utils/DateConversion";
 import EmailPopup from "../../components/emailPopup";
 import Loader from "../../components/loader";
 
-import { deleteContactUserById } from "../../api/ContactsApi";
+import {
+  deleteContactUserById,
+  updateSubscriptionLevel,
+} from "../../api/ContactsApi";
 import useToastStore from "../../store/useToastStore";
 
 interface CRMUser {
@@ -303,6 +306,17 @@ export default function Contacts() {
     setCurrentPage(1);
   };
 
+  const handleToggleSubscription = async (id: string) => {
+    try {
+      await updateSubscriptionLevel(id);
+      setRefreshFlag(!refreshFlag);
+      showToast("Subscription level updated successfully", "success");
+    } catch (error) {
+      console.error("Failed to update subscription level:", error);
+      showToast("Failed to update subscription level", "error");
+    }
+  };
+
   const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
   const paginatedUsers = crmUsers.slice(
     (currentPage - 1) * itemsPerPage,
@@ -425,7 +439,11 @@ export default function Contacts() {
                       </Checkbox>
                     </div>
                     <div className="table-cell cell-user">
-                      <div className={`user-dp-card type0${Math.floor(Math.random() * 3) + 1}`}>
+                      <div
+                        className={`user-dp-card type0${
+                          Math.floor(Math.random() * 3) + 1
+                        }`}
+                      >
                         <figure>
                           <span>{contact?.name?.charAt(0)}</span>
                         </figure>
@@ -447,18 +465,33 @@ export default function Contacts() {
                       <p>{contact.business || "N/A"}</p>
                     </div>
                     <div className="table-cell cell-tags">
-                      <p className="tags">
-                        {contact.tags.map((tag: string) => (
-                          <span
-                            key={tag}
-                            className={`${getTagColor(
-                              tag
-                            )} capitalize px-2 py-1 rounded-full mr-2`}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </p>
+                      <span className="flex flex-col gap-1">
+                        <p className="subscription">
+                          {contact.subscriptionLevel && (
+                            <span
+                              key={contact.subscriptionLevel}
+                              className={`capitalize `}
+                            >
+                              {contact.subscriptionLevel}
+                            </span>
+                          )}
+                        </p>
+                        <p className="tags">
+                          <div className="flex flex-col gap-1">
+                            {" "}
+                            {contact.tags.map((tag: string) => (
+                              <span
+                                key={tag}
+                                className={`${getTagColor(
+                                  tag
+                                )} capitalize px-2 py-1 rounded-full mr-2`}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </p>
+                      </span>
                     </div>
                     <div className="table-cell cell-date">
                       <p className="date">
@@ -497,6 +530,30 @@ export default function Contacts() {
                             >
                               <p>Delete</p>
                             </span>
+                            {contact.subscriptionLevel && (
+                              <>
+                                {contact.subscriptionLevel === "free" ? (
+                                  <span
+                                    onClick={() =>
+                                      handleToggleSubscription(contact._id)
+                                    }
+                                    className="action-menu-item cursor-pointer"
+                                  >
+                                    <p>Mark As Paid</p>
+                                  </span>
+                                ) : contact.subscriptionLevel ===
+                                  "admin-paid" ? (
+                                  <span
+                                    onClick={() =>
+                                      handleToggleSubscription(contact._id)
+                                    }
+                                    className="action-menu-item cursor-pointer"
+                                  >
+                                    <p>Mark As Free</p>
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
                           </div>
                         </PopoverPanel>
                       </Popover>
