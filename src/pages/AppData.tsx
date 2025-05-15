@@ -36,7 +36,6 @@ interface Badge {
   _id: string;
   name: string;
   is_locked: boolean;
-  // Add other badge properties as needed
 }
 
 export default function AppData() {
