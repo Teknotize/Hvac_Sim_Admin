@@ -17,7 +17,27 @@ import WhatsNewSection2 from "./whatsnext/Section2";
 import WhatsNewSection3 from "./whatsnext/Section3";
 import useToastStore from "../../store/useToastStore";
 import Loader from "../../components/loader";
-import { set } from "date-fns";
+
+interface WhatsNewDataType {
+  section1: {
+    sec1_heading: string;
+    sec1_link: string;
+    sec1_description: string;
+    sec1_image: File | string | null;
+  };
+  section2: {
+    sec2_heading: string;
+    sec2_link: string;
+    sec2_description: string;
+    sec2_image: File | string | null;
+  };
+  section3: {
+    sec3_heading: string;
+    sec3_link: string;
+    sec3_description: string;
+    sec3_image: File | string | null;
+  };
+}
 
 const Crm = () => {
   const [activeSectionHomeHeader, setactiveSectionHomeHeader] =
@@ -46,24 +66,24 @@ const Crm = () => {
     },
   });
 
-  const [whatsNewData, setWhatsNewData] = useState({
+  const [whatsNewData, setWhatsNewData] = useState<WhatsNewDataType>({
     section1: {
       sec1_heading: "",
-      sec1_image: null,
       sec1_link: "",
       sec1_description: "",
+      sec1_image: null,
     },
     section2: {
       sec2_heading: "",
-      sec2_image: null,
       sec2_link: "",
       sec2_description: "",
+      sec2_image: null,
     },
     section3: {
       sec3_heading: "",
-      sec3_image: null,
       sec3_link: "",
       sec3_description: "",
+      sec3_image: null,
     },
   });
 
