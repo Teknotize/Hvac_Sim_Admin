@@ -31,10 +31,14 @@ interface PageHeaderProps {
   setRefreshFlag?: any;
   showEmail?: boolean;
   onTagsFilterChange?: (filters: { tags: string[] }) => void;
-  onSubscriptionFilterChange?: (filters: { subscriptionLevels: string[] }) => void;
+  onSubscriptionFilterChange?: (filters: {
+    subscriptionLevels: string[];
+  }) => void;
   clearFilter?: () => void;
   dateSelectedCallback?: (startDate: Date, endDate: Date) => void;
-  onClearIndividualFilter?: (filterType: "date" | "tags" | "subscription") => void;
+  onClearIndividualFilter?: (
+    filterType: "date" | "tags" | "subscription"
+  ) => void;
 }
 
 export default function PageHeader({
@@ -57,7 +61,7 @@ export default function PageHeader({
   const [filtersApplied, setFiltersApplied] = useState({
     tags: false,
     subscription: false,
-    date: false
+    date: false,
   });
   const [isFileUploadOpen, setIsFileUploadOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -86,22 +90,22 @@ export default function PageHeader({
 
   const handleResetTags = () => {
     setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
-    setFiltersApplied(prev => ({ ...prev, tags: false }));
+    setFiltersApplied((prev) => ({ ...prev, tags: false }));
     onClearIndividualFilter?.("tags");
   };
 
   const handleResetDate = () => {
     setDateState([defaultDate]);
     setDateChanged(false);
-    setFiltersApplied(prev => ({ ...prev, date: false }));
+    setFiltersApplied((prev) => ({ ...prev, date: false }));
     onClearIndividualFilter?.("date");
   };
 
   const handleResetSubscription = () => {
-    setSelectedSubscriptionLevels(prev => 
-      prev.map(level => ({ ...level, checked: false }))
+    setSelectedSubscriptionLevels((prev) =>
+      prev.map((level) => ({ ...level, checked: false }))
     );
-    setFiltersApplied(prev => ({ ...prev, subscription: false }));
+    setFiltersApplied((prev) => ({ ...prev, subscription: false }));
     onClearIndividualFilter?.("subscription");
   };
 
@@ -124,35 +128,35 @@ export default function PageHeader({
     onTagsFilterChange?.({
       tags: selectedTagNames,
     });
-    setFiltersApplied(prev => ({ ...prev, tags: true }));
+    setFiltersApplied((prev) => ({ ...prev, tags: true }));
   };
 
   const handleSubscriptionCheckboxChange = (id: number, checked: boolean) => {
-    setSelectedSubscriptionLevels(prev =>
-      prev.map(level => (level.id === id ? { ...level, checked } : level))
+    setSelectedSubscriptionLevels((prev) =>
+      prev.map((level) => (level.id === id ? { ...level, checked } : level))
     );
   };
 
   const handleApplySubscriptionFilters = () => {
     const selectedLevels = selectedSubscriptionLevels
-      .filter(level => level.checked)
-      .map(level => level.name);
+      .filter((level) => level.checked)
+      .map((level) => level.name);
 
     onSubscriptionFilterChange?.({
       subscriptionLevels: selectedLevels,
     });
-    setFiltersApplied(prev => ({ ...prev, subscription: true }));
+    setFiltersApplied((prev) => ({ ...prev, subscription: true }));
   };
 
   useEffect(() => {
     const totalSelectedFilters = () => {
       let count = 0;
 
-      if (selectedTags.some(tag => tag.checked)) {
+      if (selectedTags.some((tag) => tag.checked)) {
         count += 1;
       }
 
-      if (selectedSubscriptionLevels.some(level => level.checked)) {
+      if (selectedSubscriptionLevels.some((level) => level.checked)) {
         count += 1;
       }
 
@@ -280,7 +284,7 @@ export default function PageHeader({
   const handleDateFilterChange = (startDate: Date, endDate: Date) => {
     setDateState([{ ...defaultDate, startDate, endDate }]);
     setDateChanged(true);
-    setFiltersApplied(prev => ({ ...prev, date: true }));
+    setFiltersApplied((prev) => ({ ...prev, date: true }));
     dateSelectedCallback?.(startDate, endDate);
   };
 
@@ -340,8 +344,8 @@ export default function PageHeader({
                               Date <FontAwesomeIcon icon={faChevronDown} />
                             </span>
                             <span className="active">
-                              {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
-                              - {datSstate[0]?.endDate?.toLocaleDateString()}
+                              {datSstate[0]?.startDate?.toLocaleDateString()} -{" "}
+                              {datSstate[0]?.endDate?.toLocaleDateString()}
                               {filtersApplied.date && (
                                 <FontAwesomeIcon
                                   onClick={(e) => {
@@ -493,23 +497,30 @@ export default function PageHeader({
                         </>
                       )}
                     </Popover>
-                    
+
                     <Popover className="action-drop">
                       {({ close }) => (
                         <>
                           <PopoverButton
                             className={`block btn btn-outline-grey icon-end ${
-                              selectedSubscriptionLevels.filter(level => level.checked).length > 0 && "active"
+                              selectedSubscriptionLevels.filter(
+                                (level) => level.checked
+                              ).length > 0 && "active"
                             }`}
                           >
                             <span>
-                              Subscription <FontAwesomeIcon icon={faChevronDown} />
+                              Subscription{" "}
+                              <FontAwesomeIcon icon={faChevronDown} />
                             </span>
                             <span className="active">
                               Subscription
                               <b>
-                                {selectedSubscriptionLevels.filter(level => level.checked).length !== 0
-                                  ? selectedSubscriptionLevels.filter(level => level.checked).length
+                                {selectedSubscriptionLevels.filter(
+                                  (level) => level.checked
+                                ).length !== 0
+                                  ? selectedSubscriptionLevels.filter(
+                                      (level) => level.checked
+                                    ).length
                                   : ""}
                               </b>
                               {filtersApplied.subscription && (
@@ -536,13 +547,19 @@ export default function PageHeader({
                                     className="list-group-item"
                                     key={level.id}
                                     onClick={() =>
-                                      handleSubscriptionCheckboxChange(level.id, !level.checked)
+                                      handleSubscriptionCheckboxChange(
+                                        level.id,
+                                        !level.checked
+                                      )
                                     }
                                   >
                                     <Checkbox
                                       checked={level.checked}
                                       onChange={(checked) =>
-                                        handleSubscriptionCheckboxChange(level.id, checked)
+                                        handleSubscriptionCheckboxChange(
+                                          level.id,
+                                          checked
+                                        )
                                       }
                                       className="group list-checkbox-item data-[checked]:checked"
                                     >
@@ -551,7 +568,9 @@ export default function PageHeader({
                                         className="opacity-0 group-data-[checked]:opacity-100"
                                       />
                                     </Checkbox>
-                                    <span className="capitalize">{level.name}</span>
+                                    <span className="capitalize">
+                                      {level.name === "admin-paid" ? "Admin Paid" : level.name}
+                                    </span>
                                   </div>
                                 ))}
                               </div>
