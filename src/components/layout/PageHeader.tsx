@@ -22,19 +22,7 @@ import useToastStore from "../../store/useToastStore";
 import { createBadgeWithCSV } from "../../api/AppData";
 import { Link } from "react-router-dom";
 
-export default function PageHeader({
-  title,
-  route,
-  onSendEmailClick,
-  onSearchChange,
-  showEmail,
-  onAddNewPdfClick,
-  onTagsFilterChange,
-  clearFilter,
-  dateSelectedCallback,
-  setRefreshFlag,
-  onClearIndividualFilter,
-}: {
+interface PageHeaderProps {
   title: string;
   route?: string;
   onSendEmailClick?: () => void;
@@ -43,14 +31,38 @@ export default function PageHeader({
   setRefreshFlag?: any;
   showEmail?: boolean;
   onTagsFilterChange?: (filters: { tags: string[] }) => void;
+  onSubscriptionFilterChange?: (filters: {
+    subscriptionLevels: string[];
+  }) => void;
   clearFilter?: () => void;
   dateSelectedCallback?: (startDate: Date, endDate: Date) => void;
-  onClearIndividualFilter?: (filterType: "date" | "tags") => void;
-}) {
+  onClearIndividualFilter?: (
+    filterType: "date" | "tags" | "subscription"
+  ) => void;
+}
+
+export default function PageHeader({
+  title,
+  route,
+  onSendEmailClick,
+  onSearchChange,
+  showEmail,
+  onAddNewPdfClick,
+  onTagsFilterChange,
+  onSubscriptionFilterChange,
+  clearFilter,
+  dateSelectedCallback,
+  setRefreshFlag,
+  onClearIndividualFilter,
+}: PageHeaderProps) {
   const [filterActive, setFilterActive] = useState(false);
   const [dateChanged, setDateChanged] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
-  const [filtersApplied, setFiltersApplied] = useState(false);
+  const [filtersApplied, setFiltersApplied] = useState({
+    tags: false,
+    subscription: false,
+    date: false,
+  });
   const [isFileUploadOpen, setIsFileUploadOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -71,25 +83,40 @@ export default function PageHeader({
   const [selectedTags, setSelectedTags] = useState(
     tags.map((tag) => ({ ...tag, checked: false }))
   );
+  const [selectedSubscriptionLevels, setSelectedSubscriptionLevels] = useState([
+    { id: 1, name: "free", checked: false },
+    { id: 2, name: "admin-paid", checked: false },
+  ]);
+
   const handleResetTags = () => {
     setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
-    setFiltersApplied(false);
+    setFiltersApplied((prev) => ({ ...prev, tags: false }));
     onClearIndividualFilter?.("tags");
   };
 
   const handleResetDate = () => {
     setDateState([defaultDate]);
     setDateChanged(false);
+    setFiltersApplied((prev) => ({ ...prev, date: false }));
     onClearIndividualFilter?.("date");
+  };
+
+  const handleResetSubscription = () => {
+    setSelectedSubscriptionLevels((prev) =>
+      prev.map((level) => ({ ...level, checked: false }))
+    );
+    setFiltersApplied((prev) => ({ ...prev, subscription: false }));
+    onClearIndividualFilter?.("subscription");
   };
 
   const handleResetAll = () => {
     handleResetTags();
     handleResetDate();
+    handleResetSubscription();
     clearFilter?.();
     setDateState([defaultDate]);
     setFilterCount(0);
-    setFiltersApplied(false);
+    setFiltersApplied({ tags: false, subscription: false, date: false });
   };
 
   const [datSstate, setDateState] = useState<Range[]>([defaultDate]);
@@ -101,18 +128,35 @@ export default function PageHeader({
     onTagsFilterChange?.({
       tags: selectedTagNames,
     });
-    setFiltersApplied(true);
+    setFiltersApplied((prev) => ({ ...prev, tags: true }));
   };
+
+  const handleSubscriptionCheckboxChange = (id: number, checked: boolean) => {
+    setSelectedSubscriptionLevels((prev) =>
+      prev.map((level) => (level.id === id ? { ...level, checked } : level))
+    );
+  };
+
+  const handleApplySubscriptionFilters = () => {
+    const selectedLevels = selectedSubscriptionLevels
+      .filter((level) => level.checked)
+      .map((level) => level.name);
+
+    onSubscriptionFilterChange?.({
+      subscriptionLevels: selectedLevels,
+    });
+    setFiltersApplied((prev) => ({ ...prev, subscription: true }));
+  };
+
   useEffect(() => {
     const totalSelectedFilters = () => {
       let count = 0;
-      let isCheckedCount = 0;
 
-      selectedTags.forEach((tag) => {
-        if (tag.checked) isCheckedCount += 1;
-      });
+      if (selectedTags.some((tag) => tag.checked)) {
+        count += 1;
+      }
 
-      if (isCheckedCount > 0) {
+      if (selectedSubscriptionLevels.some((level) => level.checked)) {
         count += 1;
       }
 
@@ -132,11 +176,10 @@ export default function PageHeader({
     const newCount = totalSelectedFilters();
     setFilterCount(newCount);
 
-    // Only call clearFilter if count transitions from >0 to 0
     if (filterCount > 0 && newCount === 0) {
       clearFilter?.();
     }
-  }, [selectedTags, datSstate]);
+  }, [selectedTags, selectedSubscriptionLevels, datSstate]);
 
   const handleCheckboxChange = (id: number, checked: boolean) => {
     setSelectedTags((prev) =>
@@ -238,6 +281,13 @@ export default function PageHeader({
     }
   };
 
+  const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+    setDateState([{ ...defaultDate, startDate, endDate }]);
+    setDateChanged(true);
+    setFiltersApplied((prev) => ({ ...prev, date: true }));
+    dateSelectedCallback?.(startDate, endDate);
+  };
+
   return (
     <div className="page-header">
       <div className="flex items-center">
@@ -281,87 +331,80 @@ export default function PageHeader({
               <>
                 <div className="filters">
                   <div className="filter-item">
-                    <>
-                      <Popover className="action-drop">
-                        {({ close }) => (
-                          <>
-                            <PopoverButton
-                              className={clsx(
-                                "block btn btn-outline-grey icon-end",
-                                dateChanged && "active"
-                              )}
-                            >
-                              <span>
-                                Date <FontAwesomeIcon icon={faChevronDown} />
-                              </span>
-                              <span className="active">
-                                {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
-                                - {datSstate[0]?.endDate?.toLocaleDateString()}
+                    <Popover className="action-drop">
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={clsx(
+                              "block btn btn-outline-grey icon-end",
+                              dateChanged && "active"
+                            )}
+                          >
+                            <span>
+                              Date <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              {datSstate[0]?.startDate?.toLocaleDateString()} -{" "}
+                              {datSstate[0]?.endDate?.toLocaleDateString()}
+                              {filtersApplied.date && (
                                 <FontAwesomeIcon
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleResetDate();
                                   }}
                                   icon={faXmark}
+                                  className="cursor-pointer"
                                 />
-                              </span>
-                            </PopoverButton>
+                              )}
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <DateRangePicker
+                              onChange={(item) => {
+                                setDateState([item.selection]);
+                                setDateChanged(true);
+                              }}
+                              moveRangeOnFirstSelection={false}
+                              months={2}
+                              ranges={datSstate}
+                              direction="horizontal"
+                              rangeColors={["#B92825"]}
+                            />
 
-                            <PopoverPanel
-                              transition
-                              anchor="bottom end"
-                              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                            >
-                              <DateRangePicker
-                                onChange={(item) => {
-                                  setDateState([item.selection]);
-                                  setDateChanged(true);
+                            <div className="btnRow justify-end">
+                              <Button
+                                className="btn btn-link"
+                                onClick={handleResetDate}
+                              >
+                                Reset
+                              </Button>
+                              <Button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                  const startDate = datSstate[0]?.startDate;
+                                  const endDate = datSstate[0]?.endDate;
+
+                                  if (
+                                    startDate instanceof Date &&
+                                    endDate instanceof Date
+                                  ) {
+                                    handleDateFilterChange(startDate, endDate);
+                                    close();
+                                  }
                                 }}
-                                moveRangeOnFirstSelection={false}
-                                months={2}
-                                ranges={datSstate}
-                                direction="horizontal"
-                                rangeColors={["#B92825"]}
-                              />
-
-                              <div className="btnRow justify-end">
-                                <Button
-                                  className="btn btn-link"
-                                  onClick={handleResetDate}
-                                >
-                                  Reset
-                                </Button>
-                                <Button
-                                  className="btn btn-primary"
-                                  onClick={() => {
-                                    const startDate = datSstate[0]?.startDate;
-                                    const endDate = datSstate[0]?.endDate;
-
-                                    if (
-                                      startDate instanceof Date &&
-                                      endDate instanceof Date
-                                    ) {
-                                      dateSelectedCallback?.(
-                                        startDate,
-                                        endDate
-                                      );
-                                      setFilterCount(
-                                        (prevCount) => prevCount + 1
-                                      );
-
-                                      close(); // Close dropdown
-                                    }
-                                  }}
-                                  disabled={!dateChanged}
-                                >
-                                  Apply
-                                </Button>
-                              </div>
-                            </PopoverPanel>
-                          </>
-                        )}
-                      </Popover>
-                    </>
+                                disabled={!dateChanged}
+                              >
+                                Apply
+                              </Button>
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
+                    </Popover>
 
                     <Popover className="action-drop">
                       {({ close }) => (
@@ -386,7 +429,7 @@ export default function PageHeader({
                                     }).length
                                   : ""}
                               </b>
-                              {filtersApplied && (
+                              {filtersApplied.tags && (
                                 <FontAwesomeIcon
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -444,6 +487,108 @@ export default function PageHeader({
                                   }}
                                   disabled={selectedTags.every(
                                     (tag) => !tag.checked
+                                  )}
+                                >
+                                  Apply
+                                </Button>
+                              </div>
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
+                    </Popover>
+
+                    <Popover className="action-drop">
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={`block btn btn-outline-grey icon-end ${
+                              selectedSubscriptionLevels.filter(
+                                (level) => level.checked
+                              ).length > 0 && "active"
+                            }`}
+                          >
+                            <span>
+                              Subscription{" "}
+                              <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              Subscription
+                              <b>
+                                {selectedSubscriptionLevels.filter(
+                                  (level) => level.checked
+                                ).length !== 0
+                                  ? selectedSubscriptionLevels.filter(
+                                      (level) => level.checked
+                                    ).length
+                                  : ""}
+                              </b>
+                              {filtersApplied.subscription && (
+                                <FontAwesomeIcon
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetSubscription();
+                                  }}
+                                  icon={faXmark}
+                                  className="cursor-pointer"
+                                />
+                              )}
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <div className="list-menu">
+                              <div className="list-group">
+                                {selectedSubscriptionLevels.map((level) => (
+                                  <div
+                                    className="list-group-item"
+                                    key={level.id}
+                                    onClick={() =>
+                                      handleSubscriptionCheckboxChange(
+                                        level.id,
+                                        !level.checked
+                                      )
+                                    }
+                                  >
+                                    <Checkbox
+                                      checked={level.checked}
+                                      onChange={(checked) =>
+                                        handleSubscriptionCheckboxChange(
+                                          level.id,
+                                          checked
+                                        )
+                                      }
+                                      className="group list-checkbox-item data-[checked]:checked"
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faCheck}
+                                        className="opacity-0 group-data-[checked]:opacity-100"
+                                      />
+                                    </Checkbox>
+                                    <span className="capitalize">
+                                      {level.name === "admin-paid" ? "Admin Paid" : level.name}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="btnRow">
+                                <Button
+                                  className="btn btn-link flex-1"
+                                  onClick={handleResetSubscription}
+                                >
+                                  Reset
+                                </Button>
+                                <Button
+                                  className="btn btn-primary flex-1"
+                                  onClick={() => {
+                                    handleApplySubscriptionFilters();
+                                    close();
+                                  }}
+                                  disabled={selectedSubscriptionLevels.every(
+                                    (level) => !level.checked
                                   )}
                                 >
                                   Apply
