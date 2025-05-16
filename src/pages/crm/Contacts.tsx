@@ -470,9 +470,11 @@ export default function Contacts() {
                           {contact.subscriptionLevel && (
                             <span
                               key={contact.subscriptionLevel}
-                              className={`capitalize `}
+                              className="capitalize"
                             >
-                              {contact.subscriptionLevel}
+                              {contact.subscriptionLevel === "admin-paid"
+                                ? "Paid"
+                                : contact.subscriptionLevel}
                             </span>
                           )}
                         </p>
