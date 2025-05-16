@@ -71,7 +71,9 @@ export default function Contacts() {
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
 
-  const [activeSubscriptionLevels, setActiveSubscriptionLevels] = useState<string[]>([]);
+  const [activeSubscriptionLevels, setActiveSubscriptionLevels] = useState<
+    string[]
+  >([]);
 
   const tagColors: any = {
     "app-user": "clr-indigo",
@@ -185,7 +187,13 @@ export default function Contacts() {
       console.error("Delete error:", error);
     }
   };
-
+  const tagLabelMap: { [key: string]: string } = {
+    "contact us": "Contact Us Form",
+    workbook: "Download Manual",
+    "contact rep": "Product Inquiry",
+    app: "App User",
+  };
+  const displayTagSet = new Set(Object.values(tagLabelMap));
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -193,8 +201,12 @@ export default function Contacts() {
         const response = await apiClient.get("/admin/get-crm-users");
         const users = response.data.map((user: any) => ({
           ...user,
+          tags: user.tags.map((tag: string) =>
+            displayTagSet.has(tag) ? tag : tagLabelMap[tag] || tag
+          ),
           isChecked: false,
         }));
+        console.log("new data", users);
         setOriginalUsers(users);
 
         // After fetching new data, reapply current filters
@@ -231,27 +243,43 @@ export default function Contacts() {
     let filteredUsers = [...users];
 
     // Apply search filter if search term exists
-    if (searchTerm.trim()) {
+    if (searchTerm && searchTerm.trim()) {
       const term = searchTerm.trim().toLowerCase();
-      filteredUsers = filteredUsers.filter(
-        (user) =>
-          user.name?.toLowerCase().includes(term) ||
-          user.email?.toLowerCase().includes(term) ||
-          user.phone?.toLowerCase().includes(term) ||
-          user.business?.toLowerCase().includes(term)
-      );
+      filteredUsers = filteredUsers.filter((user) => {
+        const name = user.name?.toLowerCase() || "";
+        const email = user.email?.toLowerCase() || "";
+        const phone = user.phone?.toLowerCase() || "";
+        const business = user.business?.toLowerCase() || "";
+        const subscriptionLevel = user.subscriptionLevel?.toLowerCase() || "";
+
+        // Handle both string and array tags for search
+        const userTags = Array.isArray(user.tags) ? user.tags : [user.tags];
+        const hasMatchingTag = userTags.some((tag) =>
+          String(tag).toLowerCase().includes(term)
+        );
+
+        return (
+          name.includes(term) ||
+          email.includes(term) ||
+          phone.includes(term) ||
+          business.includes(term) ||
+          subscriptionLevel.includes(term) ||
+          hasMatchingTag
+        );
+      });
     }
 
     // Apply tags filter if tags exist
     if (tags.length > 0) {
       filteredUsers = filteredUsers.filter((user) => {
-        if (typeof user.tags === "string") {
-          return tags.some(
-            (tag) =>
-              String(user.tags).toLowerCase() === String(tag).toLowerCase()
-          );
-        }
-        return false;
+        // Handle both string and array tags
+        const userTags = Array.isArray(user.tags) ? user.tags : [user.tags];
+        return tags.some((tag) =>
+          userTags.some(
+            (userTag) =>
+              String(userTag).toLowerCase() === String(tag).toLowerCase()
+          )
+        );
       });
     }
 
@@ -380,7 +408,9 @@ export default function Contacts() {
     setEnabled(false);
   };
 
-  const handleClearIndividualFilter = (filterType: "date" | "tags" | "subscription") => {
+  const handleClearIndividualFilter = (
+    filterType: "date" | "tags" | "subscription"
+  ) => {
     if (filterType === "date") {
       setCurrentDateRange({
         startDate: null,
@@ -429,7 +459,9 @@ export default function Contacts() {
         onSendEmailClick={() => setShowEmailPopup(true)}
         showEmail={showEmail}
         onTagsFilterChange={(data) => handleTagsFilterChange(data)}
-        onSubscriptionFilterChange={(data) => handleSubscriptionFilterChange(data)}
+        onSubscriptionFilterChange={(data) =>
+          handleSubscriptionFilterChange(data)
+        }
         clearFilter={() => handleClearFilters()}
         dateSelectedCallback={handleDateFilterChange}
         onClearIndividualFilter={handleClearIndividualFilter}

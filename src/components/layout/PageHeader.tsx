@@ -54,7 +54,11 @@ export default function PageHeader({
   const [filterActive, setFilterActive] = useState(false);
   const [dateChanged, setDateChanged] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
-  const [filtersApplied, setFiltersApplied] = useState(false);
+  const [filtersApplied, setFiltersApplied] = useState({
+    tags: false,
+    subscription: false,
+    date: false
+  });
   const [isFileUploadOpen, setIsFileUploadOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -82,13 +86,14 @@ export default function PageHeader({
 
   const handleResetTags = () => {
     setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
-    setFiltersApplied(false);
+    setFiltersApplied(prev => ({ ...prev, tags: false }));
     onClearIndividualFilter?.("tags");
   };
 
   const handleResetDate = () => {
     setDateState([defaultDate]);
     setDateChanged(false);
+    setFiltersApplied(prev => ({ ...prev, date: false }));
     onClearIndividualFilter?.("date");
   };
 
@@ -96,6 +101,7 @@ export default function PageHeader({
     setSelectedSubscriptionLevels(prev => 
       prev.map(level => ({ ...level, checked: false }))
     );
+    setFiltersApplied(prev => ({ ...prev, subscription: false }));
     onClearIndividualFilter?.("subscription");
   };
 
@@ -106,7 +112,7 @@ export default function PageHeader({
     clearFilter?.();
     setDateState([defaultDate]);
     setFilterCount(0);
-    setFiltersApplied(false);
+    setFiltersApplied({ tags: false, subscription: false, date: false });
   };
 
   const [datSstate, setDateState] = useState<Range[]>([defaultDate]);
@@ -118,7 +124,7 @@ export default function PageHeader({
     onTagsFilterChange?.({
       tags: selectedTagNames,
     });
-    setFiltersApplied(true);
+    setFiltersApplied(prev => ({ ...prev, tags: true }));
   };
 
   const handleSubscriptionCheckboxChange = (id: number, checked: boolean) => {
@@ -135,26 +141,18 @@ export default function PageHeader({
     onSubscriptionFilterChange?.({
       subscriptionLevels: selectedLevels,
     });
-    setFiltersApplied(true);
+    setFiltersApplied(prev => ({ ...prev, subscription: true }));
   };
 
   useEffect(() => {
     const totalSelectedFilters = () => {
       let count = 0;
-      let isCheckedCount = 0;
 
-      selectedTags.forEach((tag) => {
-        if (tag.checked) isCheckedCount += 1;
-      });
-
-      if (isCheckedCount > 0) {
+      if (selectedTags.some(tag => tag.checked)) {
         count += 1;
       }
 
-      const subscriptionCheckedCount = selectedSubscriptionLevels.filter(
-        level => level.checked
-      ).length;
-      if (subscriptionCheckedCount > 0) {
+      if (selectedSubscriptionLevels.some(level => level.checked)) {
         count += 1;
       }
 
@@ -279,6 +277,13 @@ export default function PageHeader({
     }
   };
 
+  const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+    setDateState([{ ...defaultDate, startDate, endDate }]);
+    setDateChanged(true);
+    setFiltersApplied(prev => ({ ...prev, date: true }));
+    dateSelectedCallback?.(startDate, endDate);
+  };
+
   return (
     <div className="page-header">
       <div className="flex items-center">
@@ -322,87 +327,80 @@ export default function PageHeader({
               <>
                 <div className="filters">
                   <div className="filter-item">
-                    <>
-                      <Popover className="action-drop">
-                        {({ close }) => (
-                          <>
-                            <PopoverButton
-                              className={clsx(
-                                "block btn btn-outline-grey icon-end",
-                                dateChanged && "active"
-                              )}
-                            >
-                              <span>
-                                Date <FontAwesomeIcon icon={faChevronDown} />
-                              </span>
-                              <span className="active">
-                                {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
-                                - {datSstate[0]?.endDate?.toLocaleDateString()}
+                    <Popover className="action-drop">
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={clsx(
+                              "block btn btn-outline-grey icon-end",
+                              dateChanged && "active"
+                            )}
+                          >
+                            <span>
+                              Date <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
+                              - {datSstate[0]?.endDate?.toLocaleDateString()}
+                              {filtersApplied.date && (
                                 <FontAwesomeIcon
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleResetDate();
                                   }}
                                   icon={faXmark}
+                                  className="cursor-pointer"
                                 />
-                              </span>
-                            </PopoverButton>
+                              )}
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <DateRangePicker
+                              onChange={(item) => {
+                                setDateState([item.selection]);
+                                setDateChanged(true);
+                              }}
+                              moveRangeOnFirstSelection={false}
+                              months={2}
+                              ranges={datSstate}
+                              direction="horizontal"
+                              rangeColors={["#B92825"]}
+                            />
 
-                            <PopoverPanel
-                              transition
-                              anchor="bottom end"
-                              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                            >
-                              <DateRangePicker
-                                onChange={(item) => {
-                                  setDateState([item.selection]);
-                                  setDateChanged(true);
+                            <div className="btnRow justify-end">
+                              <Button
+                                className="btn btn-link"
+                                onClick={handleResetDate}
+                              >
+                                Reset
+                              </Button>
+                              <Button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                  const startDate = datSstate[0]?.startDate;
+                                  const endDate = datSstate[0]?.endDate;
+
+                                  if (
+                                    startDate instanceof Date &&
+                                    endDate instanceof Date
+                                  ) {
+                                    handleDateFilterChange(startDate, endDate);
+                                    close();
+                                  }
                                 }}
-                                moveRangeOnFirstSelection={false}
-                                months={2}
-                                ranges={datSstate}
-                                direction="horizontal"
-                                rangeColors={["#B92825"]}
-                              />
-
-                              <div className="btnRow justify-end">
-                                <Button
-                                  className="btn btn-link"
-                                  onClick={handleResetDate}
-                                >
-                                  Reset
-                                </Button>
-                                <Button
-                                  className="btn btn-primary"
-                                  onClick={() => {
-                                    const startDate = datSstate[0]?.startDate;
-                                    const endDate = datSstate[0]?.endDate;
-
-                                    if (
-                                      startDate instanceof Date &&
-                                      endDate instanceof Date
-                                    ) {
-                                      dateSelectedCallback?.(
-                                        startDate,
-                                        endDate
-                                      );
-                                      setFilterCount(
-                                        (prevCount) => prevCount + 1
-                                      );
-
-                                      close(); // Close dropdown
-                                    }
-                                  }}
-                                  disabled={!dateChanged}
-                                >
-                                  Apply
-                                </Button>
-                              </div>
-                            </PopoverPanel>
-                          </>
-                        )}
-                      </Popover>
-                    </>
+                                disabled={!dateChanged}
+                              >
+                                Apply
+                              </Button>
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
+                    </Popover>
 
                     <Popover className="action-drop">
                       {({ close }) => (
@@ -427,7 +425,7 @@ export default function PageHeader({
                                     }).length
                                   : ""}
                               </b>
-                              {filtersApplied && (
+                              {filtersApplied.tags && (
                                 <FontAwesomeIcon
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -514,7 +512,7 @@ export default function PageHeader({
                                   ? selectedSubscriptionLevels.filter(level => level.checked).length
                                   : ""}
                               </b>
-                              {filtersApplied && (
+                              {filtersApplied.subscription && (
                                 <FontAwesomeIcon
                                   onClick={(e) => {
                                     e.stopPropagation();
