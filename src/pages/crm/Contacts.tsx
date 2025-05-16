@@ -193,7 +193,7 @@ export default function Contacts() {
     "contact rep": "Product Inquiry",
     app: "App User",
   };
-  const displayTagSet = new Set(Object.values(tagLabelMap));
+  const displayTagSet = new Set(Object.values(tagLabelMap)); // contains all readable tags
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -551,7 +551,9 @@ export default function Contacts() {
                                 : "bg-[#1F9E8A]"
                             } `}
                           >
-                            {contact.subscriptionLevel}
+                            {contact.subscriptionLevel === "admin-paid"
+                              ? "Admin Paid"
+                              : "Free"}
                           </span>
                         )}
                       </p>
@@ -616,7 +618,7 @@ export default function Contacts() {
                                     }
                                     className="action-menu-item cursor-pointer"
                                   >
-                                    <p>Mark As Admin-Paid</p>
+                                    <p>Mark As Admin Paid</p>
                                   </span>
                                 ) : contact.subscriptionLevel ===
                                   "admin-paid" ? (
