@@ -192,11 +192,11 @@
             &.clr-pink{background-color: #FF5275; color: #fff;}
         }
     }
-    //added for the subscription-level in contact page
+    //added for the subscription in contact page
 .subscription {
-        display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+        display: flex; align-items: center; gap: 5px; flex-wrap: wrap; 
         span {
-            background-color: #f80f0f; border-radius: 30px; @include para(10px, 400, 0, 4px 10px); color: #fff; padding: 5px 10px;
+             border-radius: 30px; @include para(10px, 400, 0, 4px 10px); color: #fff; 
         }
     }
     .date {

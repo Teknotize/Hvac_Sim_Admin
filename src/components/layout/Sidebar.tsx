@@ -15,10 +15,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import useLogout from "../logout";
 import { useSidebar } from "../../context/SidebarContext";
-import { useEffect } from "react";
-import { useAuthStore } from "../../store/useAuthStore";
+import { useEffect, useState } from "react";
+
 import { apiClient } from "../../config";
-import { useUserInfoStore } from "../../store/useUserInfoStore";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: <MainMenuNavDashboard /> },
@@ -45,27 +44,24 @@ export default function Sidebar() {
   const logout = useLogout();
   const navigate = useNavigate();
   const { isOpen } = useSidebar();
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const { name, email, setUser } = useUserInfoStore();
-
+  const [userData, setUserData] = useState<any>("");
+  console.log("userData", userData);
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
   useEffect(() => {
     const fetchUserInfo = async () => {
-      if (!accessToken) return;
-
       try {
-        const response = await apiClient.get("admin/profile-info");
-        setUser(response.data); // Expects { name, email }
+        const response = await apiClient.get("/admin/profile-info");
+        setUserData(response.data); // Expects { name, email }
       } catch (error: any) {
         console.error("Failed to fetch user info:", error);
       }
     };
 
     fetchUserInfo();
-  }, [accessToken, setUser]);
+  }, []);
 
   return (
     <div className={`flex h-full flex-col sidebar ${isOpen ? "active" : ""}`}>
@@ -86,7 +82,7 @@ export default function Sidebar() {
             >
               <div className="user-label border-b-1 border-gray-200 pb-3 mb-3">
                 <p>Signed in as</p>
-                <p>{email}</p>
+                <p>{userData?.user?.username}</p>
               </div>
               <div className="user-menu">
                 <Link to="/profile" className="user-menu-item">
@@ -117,8 +113,8 @@ export default function Sidebar() {
               <img src={profileImage} alt="Umair Farooq" />
             </figure>
             <div className="user-card-body">
-              <h4>{name}</h4>
-              <p>{email}</p>
+              <h4>{userData?.user?.name}</h4>
+              <p>{userData?.user?.username}</p>
             </div>
           </div>
         </div>
