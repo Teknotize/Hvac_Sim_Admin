@@ -40,6 +40,10 @@ interface DateRange {
   endDate: Date | null;
 }
 
+interface SubscriptionFilterData {
+  subscriptionLevels: string[];
+}
+
 export default function Contacts() {
   const [enabled, setEnabled] = useState(false);
   const [showEmailPopup, setShowEmailPopup] = useState(false);
@@ -66,6 +70,8 @@ export default function Contacts() {
 
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
+
+  const [activeSubscriptionLevels, setActiveSubscriptionLevels] = useState<string[]>([]);
 
   const tagColors: any = {
     "app-user": "clr-indigo",
@@ -219,7 +225,8 @@ export default function Contacts() {
     searchTerm: string,
     tags: string[],
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    subscriptionLevels?: string[]
   ) => {
     let filteredUsers = [...users];
 
@@ -248,6 +255,13 @@ export default function Contacts() {
       });
     }
 
+    // Apply subscription level filter if subscription levels exist
+    if (subscriptionLevels && subscriptionLevels.length > 0) {
+      filteredUsers = filteredUsers.filter((user) =>
+        subscriptionLevels.includes(user.subscriptionLevel)
+      );
+    }
+
     // Apply date range filter if both startDate and endDate are provided
     if (startDate && endDate) {
       const start = new Date(startDate).setHours(0, 0, 0, 0);
@@ -272,13 +286,14 @@ export default function Contacts() {
       endDate,
     });
 
-    // Apply both date and tags filters together
+    // Apply all active filters together
     const filteredUsers = filterUsers(
       originalUsers,
       "",
       activeTags,
       startDate.toISOString(),
-      endDate.toISOString()
+      endDate.toISOString(),
+      activeSubscriptionLevels
     );
     setCRMUsers(filteredUsers);
     setCurrentPage(1);
@@ -288,13 +303,31 @@ export default function Contacts() {
     const tags = data.tags;
     setActiveTags(tags);
 
-    // Apply both date and tags filters together
+    // Apply all active filters together
     const filteredUsers = filterUsers(
       originalUsers,
       "",
       tags,
       currentDateRange.startDate?.toISOString(),
-      currentDateRange.endDate?.toISOString()
+      currentDateRange.endDate?.toISOString(),
+      activeSubscriptionLevels
+    );
+    setCRMUsers(filteredUsers);
+    setCurrentPage(1);
+  };
+
+  const handleSubscriptionFilterChange = (data: SubscriptionFilterData) => {
+    const levels = data.subscriptionLevels;
+    setActiveSubscriptionLevels(levels);
+
+    // Apply all active filters together
+    const filteredUsers = filterUsers(
+      originalUsers,
+      "",
+      activeTags,
+      currentDateRange.startDate?.toISOString(),
+      currentDateRange.endDate?.toISOString(),
+      levels
     );
     setCRMUsers(filteredUsers);
     setCurrentPage(1);
@@ -337,6 +370,7 @@ export default function Contacts() {
   const handleClearFilters = () => {
     setCRMUsers(originalUsers);
     setActiveTags([]);
+    setActiveSubscriptionLevels([]);
     setCurrentDateRange({
       startDate: null,
       endDate: null,
@@ -346,34 +380,42 @@ export default function Contacts() {
     setEnabled(false);
   };
 
-  // Add new function to handle clearing individual filters
-  const handleClearIndividualFilter = (filterType: "date" | "tags") => {
+  const handleClearIndividualFilter = (filterType: "date" | "tags" | "subscription") => {
     if (filterType === "date") {
-      // Clear only date filter
       setCurrentDateRange({
         startDate: null,
         endDate: null,
       });
-      // Reapply only tags filter
-      const filteredUsers = filterUsers(originalUsers, "", activeTags);
+      const filteredUsers = filterUsers(
+        originalUsers,
+        "",
+        activeTags,
+        undefined,
+        undefined,
+        activeSubscriptionLevels
+      );
       setCRMUsers(filteredUsers);
     } else if (filterType === "tags") {
-      // Clear only tags filter
       setActiveTags([]);
-      // Reapply only date filter if it exists
-      if (currentDateRange.startDate && currentDateRange.endDate) {
-        const filteredUsers = filterUsers(
-          originalUsers,
-          "",
-          [],
-          currentDateRange.startDate.toISOString(),
-          currentDateRange.endDate.toISOString()
-        );
-        setCRMUsers(filteredUsers);
-      } else {
-        // If no date filter, show all data
-        setCRMUsers(originalUsers);
-      }
+      const filteredUsers = filterUsers(
+        originalUsers,
+        "",
+        [],
+        currentDateRange.startDate?.toISOString(),
+        currentDateRange.endDate?.toISOString(),
+        activeSubscriptionLevels
+      );
+      setCRMUsers(filteredUsers);
+    } else if (filterType === "subscription") {
+      setActiveSubscriptionLevels([]);
+      const filteredUsers = filterUsers(
+        originalUsers,
+        "",
+        activeTags,
+        currentDateRange.startDate?.toISOString(),
+        currentDateRange.endDate?.toISOString()
+      );
+      setCRMUsers(filteredUsers);
     }
     setCurrentPage(1);
   };
@@ -387,6 +429,7 @@ export default function Contacts() {
         onSendEmailClick={() => setShowEmailPopup(true)}
         showEmail={showEmail}
         onTagsFilterChange={(data) => handleTagsFilterChange(data)}
+        onSubscriptionFilterChange={(data) => handleSubscriptionFilterChange(data)}
         clearFilter={() => handleClearFilters()}
         dateSelectedCallback={handleDateFilterChange}
         onClearIndividualFilter={handleClearIndividualFilter}
@@ -415,6 +458,7 @@ export default function Contacts() {
                 <div className="table-cell cell-phone">Phone</div>
                 <div className="table-cell cell-email">Email</div>
                 <div className="table-cell cell-business">Business</div>
+                <div className="table-cell cell-business">Subscription</div>
                 <div className="table-cell cell-tags">Tags</div>
                 <div className="table-cell cell-date">Date</div>
                 <div className="table-cell cell-action">Action</div>
@@ -464,36 +508,35 @@ export default function Contacts() {
                     <div className="table-cell cell-business">
                       <p>{contact.business || "N/A"}</p>
                     </div>
+                    <div className="table-cell cell-business">
+                      <p className="subscription">
+                        {contact.subscriptionLevel && (
+                          <span
+                            key={contact.subscriptionLevel}
+                            className={`capitalize  ${
+                              contact.subscriptionLevel === "admin-paid"
+                                ? "bg-[#1943A1]"
+                                : "bg-[#1F9E8A]"
+                            } `}
+                          >
+                            {contact.subscriptionLevel}
+                          </span>
+                        )}
+                      </p>
+                    </div>
                     <div className="table-cell cell-tags">
-                      <span className="flex flex-col gap-1">
-                        <p className="subscription">
-                          {contact.subscriptionLevel && (
+                      <p className="tags">
+                        <div className="flex flex-col gap-1">
+                          {contact.tags.map((tag: string) => (
                             <span
-                              key={contact.subscriptionLevel}
-                              className="capitalize"
+                              key={tag}
+                              className={`${getTagColor(tag)} capitalize `}
                             >
-                              {contact.subscriptionLevel === "admin-paid"
-                                ? "Paid"
-                                : contact.subscriptionLevel}
+                              {tag}
                             </span>
-                          )}
-                        </p>
-                        <p className="tags">
-                          <div className="flex flex-col gap-1">
-                            {" "}
-                            {contact.tags.map((tag: string) => (
-                              <span
-                                key={tag}
-                                className={`${getTagColor(
-                                  tag
-                                )} capitalize px-2 py-1 rounded-full mr-2`}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </p>
-                      </span>
+                          ))}
+                        </div>
+                      </p>
                     </div>
                     <div className="table-cell cell-date">
                       <p className="date">
@@ -541,7 +584,7 @@ export default function Contacts() {
                                     }
                                     className="action-menu-item cursor-pointer"
                                   >
-                                    <p>Mark As Paid</p>
+                                    <p>Mark As Admin-Paid</p>
                                   </span>
                                 ) : contact.subscriptionLevel ===
                                   "admin-paid" ? (

@@ -22,19 +22,7 @@ import useToastStore from "../../store/useToastStore";
 import { createBadgeWithCSV } from "../../api/AppData";
 import { Link } from "react-router-dom";
 
-export default function PageHeader({
-  title,
-  route,
-  onSendEmailClick,
-  onSearchChange,
-  showEmail,
-  onAddNewPdfClick,
-  onTagsFilterChange,
-  clearFilter,
-  dateSelectedCallback,
-  setRefreshFlag,
-  onClearIndividualFilter,
-}: {
+interface PageHeaderProps {
   title: string;
   route?: string;
   onSendEmailClick?: () => void;
@@ -43,10 +31,26 @@ export default function PageHeader({
   setRefreshFlag?: any;
   showEmail?: boolean;
   onTagsFilterChange?: (filters: { tags: string[] }) => void;
+  onSubscriptionFilterChange?: (filters: { subscriptionLevels: string[] }) => void;
   clearFilter?: () => void;
   dateSelectedCallback?: (startDate: Date, endDate: Date) => void;
-  onClearIndividualFilter?: (filterType: "date" | "tags") => void;
-}) {
+  onClearIndividualFilter?: (filterType: "date" | "tags" | "subscription") => void;
+}
+
+export default function PageHeader({
+  title,
+  route,
+  onSendEmailClick,
+  onSearchChange,
+  showEmail,
+  onAddNewPdfClick,
+  onTagsFilterChange,
+  onSubscriptionFilterChange,
+  clearFilter,
+  dateSelectedCallback,
+  setRefreshFlag,
+  onClearIndividualFilter,
+}: PageHeaderProps) {
   const [filterActive, setFilterActive] = useState(false);
   const [dateChanged, setDateChanged] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
@@ -71,6 +75,11 @@ export default function PageHeader({
   const [selectedTags, setSelectedTags] = useState(
     tags.map((tag) => ({ ...tag, checked: false }))
   );
+  const [selectedSubscriptionLevels, setSelectedSubscriptionLevels] = useState([
+    { id: 1, name: "free", checked: false },
+    { id: 2, name: "admin-paid", checked: false },
+  ]);
+
   const handleResetTags = () => {
     setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
     setFiltersApplied(false);
@@ -83,9 +92,17 @@ export default function PageHeader({
     onClearIndividualFilter?.("date");
   };
 
+  const handleResetSubscription = () => {
+    setSelectedSubscriptionLevels(prev => 
+      prev.map(level => ({ ...level, checked: false }))
+    );
+    onClearIndividualFilter?.("subscription");
+  };
+
   const handleResetAll = () => {
     handleResetTags();
     handleResetDate();
+    handleResetSubscription();
     clearFilter?.();
     setDateState([defaultDate]);
     setFilterCount(0);
@@ -103,6 +120,24 @@ export default function PageHeader({
     });
     setFiltersApplied(true);
   };
+
+  const handleSubscriptionCheckboxChange = (id: number, checked: boolean) => {
+    setSelectedSubscriptionLevels(prev =>
+      prev.map(level => (level.id === id ? { ...level, checked } : level))
+    );
+  };
+
+  const handleApplySubscriptionFilters = () => {
+    const selectedLevels = selectedSubscriptionLevels
+      .filter(level => level.checked)
+      .map(level => level.name);
+
+    onSubscriptionFilterChange?.({
+      subscriptionLevels: selectedLevels,
+    });
+    setFiltersApplied(true);
+  };
+
   useEffect(() => {
     const totalSelectedFilters = () => {
       let count = 0;
@@ -113,6 +148,13 @@ export default function PageHeader({
       });
 
       if (isCheckedCount > 0) {
+        count += 1;
+      }
+
+      const subscriptionCheckedCount = selectedSubscriptionLevels.filter(
+        level => level.checked
+      ).length;
+      if (subscriptionCheckedCount > 0) {
         count += 1;
       }
 
@@ -132,11 +174,10 @@ export default function PageHeader({
     const newCount = totalSelectedFilters();
     setFilterCount(newCount);
 
-    // Only call clearFilter if count transitions from >0 to 0
     if (filterCount > 0 && newCount === 0) {
       clearFilter?.();
     }
-  }, [selectedTags, datSstate]);
+  }, [selectedTags, selectedSubscriptionLevels, datSstate]);
 
   const handleCheckboxChange = (id: number, checked: boolean) => {
     setSelectedTags((prev) =>
@@ -444,6 +485,93 @@ export default function PageHeader({
                                   }}
                                   disabled={selectedTags.every(
                                     (tag) => !tag.checked
+                                  )}
+                                >
+                                  Apply
+                                </Button>
+                              </div>
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
+                    </Popover>
+                    
+                    <Popover className="action-drop">
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={`block btn btn-outline-grey icon-end ${
+                              selectedSubscriptionLevels.filter(level => level.checked).length > 0 && "active"
+                            }`}
+                          >
+                            <span>
+                              Subscription <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              Subscription
+                              <b>
+                                {selectedSubscriptionLevels.filter(level => level.checked).length !== 0
+                                  ? selectedSubscriptionLevels.filter(level => level.checked).length
+                                  : ""}
+                              </b>
+                              {filtersApplied && (
+                                <FontAwesomeIcon
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetSubscription();
+                                  }}
+                                  icon={faXmark}
+                                  className="cursor-pointer"
+                                />
+                              )}
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <div className="list-menu">
+                              <div className="list-group">
+                                {selectedSubscriptionLevels.map((level) => (
+                                  <div
+                                    className="list-group-item"
+                                    key={level.id}
+                                    onClick={() =>
+                                      handleSubscriptionCheckboxChange(level.id, !level.checked)
+                                    }
+                                  >
+                                    <Checkbox
+                                      checked={level.checked}
+                                      onChange={(checked) =>
+                                        handleSubscriptionCheckboxChange(level.id, checked)
+                                      }
+                                      className="group list-checkbox-item data-[checked]:checked"
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faCheck}
+                                        className="opacity-0 group-data-[checked]:opacity-100"
+                                      />
+                                    </Checkbox>
+                                    <span className="capitalize">{level.name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="btnRow">
+                                <Button
+                                  className="btn btn-link flex-1"
+                                  onClick={handleResetSubscription}
+                                >
+                                  Reset
+                                </Button>
+                                <Button
+                                  className="btn btn-primary flex-1"
+                                  onClick={() => {
+                                    handleApplySubscriptionFilters();
+                                    close();
+                                  }}
+                                  disabled={selectedSubscriptionLevels.every(
+                                    (level) => !level.checked
                                   )}
                                 >
                                   Apply
