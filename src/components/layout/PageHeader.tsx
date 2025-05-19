@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { Button, Checkbox } from "@headlessui/react";
-import { FilterIcon } from "../../components/svg/icons";
+import { FilterIcon, UploadIcon } from "../../components/svg/icons";
 import { Field, Input } from "@headlessui/react";
 import clsx from "clsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,6 +21,7 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import useToastStore from "../../store/useToastStore";
 import { createBadgeWithCSV } from "../../api/AppData";
 import { Link } from "react-router-dom";
+import CsvFileIcon from "../../assets/images/icon-file-csv.png";
 
 interface PageHeaderProps {
   title: string;
@@ -696,82 +697,51 @@ export default function PageHeader({
               </Button>
             </div>
             <div className="dialog-body">
-              <Field className="fieldDv">
+              <div className="uploadAreaDv">
                 {/* <Label>CSV File</Label> */}
-                <div className="flex flex-col lg:flex-row gap-[25px]">
-                  <div className="basis-full lg:basis-1/2">
-                    <div className="relative mb-[24px]">
-                      <div className="flex items-center justify-center w-full">
-                        <label
-                          htmlFor="dropzone-file1"
-                          onDrop={handleDrop}
-                          onDragOver={handleDragOver}
-                          className={`${
-                            false
-                              ? "error-dropzone-file-container"
-                              : "file-dropzone-container"
-                          } mb-2 flex flex-col items-center justify-center w-full h-64 cursor-pointer bg-gray-50  dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600`}
-                        >
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="mb-4"
-                              width={14}
-                              height={17}
-                              viewBox="0 0 14 18"
-                              fill="none"
-                            >
-                              <path
-                                d="M4 7.5293V13.5293H10V7.5293H14L7 0.529297L0 7.5293H4ZM7 3.3293L9.2 5.5293H8V11.5293H6V5.5293H4.8L7 3.3293ZM14 15.5293H0V17.5293H14V15.5293Z"
-                                fill="#B92825"
-                              />
-                            </svg>
-                            <div className="mb-[10px] fs-14-600 text-color-0F0F0F">
-                              Drag & drop file or{" "}
-                              <span className="dark-red-color underline">
-                                Browse
-                              </span>
+                <div className="uploadArea">
+                    <label
+                      htmlFor="dropzone-file1"
+                      onDrop={handleDrop}
+                      onDragOver={handleDragOver}
+                      className={`${
+                        false
+                          ? "error-file"
+                          : ""
+                      } file-dropzone-container`}
+                    >
+                      <div className="inner">
+                        <UploadIcon />
+                        <p>Drag your file to start uploading <span>or</span> <button className="btn btn-primary-outline">Browse</button></p>
+                      </div>
+                      <input
+                        name="sec4_img"
+                        id="dropzone-file1"
+                        type="file"
+                        className="hidden"
+                        accept=".csv"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                    <div className="uploaded-files-container">
+                        {selectedFile && (
+                          <div className="upload-item">
+                            <div className="icon">
+                                <img src={CsvFileIcon} alt="file icon" />
                             </div>
-                            <div className="fs-12-400 text-color-718096 dark:text-gray-400">
-                              Supported formate: csv
+                            <div className="info">
+                              <p>{selectedFile?.name}</p>
+                              <p>{selectedFile?.size}</p>
                             </div>
+                            <div className="action"><FontAwesomeIcon icon={faXmark} /></div>
                           </div>
-                          <input
-                            name="sec4_img"
-                            id="dropzone-file1"
-                            type="file"
-                            className="hidden"
-                            accept=".csv"
-                            onChange={handleFileChange}
-                          />
-                        </label>
-                      </div>
+                        )}
                     </div>
-                    <div className="uploaded-thumbnail-files-container">
-                      <div className="uploaded-thumbnail-files-list">
-                        <div className="uploaded-thumbnail-file-item flex items-center justify-between mb-2">
-                          {selectedFile && (
-                            <div className="flex items-center gap-2">
-                              <img src={fileIcon} alt="file icon" />
-                              <div>
-                                <>
-                                  {" "}
-                                  <div className="fs-12-600 text-color-1A202C mb-1">
-                                    {selectedFile?.name}
-                                  </div>
-                                </>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
                 {fileError && (
                   <p className="text-red-500 text-sm mt-1">{fileError}</p>
                 )}
-              </Field>
+              </div>
             </div>
             <div className="dialog-footer">
               <Button

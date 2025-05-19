@@ -647,6 +647,9 @@ export default function Contacts() {
             </div>
           </div>
           <div className="table-footer">
+            <div className="masgRow">
+              <p>All <strong>10</strong> users on this page are selected <a href="javascript:void(0)">Select all 2000 users</a></p>
+            </div>
             <div className="table-row">
               <div className="table-cell pagination-cell">
                 <p className="pagination-info" style={{ marginRight: "20px" }}>
