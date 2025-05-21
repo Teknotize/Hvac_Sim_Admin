@@ -70,6 +70,7 @@ export default function Contacts() {
 
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
+  const [allPagesSelected, setAllPagesSelected] = useState(false);
 
   const [activeSubscriptionLevels, setActiveSubscriptionLevels] = useState<
     string[]
@@ -142,6 +143,30 @@ export default function Contacts() {
       setCRMUsers(updatedUsers);
     }
   };
+  const handleSelectAllPages = () => {
+    const allIds = crmUsers.map((user) => user._id);
+    const newSelectedIds = new Set(allIds);
+
+    setSelectedIds(newSelectedIds);
+    setAllPagesSelected(true);
+
+    const updatedUsers = crmUsers.map((user) => ({
+      ...user,
+      isChecked: true,
+    }));
+    setCRMUsers(updatedUsers);
+  };
+  const handleClearSelection = () => {
+    setSelectedIds(new Set());
+    setAllPagesSelected(false);
+
+    const updatedUsers = crmUsers.map((user) => ({
+      ...user,
+      isChecked: false,
+    }));
+    setCRMUsers(updatedUsers);
+  };
+
   const uncheckAllUsers = () => {
     // Update all users in the main array
     const updatedUsers = crmUsers.map((user) => ({
@@ -469,6 +494,42 @@ export default function Contacts() {
       {!loading ? (
         <div className="table-container table-contacts-page">
           <div className="table-wrapper">
+            <div className="mailsection">
+              <div className="masgRow">
+                {enabled && !allPagesSelected && (
+                  <p className="text-sm">
+                    All <strong>{paginatedUsers.length}</strong> users on this
+                    page are selected.{" "}
+                    <a
+                      href="#"
+                      className="text-blue-600 underline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleSelectAllPages();
+                      }}
+                    >
+                      Select all {crmUsers.length} users
+                    </a>
+                  </p>
+                )}
+
+                {allPagesSelected && (
+                  <p className="text-sm">
+                    All <strong>{crmUsers.length}</strong> users are selected.{" "}
+                    <a
+                      href="#"
+                      className="text-red-600 underline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleClearSelection();
+                      }}
+                    >
+                      Clear Selection
+                    </a>
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="table-header">
               <div className="table-row">
                 <div className="table-cell cell-checkbox">
@@ -767,6 +828,7 @@ export default function Contacts() {
           setShowEmailPopup(false);
           setReRun(!reRun);
           uncheckAllUsers();
+          handleClearSelection();
         }}
         onSuccess={() => setIsEmailSentSuccess(true)}
       />

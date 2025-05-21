@@ -118,4 +118,12 @@ const DialogDeleteIcon = () => {
     )
 }
 
-export { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavDistributors, MainMenuNavAppData, MainMenuNavCRM, MainMenuNavCMS, FilterIcon, ApprovedEmailIcon, PdfManualIcon, DownloadIcon, DialogueCheckMarkIcon, DialogDeleteIcon };
+const UploadIcon = () => {
+    return (
+        <>
+        <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg"> <g clip-path="url(#clip0_2716_1079)"> <path d="M33.4432 3.12073H14.1758V11.1108H37.5582V7.23415C37.5582 4.96579 35.7122 3.12073 33.4432 3.12073Z" fill="#86102C"/> <path d="M22.5352 12.3403H0V4.92636C0 2.20972 2.21068 0 4.92828 0H12.1336C12.8497 0 13.5396 0.150925 14.1664 0.434509C15.0418 0.828964 15.7939 1.47913 16.3213 2.3286L22.5352 12.3403Z" fill="#B92825"/> <path d="M42 14.0001V37.8815C42 40.1527 40.1511 42 37.8789 42H4.12111C1.84891 42 0 40.1527 0 37.8815V9.88062H37.8789C40.1511 9.88062 42 11.7286 42 14.0001Z" fill="#B92825"/> <path d="M42 14.0001V37.8815C42 40.1527 40.1511 42 37.8789 42H21V9.88062H37.8789C40.1511 9.88062 42 11.7286 42 14.0001Z" fill="#B92825"/> <path d="M32.049 25.9398C32.049 32.0322 27.0928 36.9887 21.0011 36.9887C14.9093 36.9887 9.95312 32.0322 9.95312 25.9398C9.95312 19.8483 14.9093 14.8918 21.0011 14.8918C27.0928 14.8918 32.049 19.8483 32.049 25.9398Z" fill="#B92825"/> <path d="M24.5593 26.0753C24.3289 26.2704 24.0466 26.3656 23.7668 26.3656C23.4166 26.3656 23.0686 26.2173 22.8251 25.9282L22.2287 25.2213V29.8494C22.2287 30.5287 21.6776 31.0799 20.9983 31.0799C20.3189 31.0799 19.7678 30.5287 19.7678 29.8494V25.2213L19.1715 25.9282C18.7325 26.4476 17.9567 26.514 17.4373 26.0753C16.9182 25.6373 16.8515 24.8612 17.2896 24.3418L19.7252 21.4543C20.0427 21.0788 20.5061 20.8628 20.9983 20.8628C21.4905 20.8628 21.9538 21.0788 22.2714 21.4543L24.707 24.3418C25.145 24.8612 25.0784 25.6373 24.5593 26.0753Z" fill="white"/> </g> <defs> <clipPath id="clip0_2716_1079"> <rect width="42" height="42" fill="white"/> </clipPath> </defs> </svg>
+        </>
+    )
+}
+
+export { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavDistributors, MainMenuNavAppData, MainMenuNavCRM, MainMenuNavCMS, FilterIcon, ApprovedEmailIcon, PdfManualIcon, DownloadIcon, DialogueCheckMarkIcon, DialogDeleteIcon, UploadIcon };
