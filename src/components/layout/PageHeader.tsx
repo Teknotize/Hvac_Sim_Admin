@@ -12,7 +12,6 @@ import {
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
-import fileIcon from "../../../public/images/file-icon.png";
 
 import { DateRangePicker, Range } from "react-date-range";
 import { tags, defaultDate } from "../../utils/constants";
