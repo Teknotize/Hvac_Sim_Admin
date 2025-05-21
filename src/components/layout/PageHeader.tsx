@@ -570,7 +570,9 @@ export default function PageHeader({
                                       />
                                     </Checkbox>
                                     <span className="capitalize">
-                                      {level.name === "admin-paid" ? "Admin Paid" : level.name}
+                                      {level.name === "admin-paid"
+                                        ? "Admin Paid"
+                                        : level.name}
                                     </span>
                                   </div>
                                 ))}
@@ -697,46 +699,54 @@ export default function PageHeader({
               </Button>
             </div>
             <div className="dialog-body">
-              <div className="uploadAreaDv">
+              <div className="uploadAreaDv ">
                 {/* <Label>CSV File</Label> */}
                 <div className="uploadArea">
-                    <label
-                      htmlFor="dropzone-file1"
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      className={`${
-                        false
-                          ? "error-file"
-                          : ""
-                      } file-dropzone-container`}
-                    >
-                      <div className="inner">
-                        <UploadIcon />
-                        <p>Drag your file to start uploading <span>or</span> <button className="btn btn-primary-outline">Browse</button></p>
-                      </div>
-                      <input
-                        name="sec4_img"
-                        id="dropzone-file1"
-                        type="file"
-                        className="hidden"
-                        accept=".csv"
-                        onChange={handleFileChange}
-                      />
-                    </label>
-                    <div className="uploaded-files-container">
-                        {selectedFile && (
-                          <div className="upload-item">
-                            <div className="icon">
-                                <img src={CsvFileIcon} alt="file icon" />
-                            </div>
-                            <div className="info">
-                              <p>{selectedFile?.name}</p>
-                              <p>{selectedFile?.size}</p>
-                            </div>
-                            <div className="action"><FontAwesomeIcon icon={faXmark} /></div>
-                          </div>
-                        )}
+                  <label
+                    htmlFor="dropzone-file1"
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    className={`${
+                      false ? "error-file" : ""
+                    } file-dropzone-container`}
+                  >
+                    <div className="inner">
+                      <UploadIcon />
+                      <p>
+                        Drag your file to start uploading <span>or</span>{" "}
+                        <button className="btn btn-primary-outline">
+                          Browse
+                        </button>
+                      </p>
                     </div>
+                    <input
+                      name="sec4_img"
+                      id="dropzone-file1"
+                      type="file"
+                      className="hidden"
+                      accept=".csv"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  <div className="uploaded-files-container">
+                    {selectedFile && (
+                      <div className="upload-item">
+                        <div className="icon">
+                          <img src={CsvFileIcon} alt="file icon" />
+                        </div>
+                        <div className="info">
+                          <p>{selectedFile?.name}</p>
+                          <p>{selectedFile?.size}</p>
+                        </div>
+                        <div
+                          className="action"
+                          onClick={() => setSelectedFile(null)}
+                        >
+                          <FontAwesomeIcon icon={faXmark} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {fileError && (
                   <p className="text-red-500 text-sm mt-1">{fileError}</p>
