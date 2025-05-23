@@ -126,4 +126,12 @@ const UploadIcon = () => {
     )
 }
 
-export { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavDistributors, MainMenuNavAppData, MainMenuNavCRM, MainMenuNavCMS, FilterIcon, ApprovedEmailIcon, PdfManualIcon, DownloadIcon, DialogueCheckMarkIcon, DialogDeleteIcon, UploadIcon };
+const ProfileEditIcon = () => {
+    return (
+        <>
+        <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <rect width="16" height="16" transform="translate(0.5)" fill="white"/> <path d="M8.49998 13.3333H14.5M2.5 13.3333H3.61636C3.94248 13.3333 4.10554 13.3333 4.25899 13.2965C4.39504 13.2638 4.5251 13.21 4.6444 13.1368C4.77895 13.0544 4.89425 12.9391 5.12486 12.7085L13.5 4.33333C14.0523 3.78104 14.0523 2.88561 13.5 2.33333C12.9477 1.78104 12.0523 1.78104 11.5 2.33333L3.12484 10.7085C2.89424 10.9391 2.77894 11.0544 2.69648 11.1889C2.62338 11.3082 2.5695 11.4383 2.53684 11.5744C2.5 11.7278 2.5 11.8909 2.5 12.217V13.3333Z" stroke="#4B5563" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>
+        </>
+    )
+}
+
+export { UserIcon, UserMenuIconProfile, UserMenuIconSettings, UserMenuIconLogout, MainMenuNavDashboard, MainMenuNavDistributors, MainMenuNavAppData, MainMenuNavCRM, MainMenuNavCMS, FilterIcon, ApprovedEmailIcon, PdfManualIcon, DownloadIcon, DialogueCheckMarkIcon, DialogDeleteIcon, UploadIcon, ProfileEditIcon };

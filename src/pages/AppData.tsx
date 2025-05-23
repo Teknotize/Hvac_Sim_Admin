@@ -36,6 +36,7 @@ interface Badge {
   _id: string;
   name: string;
   is_locked: boolean;
+  AppCategory: string;
 }
 
 export default function AppData() {
@@ -46,9 +47,11 @@ export default function AppData() {
   const [selectedBadgeId, setSelectedBadgeId] = useState<string>("");
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
+
   const combustionSubcategories = subcategories.filter(
     (sub) => sub.name.toLowerCase() === "combustion"
   );
+
   const refrigerantSubcategories = subcategories.filter(
     (sub) => sub.name.toLowerCase() === "refrigerant"
   );
@@ -163,10 +166,14 @@ export default function AppData() {
           <div className="page-header">
             <div className="flex items-center">
               <div className="flex-1">
-                <h1 className="page-title">Combustion Data</h1>
+                <h1 className="page-title">Mega Core</h1>
               </div>
             </div>
           </div>
+          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Combustion Data
+          </h2>
+
           <div className="flex gap-6 flex-wrap mb-20">
             {/* <div className="fileDownloadDv locked">
               <span className="fileLockIcon">
@@ -199,8 +206,10 @@ export default function AppData() {
               </div>
               <h3>No Flame</h3>
             </div> */}
-            {combustionSubcategories.map((sub) =>
-              sub?.subcategories.map((subcat) => (
+
+            {combustionSubcategories[0]?.subcategories
+              .filter((item) => item.AppCategory === "Mega Core")
+              .map((subcat) => (
                 <div
                   key={subcat._id}
                   className={`fileDownloadDv  ${subcat.is_locked && "locked"}`}
@@ -264,17 +273,12 @@ export default function AppData() {
                   </div>
                   <h3>{subcat?.name}</h3>
                 </div>
-              ))
-            )}
+              ))}
           </div>
-          <div className="page-header">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <h1 className="page-title">Refrigerant Data</h1>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-6 flex-wrap">
+          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Refrigerant Data
+          </h2>
+          <div className="flex gap-6 flex-wrap mb-20">
             {/* <div className="fileDownloadDv locked">
               <span className="fileLockIcon">
                 <img src={FileLockIcon} alt="File Lock" />
@@ -307,8 +311,9 @@ export default function AppData() {
               </div>
               <h3>No Flame</h3>
             </div> */}
-            {refrigerantSubcategories?.map((sub) =>
-              sub?.subcategories?.map((subcat) => (
+            {refrigerantSubcategories[0]?.subcategories
+              .filter((item) => item.AppCategory === "Mega Core")
+              .map((subcat) => (
                 <div
                   key={subcat._id}
                   className={`fileDownloadDv  ${subcat.is_locked && "locked"}`}
@@ -372,8 +377,7 @@ export default function AppData() {
                   </div>
                   <h3>{subcat.name}</h3>
                 </div>
-              ))
-            )}
+              ))}
 
             {/* <div className="fileDownloadDv">
               <Popover className="action-drop">
@@ -406,7 +410,245 @@ export default function AppData() {
               </div>
               <h3>PDF Manual</h3>
             </div> */}
-          </div>{" "}
+          </div>
+
+          <div className="page-header">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <h1 className="page-title">Knowledge Evaluator</h1>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Combustion Data
+          </h2>
+          <div className="flex gap-6 flex-wrap mb-20">
+            {combustionSubcategories[0]?.subcategories
+              .filter((item) => item.AppCategory === "Knowledge Evaluator")
+              .map((subcat) => (
+                <div
+                  key={subcat._id}
+                  className={`fileDownloadDv  ${subcat.is_locked && "locked"}`}
+                >
+                  {subcat.is_locked && (
+                    <span className="fileLockIcon">
+                      <img src={FileLockIcon} alt="File Lock" />
+                    </span>
+                  )}
+                  <Popover className="action-drop">
+                    <PopoverButton className="block">
+                      <FontAwesomeIcon icon={faEllipsisVertical} />
+                    </PopoverButton>
+                    <PopoverPanel
+                      transition
+                      anchor="bottom end"
+                      className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                    >
+                      <div className="action-menu">
+                        {subcat.is_locked ? (
+                          <Link
+                            to={""}
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, false)
+                            }
+                          >
+                            <p>Unlock</p>
+                          </Link>
+                        ) : (
+                          <Link
+                            to={""}
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, true)
+                            }
+                          >
+                            <p>Lock</p>
+                          </Link>
+                        )}
+
+                        <Link
+                          to={""}
+                          className="action-menu-item"
+                          onClick={() => {
+                            setSelectedBadgeId(subcat._id);
+                            setIsDeleteItemConfirmation(true);
+                          }}
+                        >
+                          <p>Delete</p>
+                        </Link>
+                      </div>
+                    </PopoverPanel>
+                  </Popover>
+                  <div
+                    className={`iconDv ${
+                      subcat.is_locked ? "grayscale-100" : ""
+                    }`}
+                  >
+                    <img src={CsvFileIcon} alt="CSV File" />
+                  </div>
+                  <h3>{subcat?.name}</h3>
+                </div>
+              ))}
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Regrigerant Data
+          </h2>
+          <div className="flex gap-6 flex-wrap mb-20">
+            {" "}
+            {refrigerantSubcategories[0]?.subcategories
+              .filter((item) => item.AppCategory === "Knowledge Evaluator")
+              .map((subcat) => (
+                <div
+                  key={subcat._id}
+                  className={`fileDownloadDv  ${subcat.is_locked && "locked"}`}
+                >
+                  {subcat.is_locked && (
+                    <span className="fileLockIcon">
+                      <img src={FileLockIcon} alt="File Lock" />
+                    </span>
+                  )}
+                  <Popover className="action-drop">
+                    <PopoverButton className="block">
+                      <FontAwesomeIcon icon={faEllipsisVertical} />
+                    </PopoverButton>
+                    <PopoverPanel
+                      transition
+                      anchor="bottom end"
+                      className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                    >
+                      <div className="action-menu">
+                        {subcat.is_locked ? (
+                          <Link
+                            to={""}
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, false)
+                            }
+                          >
+                            <p>Unlock</p>
+                          </Link>
+                        ) : (
+                          <Link
+                            to={""}
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, true)
+                            }
+                          >
+                            <p>Lock</p>
+                          </Link>
+                        )}
+
+                        <Link
+                          to={""}
+                          className="action-menu-item"
+                          onClick={() => {
+                            setSelectedBadgeId(subcat._id);
+                            setIsDeleteItemConfirmation(true);
+                          }}
+                        >
+                          <p>Delete</p>
+                        </Link>
+                      </div>
+                    </PopoverPanel>
+                  </Popover>
+                  <div
+                    className={`iconDv ${
+                      subcat.is_locked ? "grayscale-100" : ""
+                    }`}
+                  >
+                    <img src={CsvFileIcon} alt="CSV File" />
+                  </div>
+                  <h3>{subcat.name}</h3>
+                </div>
+              ))}
+          </div>
+
+          <div className="page-header">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <h1 className="page-title">Comfort Cooling Simulator</h1>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Regrigerant Data
+          </h2>
+          <div className="flex gap-6 flex-wrap mb-20">
+            {" "}
+            {refrigerantSubcategories[0]?.subcategories
+              .filter(
+                (item) => item.AppCategory === "Comfort Cooling Simulator"
+              )
+              .map((subcat) => (
+                <div
+                  key={subcat._id}
+                  className={`fileDownloadDv  ${subcat.is_locked && "locked"}`}
+                >
+                  {subcat.is_locked && (
+                    <span className="fileLockIcon">
+                      <img src={FileLockIcon} alt="File Lock" />
+                    </span>
+                  )}
+                  <Popover className="action-drop">
+                    <PopoverButton className="block">
+                      <FontAwesomeIcon icon={faEllipsisVertical} />
+                    </PopoverButton>
+                    <PopoverPanel
+                      transition
+                      anchor="bottom end"
+                      className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                    >
+                      <div className="action-menu">
+                        {subcat.is_locked ? (
+                          <Link
+                            to={""}
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, false)
+                            }
+                          >
+                            <p>Unlock</p>
+                          </Link>
+                        ) : (
+                          <Link
+                            to={""}
+                            className="action-menu-item"
+                            onClick={() =>
+                              handleEnableDisable(subcat._id, true)
+                            }
+                          >
+                            <p>Lock</p>
+                          </Link>
+                        )}
+
+                        <Link
+                          to={""}
+                          className="action-menu-item"
+                          onClick={() => {
+                            setSelectedBadgeId(subcat._id);
+                            setIsDeleteItemConfirmation(true);
+                          }}
+                        >
+                          <p>Delete</p>
+                        </Link>
+                      </div>
+                    </PopoverPanel>
+                  </Popover>
+                  <div
+                    className={`iconDv ${
+                      subcat.is_locked ? "grayscale-100" : ""
+                    }`}
+                  >
+                    <img src={CsvFileIcon} alt="CSV File" />
+                  </div>
+                  <h3>{subcat.name}</h3>
+                </div>
+              ))}
+          </div>
         </>
       )}
 
