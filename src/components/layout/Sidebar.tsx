@@ -1,5 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Button, Dialog, DialogPanel, Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import {
+  Button,
+  Dialog,
+  DialogPanel,
+  Popover,
+  PopoverButton,
+  PopoverPanel,
+} from "@headlessui/react";
 import logo from "../../assets/images/logo.png";
 import profileImage from "../../assets/images/profileImageAdmin.png";
 import {
@@ -16,11 +23,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import useLogout from "../logout";
 import { useSidebar } from "../../context/SidebarContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { apiClient } from "../../config";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+
+import { updateProfile } from "../../api/User";
+import useToastStore from "../../store/useToastStore";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: <MainMenuNavDashboard /> },
@@ -43,29 +53,117 @@ const navigation = [
 ];
 
 export default function Sidebar() {
+  const { showToast } = useToastStore();
   const location = useLocation();
   const logout = useLogout();
   const navigate = useNavigate();
   const { isOpen } = useSidebar();
-  const [userData, setUserData] = useState<any>("");
+  const [userData, setUserData] = useState<any>({
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    profilePic: "",
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [refresh, setRefresh] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isProfilePopOpen, setisProfilePopOpen] = useState(false);
   console.log("userData", userData);
+  const handleEditClick = () => {
+    fileInputRef.current?.click(); // Trigger file input on icon click
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Show preview
+    const previewURL = URL.createObjectURL(file);
+    setUserData((prev: any) => ({ ...prev, profilePic: previewURL }));
+
+    // Store actual file to send in API
+    setSelectedFile(file);
+  };
+
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+  const handleSaveChanges = async () => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+
+      formData.append("name", userData.name);
+      const isValidEmail = (email: string) => {
+        // Basic email format check
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      };
+
+      if (!userData.email) {
+        showToast("Email field cannot be empty.", "error");
+      } else if (!isValidEmail(userData.email)) {
+        showToast("Invalid email format.", "error");
+      } else {
+        formData.append("email", userData.email);
+      }
+
+      formData.append("phone", userData.phone ? userData.phone : "");
+      formData.append("place", userData.location ? userData.location : "");
+
+      if (selectedFile instanceof File) {
+        formData.append("profilePic", selectedFile);
+      }
+
+      const res = await updateProfile(formData);
+      console.log("res", res);
+
+      if (res?.success) {
+        showToast(res.message || "Profile updated successfully.", "success");
+        setRefresh(!refresh);
+      } else {
+        showToast(res.message || "Failed to update profile.", "error");
+      }
+
+      setLoading(false);
+      setisProfilePopOpen(false);
+      if (res.user) {
+        setUserData({
+          name: res.user.name || "",
+          email: res.user.username || "",
+          phone: res.user.phone || "",
+          location: res.user.location || "",
+          profilePic: res.user.profilePic || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const response = await apiClient.get("/admin/profile-info");
-        setUserData(response.data); // Expects { name, email }
+        const user = response.data.user;
+
+        setUserData({
+          name: user.name,
+          email: user.username,
+          phone: user.phone,
+          location: user.location,
+          profilePic: user.profilePic, // pre-signed URL from S3
+        });
       } catch (error: any) {
         console.error("Failed to fetch user info:", error);
       }
     };
 
     fetchUserInfo();
-  }, []);
+  }, [refresh]);
 
   return (
     <>
@@ -87,10 +185,14 @@ export default function Sidebar() {
               >
                 <div className="user-label border-b-1 border-gray-200 pb-3 mb-3">
                   <p>Signed in as</p>
-                  <p>{userData?.user?.username}</p>
+                  <p>{userData?.email}</p>
                 </div>
                 <div className="user-menu">
-                  <a href="javascript:void(0)" className="user-menu-item" onClick={() => setisProfilePopOpen(true)}>
+                  <a
+                    href="javascript:void(0)"
+                    className="user-menu-item"
+                    onClick={() => setisProfilePopOpen(true)}
+                  >
                     <UserMenuIconProfile />
                     <p>Profile</p>
                   </a>
@@ -115,11 +217,15 @@ export default function Sidebar() {
           <div className="flex justify-center">
             <div className="user-card">
               <figure className="user-dp">
-                <img src={profileImage} alt="Umair Farooq" />
+                {userData?.profilePic ? (
+                  <img src={userData.profilePic} alt={userData?.name} />
+                ) : (
+                  <img src={profileImage} alt={userData?.name} />
+                )}
               </figure>
               <div className="user-card-body">
-                <h4>{userData?.user?.name}</h4>
-                <p>{userData?.user?.username}</p>
+                <h4>{userData?.name}</h4>
+                <p>{userData?.email}</p>
               </div>
             </div>
           </div>
@@ -194,7 +300,8 @@ export default function Sidebar() {
                     {item.children && (
                       <div className="sub-item-group flex flex-col">
                         {item.children.map((child) => {
-                          const isChildActive = location.pathname === child.href;
+                          const isChildActive =
+                            location.pathname === child.href;
                           return (
                             <Link
                               key={child.name}
@@ -217,7 +324,6 @@ export default function Sidebar() {
         </div>
       </div>
 
-
       <Dialog
         open={isProfilePopOpen}
         onClose={() => setisProfilePopOpen(false)}
@@ -226,63 +332,114 @@ export default function Sidebar() {
         <div className="fixed inset-0 flex w-screen items-center justify-center p-4 bg-black/40 dialog-item">
           <DialogPanel className="max-w-full w-xl space-y-4 border bg-white p-6 rounded-xl dialog-panel">
             <Button
-                className="closeBtn"
-                onClick={() => setisProfilePopOpen(false)}
-              >
-                <FontAwesomeIcon
-                  icon={faXmark}
-                />
-              </Button>
+              className="closeBtn"
+              onClick={() => {
+                setRefresh(!refresh);
+                setisProfilePopOpen(false);
+              }}
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </Button>
             <div className="dialog-body">
-
               <div className="profileCard">
                 <figure>
-                  <img src={profileImage} alt="Umair Farooq" />
-                  <ProfileEditIcon />
+                  {userData?.profilePic ? (
+                    <img src={userData.profilePic} alt={userData?.name} />
+                  ) : (
+                    <img src={profileImage} alt={userData?.name} />
+                  )}
+
+                  <span
+                    onClick={handleEditClick}
+                    className="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow cursor-pointer"
+                  >
+                    <ProfileEditIcon />
+                  </span>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
                 </figure>
                 <div className="profileCard-body">
-                  <h4>{userData?.user?.name}</h4>
-                  <p>{userData?.user?.username}</p>
+                  <h4>{userData?.name}</h4>
+                  <p>{userData?.email}</p>
                 </div>
               </div>
 
               <div className="fieldItem">
                 <p>Name</p>
-                <input type="text" className="form-control" placeholder={userData?.user?.name ? "Enter name" : "Add Name"} value={userData?.user?.name} disabled={true} />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder={userData?.name ? "Enter name" : "Add name"}
+                  value={userData?.name}
+                  onChange={(e) =>
+                    setUserData({ ...userData, name: e.target.value })
+                  }
+                />
               </div>
 
               <div className="fieldItem">
                 <p>Email account</p>
-                <input type="text" className="form-control" placeholder={userData?.user?.email ? "Enter email" : "Add Email"} value={userData?.user?.email} />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder={
+                    userData?.phone ? "Enter  number" : "Add  number"
+                  }
+                  value={userData?.email}
+                  onChange={(e) =>
+                    setUserData({ ...userData, email: e.target.value })
+                  }
+                />
               </div>
 
               <div className="fieldItem">
                 <p>Mobile number</p>
-                <input type="text" className="form-control" placeholder={userData?.user?.phone ? "Enter mobile number" : "Add Phone Number"} value={userData?.user?.phone} /> 
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder={
+                    userData?.phone ? "Enter  number" : "Add  number"
+                  }
+                  value={userData?.phone}
+                  onChange={(e) =>
+                    setUserData({ ...userData, phone: e.target.value })
+                  }
+                />
               </div>
 
               <div className="fieldItem">
                 <p>Location</p>
-                <input type="text" className="form-control" placeholder={userData?.user?.location ? "Enter location" : "Add Location"} value={userData?.user?.location} />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder={
+                    userData?.location ? "Enter location" : "Add Location"
+                  }
+                  value={userData?.location}
+                  onChange={(e) =>
+                    setUserData({ ...userData, location: e.target.value })
+                  }
+                />
               </div>
-
-
-
             </div>
             <div className="dialog-footer">
               <Button
                 className="btn btn-primary"
-                onClick={() => {
-                  setisProfilePopOpen(false);
-                }}
+                onClick={handleSaveChanges}
+                disabled={loading}
               >
-                Save Changes
+                {loading ? "Saving Changes" : "Save Changes"}
               </Button>
             </div>
           </DialogPanel>
         </div>
       </Dialog>
-
     </>
   );
 }

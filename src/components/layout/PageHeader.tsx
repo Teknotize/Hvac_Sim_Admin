@@ -71,7 +71,7 @@ export default function PageHeader({
   const { showToast } = useToastStore();
   const [formData, setFormData] = useState({
     name: "",
-    icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new",
+    icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new.png",
     is_locked: false,
     unlock_condition: "Unlock with Fingerprint",
     type: "Conditional",
@@ -187,11 +187,12 @@ export default function PageHeader({
     );
   };
 
-  const handleFileUpload = (category: string) => {
+  const handleFileUpload = (category: string, AppCategory: string) => {
     setSelectedCategory(category);
     setFormData((prev) => ({
       ...prev,
       category: category,
+      AppCategory: AppCategory,
     }));
     setIsFileUploadOpen(true);
   };
@@ -652,21 +653,79 @@ export default function PageHeader({
                 anchor="bottom end"
                 className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
               >
-                <div className="action-menu">
-                  <Link
-                    to={""}
-                    className="action-menu-item"
-                    onClick={() => handleFileUpload("Combustion")}
-                  >
-                    <p>Combustion</p>
-                  </Link>
-                  <Link
-                    to={""}
-                    className="action-menu-item"
-                    onClick={() => handleFileUpload("Refrigerant")}
-                  >
-                    <p>Refrigerant</p>
-                  </Link>
+                <div className="action-menu space-y-4">
+                  {/* Megacore */}
+                  <div>
+                    <p className="font-semibold text-gray-800">Megacore</p>
+                    <div className="pl-4 space-y-2">
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload("Combustion", "Mega Core")
+                        }
+                      >
+                        Combustion
+                      </Link>
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload("Refrigerant", "Mega Core")
+                        }
+                      >
+                        Refrigerant
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Knowledge Evaluator */}
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      Knowledge Evaluator
+                    </p>
+                    <div className="pl-4 space-y-2">
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload("Combustion", "Knowledge Evaluator")
+                        }
+                      >
+                        Combustion
+                      </Link>
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload("Refrigerant", "Knowledge Evaluator")
+                        }
+                      >
+                        Refrigerant
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Comfort Cooling */}
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      Comfort Cooling Simulator
+                    </p>
+                    <div className="pl-4 space-y-2">
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload(
+                            "Refrigerant",
+                            "Comfort Cooling Simulator"
+                          )
+                        }
+                      >
+                        Refrigerant
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </PopoverPanel>
             </Popover>
@@ -713,7 +772,15 @@ export default function PageHeader({
                       <UploadIcon />
                       <p>
                         Drag your file to start uploading <span>or</span>{" "}
-                        <button className="btn btn-primary-outline">
+                        <button
+                          className="btn btn-primary-outline"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const input =
+                              document.getElementById("dropzone-file1");
+                            if (input) (input as HTMLInputElement).click(); // trigger input
+                          }}
+                        >
                           Browse
                         </button>
                       </p>
