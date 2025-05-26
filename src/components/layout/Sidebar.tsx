@@ -96,29 +96,34 @@ export default function Sidebar() {
       const formData = new FormData();
 
       formData.append("name", userData.name);
+
       const isValidEmail = (email: string) => {
-        // Basic email format check
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
       };
 
       if (!userData.email) {
         showToast("Email field cannot be empty.", "error");
-      } else if (!isValidEmail(userData.email)) {
-        showToast("Invalid email format.", "error");
-      } else {
-        formData.append("email", userData.email);
+        setLoading(false);
+        return; // 🛑 stop execution
       }
 
-      formData.append("phone", userData.phone ? userData.phone : "");
-      formData.append("place", userData.location ? userData.location : "");
+      if (!isValidEmail(userData.email)) {
+        showToast("Invalid email format.", "error");
+        setLoading(false);
+        return; // 🛑 stop execution
+      }
+
+      formData.append("email", userData.email);
+      formData.append("phone", userData.phone || "");
+      formData.append("place", userData.location || "");
 
       if (selectedFile instanceof File) {
         formData.append("profilePic", selectedFile);
       }
 
       const res = await updateProfile(formData);
-      console.log("res", res);
+      console.log("res:", res); // 🔍 Debug log
 
       if (res?.success) {
         showToast(res.message || "Profile updated successfully.", "success");
@@ -127,8 +132,6 @@ export default function Sidebar() {
         showToast(res.message || "Failed to update profile.", "error");
       }
 
-      setLoading(false);
-      setisProfilePopOpen(false);
       if (res.user) {
         setUserData({
           name: res.user.name || "",
@@ -138,8 +141,17 @@ export default function Sidebar() {
           profilePic: res.user.profilePic || "",
         });
       }
-    } catch (error) {
+
+      setisProfilePopOpen(false);
+      setLoading(false);
+    } catch (error: any) {
       console.error("Error updating profile:", error);
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        "An error occurred while updating profile.";
+
+      showToast(errorMessage, "error");
       setLoading(false);
     }
   };
