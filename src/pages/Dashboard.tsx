@@ -1,11 +1,15 @@
+import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   
   const stats = [
-    { name: 'Active Systems', value: '24' },
-    { name: 'Alerts', value: '3' },
-    { name: 'Efficiency', value: '92%' },
-    { name: 'Energy Usage', value: '1.2 kWh' },
+    { name: 'Distributors', value: '08', status: 'Open', till: '20', color: '#3B82F6' },
+    { name: 'Sales Persons', value: '24', status: 'Lorem Ipsium', till: '20', color: '#FFA800' },
+    { name: 'Inquiries', value: '15', status: 'Open', till: '20', color: '#B92825' },
+    { name: 'Active Users', value: '63', status: 'Lorem Ipsium', till: '20', color: '#008578' },
   ];
 
   return (
@@ -21,10 +25,41 @@ export default function Dashboard() {
         {stats.map((stat) => (
           <div
             key={stat.name}
-            className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
+            className="dashCard"
           >
-            <dt className="truncate text-sm font-medium text-gray-500">{stat.name}</dt>
-            <dd className="mt-1 text-3xl font-semibold text-gray-900">{stat.value}</dd>
+            <Popover className="action-drop">
+              <PopoverButton className="block">
+                <FontAwesomeIcon icon={faEllipsisVertical} />
+              </PopoverButton>
+              <PopoverPanel
+                transition
+                anchor="bottom end"
+                className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+              >
+                <div className="action-menu">
+                  <Link to="/" className="action-menu-item">
+                    <p>Enable</p>
+                  </Link>
+                  <Link to="/" className="action-menu-item">
+                    <p>Disable</p>
+                  </Link>
+                  <Link to="/" className="action-menu-item">
+                    <p>Edit</p>
+                  </Link>
+                  <Link to="/" className="action-menu-item">
+                    <p>Delete</p>
+                  </Link>
+                </div>
+              </PopoverPanel>
+            </Popover>
+            
+            <h4>{stat.name}</h4>
+            <div className="stat" style={{ color: stat.color }}>
+              <p>{stat.value}</p>
+              <p>{stat.status}</p>
+            </div>
+
+            <p>Till date: {stat.till}</p>
           </div>
         ))}
       </div>
