@@ -84,11 +84,13 @@ export default function Contacts() {
     "product-inquiry1": "clr-darkblue",
     "product-inquiry2": "clr-green",
     "product-inquiry3": "clr-green",
+    ghl: "clr-purple",
   };
 
   const getTagColor = (tag: string) => {
-    let tagText = tag?.toLowerCase().replace(/\s+/g, "-");
-    return tagColors[tagText]; // Default fallback color if tag not found
+    const trimmed = tag.trim(); // removes leading/trailing spaces
+    const tagText = trimmed.toLowerCase().replace(/\s+/g, "-"); // replaces inner spaces with "-"
+    return tagColors[tagText] || "default-color"; // optional fallback
   };
 
   useEffect(() => {
