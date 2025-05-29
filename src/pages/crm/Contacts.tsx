@@ -84,13 +84,17 @@ export default function Contacts() {
     "product-inquiry1": "clr-darkblue",
     "product-inquiry2": "clr-green",
     "product-inquiry3": "clr-green",
-    ghl: "clr-purple",
+    ghl: "clr-teal",
+    distributor: "clr-olive",
+    mlc: "clr-violet",
+    "hvac-excellenc": "clr-vividgreen",
+    "hvac-school": "clr-cyan",
   };
 
   const getTagColor = (tag: string) => {
-    const trimmed = tag.trim(); // removes leading/trailing spaces
-    const tagText = trimmed.toLowerCase().replace(/\s+/g, "-"); // replaces inner spaces with "-"
-    return tagColors[tagText] || "default-color"; // optional fallback
+    const trimmed = tag.trim();
+    const tagText = trimmed.toLowerCase().replace(/\s+/g, "-");
+    return tagColors[tagText] || "default-color";
   };
 
   useEffect(() => {
@@ -170,13 +174,11 @@ export default function Contacts() {
   };
 
   const uncheckAllUsers = () => {
-    // Update all users in the main array
     const updatedUsers = crmUsers.map((user) => ({
       ...user,
       isChecked: false,
     }));
 
-    // Update all relevant states
     setCRMUsers(updatedUsers);
     setOriginalUsers((prev) =>
       prev.map((user) => ({ ...user, isChecked: false }))
@@ -193,7 +195,6 @@ export default function Contacts() {
         return;
       }
 
-      // First update the refresh flag
       setRefreshFlag((prev) => !prev);
 
       // Then show success message
