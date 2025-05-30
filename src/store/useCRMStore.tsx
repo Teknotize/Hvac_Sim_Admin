@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface CRMUser {
   [key: string]: any;
@@ -17,18 +17,18 @@ const useCRMStore = create<CRMStoreState>((set, get) => ({
   originalUsers: [],
 
   setCRMUsers: (users) => {
-    console.log('Updating Zustand Store: crmUsers', users); // Debug log
+    console.log("Updating Zustand Store: crmUsers", users); // Debug log
     set({ crmUsers: users });
   },
 
   setOriginalUsers: (users) => {
-    console.log('Updating Zustand Store: originalUsers', users); // Debug log
+    console.log("Updating Zustand Store: originalUsers", users); // Debug log
     set({ originalUsers: users, crmUsers: users }); // Ensure both get updated
   },
 
   resetCRMUsers: () => {
     const { originalUsers } = get();
-    console.log('Resetting to original users:', originalUsers);
+    console.log("Resetting to original users:", originalUsers);
     set({ crmUsers: originalUsers });
   },
 }));

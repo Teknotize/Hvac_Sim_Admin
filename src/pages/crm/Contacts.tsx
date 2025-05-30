@@ -411,7 +411,7 @@ export default function Contacts() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  console.log("paginatedUsers", paginatedUsers);
+
   useEffect(() => {
     const allChecked =
       paginatedUsers.length > 0 &&
