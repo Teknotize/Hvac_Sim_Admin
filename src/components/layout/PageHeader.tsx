@@ -649,19 +649,13 @@ export default function PageHeader({
                   <input
                     name="search"
                     placeholder="Search"
-                    className={clsx(
-                      focus && "itemfocus",
-                      hover && "itemhover"
-                    )}
+                    className={clsx(focus && "itemfocus", hover && "itemhover")}
                     onChange={(e) => onSearchChange?.(e.target.value)}
                   />
                 )}
               </Input>
             </Field>
-            <Button
-              className="btn btn-primary"
-              onClick={() => {}}
-            >
+            <Button className="btn btn-primary" onClick={() => {}}>
               <FontAwesomeIcon icon={faPlus} /> Add New
             </Button>
           </div>
