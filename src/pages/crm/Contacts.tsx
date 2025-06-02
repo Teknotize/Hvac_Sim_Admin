@@ -189,7 +189,7 @@ export default function Contacts() {
       // Build query parameters for all users
       const queryParams = new URLSearchParams({
         page: "1",
-        limit: "1000", // Set a reasonable limit instead of totalItems
+        fetchAll: "true",
       });
 
       // Add filter parameters if they exist
@@ -267,11 +267,6 @@ export default function Contacts() {
         isChecked: true,
       }));
       setCRMUsers(currentPageUsers);
-
-      // Force a re-render to ensure all states are updated
-      setTimeout(() => {
-        setCheckedUser([...mappedUsers]);
-      }, 100);
     } catch (error: any) {
       console.error("Error selecting all users:", error);
       if (error.response?.data?.message) {
@@ -427,6 +422,10 @@ export default function Contacts() {
     setSelectedIds(new Set());
     setEnabled(false);
     setAllPagesSelected(false);
+    // Automatically select all users after filter is applied
+    setTimeout(() => {
+      handleSelectAllPages();
+    }, 500); // Small delay to ensure data is loaded
   };
 
   // Handle subscription filter change
@@ -436,6 +435,10 @@ export default function Contacts() {
     setSelectedIds(new Set());
     setEnabled(false);
     setAllPagesSelected(false);
+    // Automatically select all users after filter is applied
+    setTimeout(() => {
+      handleSelectAllPages();
+    }, 500); // Small delay to ensure data is loaded
   };
 
   // Handle date filter change
@@ -448,6 +451,10 @@ export default function Contacts() {
     setSelectedIds(new Set());
     setEnabled(false);
     setAllPagesSelected(false);
+    // Automatically select all users after filter is applied
+    setTimeout(() => {
+      handleSelectAllPages();
+    }, 500); // Small delay to ensure data is loaded
   };
 
   // Fetch data from API
