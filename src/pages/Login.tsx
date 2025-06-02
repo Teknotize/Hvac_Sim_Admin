@@ -31,7 +31,7 @@ export default function Login() {
         if (user.userType === "admin") {
           useAuthStore.getState().setTokens(accessToken, refreshToken);
           showToast("Login successful!", "success");
-          navigate("/dashboard"); // replace with your route
+          navigate("/dashboard");
         } else {
           showToast("Access denied! Only admin users are allowed.", "error");
         }

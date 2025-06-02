@@ -26,6 +26,36 @@ export const tags = [
     checked: false,
     cssClass: "clr-skyblue",
   },
+  {
+    id: 5,
+    name: "HVAC Excellence",
+    checked: false,
+    cssClass: "clr-skyblue",
+  },
+  {
+    id: 6,
+    name: "HVAC School",
+    checked: false,
+    cssClass: "clr-skyblue",
+  },
+  {
+    id: 7,
+    name: "Distributor",
+    checked: false,
+    cssClass: "clr-skyblue",
+  },
+  {
+    id: 8,
+    name: "MLC",
+    checked: false,
+    cssClass: "clr-skyblue",
+  },
+  {
+    id: 9,
+    name: "GHL",
+    checked: false,
+    cssClass: "clr-skyblue",
+  },
 ];
 
 export const defaultDate = {
