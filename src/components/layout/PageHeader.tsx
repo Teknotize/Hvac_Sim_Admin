@@ -91,15 +91,17 @@ export default function PageHeader({
   const [tempSelectedTags, setTempSelectedTags] = useState(
     tags.map((tag) => ({ ...tag, checked: false }))
   );
-  const [tempSelectedSubscriptionLevels, setTempSelectedSubscriptionLevels] = useState([
-    { id: 1, name: "free", checked: false },
-    { id: 2, name: "admin-paid", checked: false },
-  ]);
+  const [tempSelectedSubscriptionLevels, setTempSelectedSubscriptionLevels] =
+    useState([
+      { id: 1, name: "free", checked: false },
+      { id: 2, name: "admin-paid", checked: false },
+    ]);
   const [tempDateState, setTempDateState] = useState<Range[]>([defaultDate]);
 
   const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
   const [isTagsPopoverOpen, setIsTagsPopoverOpen] = useState(false);
-  const [isSubscriptionPopoverOpen, setIsSubscriptionPopoverOpen] = useState(false);
+  const [isSubscriptionPopoverOpen, setIsSubscriptionPopoverOpen] =
+    useState(false);
 
   const handleResetTags = () => {
     const resetTags = tags.map((tag) => ({ ...tag, checked: false }));
@@ -389,7 +391,8 @@ export default function PageHeader({
                             >
                               {filtersApplied.date ? (
                                 <span className="active">
-                                  {datSstate[0]?.startDate?.toLocaleDateString()} -{" "}
+                                  {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
+                                  -{" "}
                                   {datSstate[0]?.endDate?.toLocaleDateString()}
                                   <FontAwesomeIcon
                                     onClick={(e) => {
@@ -433,14 +436,18 @@ export default function PageHeader({
                                 <Button
                                   className="btn btn-primary"
                                   onClick={() => {
-                                    const startDate = tempDateState[0]?.startDate;
+                                    const startDate =
+                                      tempDateState[0]?.startDate;
                                     const endDate = tempDateState[0]?.endDate;
 
                                     if (
                                       startDate instanceof Date &&
                                       endDate instanceof Date
                                     ) {
-                                      handleDateFilterChange(startDate, endDate);
+                                      handleDateFilterChange(
+                                        startDate,
+                                        endDate
+                                      );
                                       close();
                                     }
                                   }}
@@ -467,15 +474,18 @@ export default function PageHeader({
                           <>
                             <PopoverButton
                               className={`block btn btn-outline-grey icon-end ${
-                                selectedTags.filter((tag) => tag.checked).length >
-                                  0 && "active"
+                                selectedTags.filter((tag) => tag.checked)
+                                  .length > 0 && "active"
                               }`}
                             >
                               {filtersApplied.tags ? (
                                 <span className="active">
                                   Tags
                                   <b>
-                                    {selectedTags.filter((tag) => tag.checked).length}
+                                    {
+                                      selectedTags.filter((tag) => tag.checked)
+                                        .length
+                                    }
                                   </b>
                                   <FontAwesomeIcon
                                     onClick={(e) => {
@@ -504,7 +514,10 @@ export default function PageHeader({
                                       className="list-group-item"
                                       key={tag.id}
                                       onClick={() =>
-                                        handleCheckboxChange(tag.id, !tag.checked)
+                                        handleCheckboxChange(
+                                          tag.id,
+                                          !tag.checked
+                                        )
                                       }
                                     >
                                       <Checkbox
@@ -555,7 +568,9 @@ export default function PageHeader({
                         useEffect(() => {
                           setIsSubscriptionPopoverOpen(open);
                           if (!open) {
-                            setTempSelectedSubscriptionLevels(selectedSubscriptionLevels);
+                            setTempSelectedSubscriptionLevels(
+                              selectedSubscriptionLevels
+                            );
                           }
                         }, [open]);
                         return (
@@ -571,9 +586,11 @@ export default function PageHeader({
                                 <span className="active">
                                   Subscription
                                   <b>
-                                    {selectedSubscriptionLevels.filter(
-                                      (level) => level.checked
-                                    ).length}
+                                    {
+                                      selectedSubscriptionLevels.filter(
+                                        (level) => level.checked
+                                      ).length
+                                    }
                                   </b>
                                   <FontAwesomeIcon
                                     onClick={(e) => {
@@ -586,7 +603,8 @@ export default function PageHeader({
                                 </span>
                               ) : (
                                 <span>
-                                  Subscription <FontAwesomeIcon icon={faChevronDown} />
+                                  Subscription{" "}
+                                  <FontAwesomeIcon icon={faChevronDown} />
                                 </span>
                               )}
                             </PopoverButton>
@@ -597,39 +615,41 @@ export default function PageHeader({
                             >
                               <div className="list-menu">
                                 <div className="list-group">
-                                  {tempSelectedSubscriptionLevels.map((level) => (
-                                    <div
-                                      className="list-group-item"
-                                      key={level.id}
-                                      onClick={() =>
-                                        handleSubscriptionCheckboxChange(
-                                          level.id,
-                                          !level.checked
-                                        )
-                                      }
-                                    >
-                                      <Checkbox
-                                        checked={level.checked}
-                                        onChange={(checked) =>
+                                  {tempSelectedSubscriptionLevels.map(
+                                    (level) => (
+                                      <div
+                                        className="list-group-item"
+                                        key={level.id}
+                                        onClick={() =>
                                           handleSubscriptionCheckboxChange(
                                             level.id,
-                                            checked
+                                            !level.checked
                                           )
                                         }
-                                        className="group list-checkbox-item data-[checked]:checked"
                                       >
-                                        <FontAwesomeIcon
-                                          icon={faCheck}
-                                          className="opacity-0 group-data-[checked]:opacity-100"
-                                        />
-                                      </Checkbox>
-                                      <span className="capitalize">
-                                        {level.name === "admin-paid"
-                                          ? "Admin Paid"
-                                          : level.name}
-                                      </span>
-                                    </div>
-                                  ))}
+                                        <Checkbox
+                                          checked={level.checked}
+                                          onChange={(checked) =>
+                                            handleSubscriptionCheckboxChange(
+                                              level.id,
+                                              checked
+                                            )
+                                          }
+                                          className="group list-checkbox-item data-[checked]:checked"
+                                        >
+                                          <FontAwesomeIcon
+                                            icon={faCheck}
+                                            className="opacity-0 group-data-[checked]:opacity-100"
+                                          />
+                                        </Checkbox>
+                                        <span className="capitalize">
+                                          {level.name === "admin-paid"
+                                            ? "Admin Paid"
+                                            : level.name}
+                                        </span>
+                                      </div>
+                                    )
+                                  )}
                                 </div>
                                 <div className="btnRow">
                                   <Button
