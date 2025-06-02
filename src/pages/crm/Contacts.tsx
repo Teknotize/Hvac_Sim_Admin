@@ -108,7 +108,7 @@ export default function Contacts() {
     distributor: "clr-olive",
     mlc: "clr-violet",
     "hvac-school": "clr-cyan",
-    "mobile-user": "clr-blue",
+    "hvac-excellence": "clr-vividgreen",
   };
 
   const getTagColor = (tag: string) => {
@@ -120,6 +120,12 @@ export default function Contacts() {
   // Normalize tag for comparison
   const normalizeTag = (tag: string) => {
     return tag.toLowerCase().trim();
+  };
+
+  // Add this helper function at the top of the file, after the interfaces
+  const normalizeSearchTerm = (term: string): string => {
+    // Convert "Admin Paid" to "admin-paid" for comparison
+    return term.toLowerCase().replace(/\s+/g, "-");
   };
 
   // Handle checkbox changes
@@ -182,8 +188,8 @@ export default function Contacts() {
       setLoading(true);
       // Build query parameters for all users
       const queryParams = new URLSearchParams({
-        limit: totalItems.toString(), // Get all users
         page: "1",
+        limit: "1000", // Set a reasonable limit instead of totalItems
       });
 
       // Add filter parameters if they exist
@@ -210,16 +216,17 @@ export default function Contacts() {
       }
 
       const apiUrl = `/admin/get-crm-users?${queryParams.toString()}`;
-      console.log("Select All Users - Request:", {
-        apiUrl,
-        totalItems,
-        queryParams: queryParams.toString(),
-      });
 
       const response = await apiClient.get(apiUrl);
-      const { data: allUsers } = response.data;
 
-      // Map all users for email
+      const { data: allUsers, pagination } = response.data;
+
+      if (!allUsers || allUsers.length === 0) {
+        showToast("No users found to select", "error");
+        return;
+      }
+
+      // Map all users for email with proper tag normalization
       const mappedUsers: CRMUser[] = allUsers.map((user: any) => {
         const normalizedTags = (user.tags || [])
           .filter(Boolean)
@@ -242,34 +249,29 @@ export default function Contacts() {
         };
       });
 
-      // Update all users for email
+      // First update the checked users
       setCheckedUser(mappedUsers);
-      setShowEmail(true);
+
+      // Then update other states
       setAllPagesSelected(true);
+      setEnabled(true);
+      setShowEmail(true);
 
       // Update selected IDs for all users
       const allUserIds = new Set(mappedUsers.map((user) => user._id));
       setSelectedIds(allUserIds);
 
-      // Keep current page display as is
+      // Update current page users
       const currentPageUsers = crmUsers.map((user) => ({
         ...user,
         isChecked: true,
       }));
       setCRMUsers(currentPageUsers);
-      setEnabled(true);
 
-      // Force update the checkedUser state
+      // Force a re-render to ensure all states are updated
       setTimeout(() => {
-        setCheckedUser(mappedUsers);
-      }, 0);
-
-      // Log for debugging
-      console.log("Select All Users - Final State:", {
-        checkedUserCount: mappedUsers.length,
-        selectedIdsCount: allUserIds.size,
-        totalItems,
-      });
+        setCheckedUser([...mappedUsers]);
+      }, 100);
     } catch (error: any) {
       console.error("Error selecting all users:", error);
       if (error.response?.data?.message) {
@@ -281,6 +283,8 @@ export default function Contacts() {
       setAllPagesSelected(false);
       setShowEmail(false);
       setCheckedUser([]);
+      setSelectedIds(new Set());
+      setEnabled(false);
     } finally {
       setLoading(false);
     }
@@ -353,23 +357,7 @@ export default function Contacts() {
   // Handle search change
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    setCurrentPage(1);
-
-    // Filter users locally for immediate results
-    if (value.trim() === "") {
-      setCRMUsers(originalUsers);
-    } else {
-      const searchTerm = value.toLowerCase();
-      const filteredUsers = originalUsers.filter(
-        (user) =>
-          user.name.toLowerCase().includes(searchTerm) ||
-          user.email.toLowerCase().includes(searchTerm) ||
-          (user.phone && user.phone.toLowerCase().includes(searchTerm)) ||
-          (user.business && user.business.toLowerCase().includes(searchTerm)) ||
-          user.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
-      );
-      setCRMUsers(filteredUsers);
-    }
+    setCurrentPage(1); // Reset to first page when search changes
   };
 
   // Update checked users when selection changes
@@ -389,19 +377,9 @@ export default function Contacts() {
     }
   }, [allPagesSelected]);
 
-  // Add effect to log checkedUser changes
-  useEffect(() => {
-    console.log("checkedUser updated:", checkedUser.length);
-  }, [checkedUser]);
-
   // Handle page change
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
-      console.log("Frontend Debug - Page Change:", {
-        from: currentPage,
-        to: page,
-        totalPages,
-      });
       setCurrentPage(page);
       // Reset selection when changing pages
       setSelectedIds(new Set());
@@ -486,8 +464,9 @@ export default function Contacts() {
         });
 
         // Add search parameter if it exists
-        if (searchQuery) {
-          queryParams.append("search", searchQuery);
+        if (searchQuery && searchQuery.trim() !== "") {
+          // Use the correct parameter name for search
+          queryParams.append("search", searchQuery.trim());
         }
 
         // Add filter parameters if they exist
@@ -512,14 +491,47 @@ export default function Contacts() {
         }
 
         const apiUrl = `/admin/get-crm-users?${queryParams.toString()}`;
-        console.log("Frontend Debug - Request:", {
-          currentPage,
-          apiUrl,
-          isLastPage: currentPage === totalPages,
-        });
 
         const response = await apiClient.get(apiUrl);
+
         const { data: users, pagination } = response.data;
+
+        // Validate if the search results actually contain the search term
+        if (searchQuery && searchQuery.trim() !== "") {
+          const searchTerm = searchQuery.toLowerCase().trim();
+          const normalizedSearchTerm = normalizeSearchTerm(searchTerm);
+
+          const hasMatchingResults = users.some((user: any) => {
+            const userSubscriptionLevel =
+              user.subscriptionLevel?.toLowerCase() || "";
+            const displaySubscriptionLevel =
+              userSubscriptionLevel === "admin-paid"
+                ? "admin paid"
+                : userSubscriptionLevel;
+
+            return (
+              user.name?.toLowerCase().includes(searchTerm) ||
+              user.email?.toLowerCase().includes(searchTerm) ||
+              user.phone?.toLowerCase().includes(searchTerm) ||
+              user.business?.toLowerCase().includes(searchTerm) ||
+              user.tags?.some((tag: string) =>
+                tag.toLowerCase().includes(searchTerm)
+              ) ||
+              userSubscriptionLevel.includes(normalizedSearchTerm) ||
+              displaySubscriptionLevel.includes(searchTerm)
+            );
+          });
+
+          if (!hasMatchingResults) {
+            showToast("No users found matching your search", "error");
+            setCRMUsers([]);
+            setOriginalUsers([]);
+            setTotalPages(1);
+            setTotalItems(0);
+            setLoading(false);
+            return;
+          }
+        }
 
         // Map the users data with proper type checking and tag normalization
         const mappedUsers: CRMUser[] = users.map((user: any) => {
@@ -554,10 +566,6 @@ export default function Contacts() {
 
         // If current page is greater than total pages, reset to last page
         if (currentPage > pagination.totalPages) {
-          console.log(
-            "Frontend Debug - Resetting to last page:",
-            pagination.totalPages
-          );
           setCurrentPage(pagination.totalPages);
         }
       } catch (error) {
@@ -581,12 +589,13 @@ export default function Contacts() {
     currentDateRange,
     activeSubscriptionLevels,
     refreshFlag,
+    searchQuery,
   ]);
 
   // Pagination info for display
   const paginationInfo = {
     start: totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1,
-    end: Math.min(currentPage * itemsPerPage, totalItems),
+    end: Math.min((currentPage - 1) * itemsPerPage + itemsPerPage, totalItems),
     total: totalItems,
   };
 
@@ -744,7 +753,7 @@ export default function Contacts() {
                           {contact.tags.map((tag: string) => (
                             <span
                               key={tag}
-                              className={`${getTagColor(tag)} capitalize `}
+                              className={`${getTagColor(tag)} capitalize`}
                             >
                               {tag}
                             </span>
@@ -933,11 +942,7 @@ export default function Contacts() {
       )}
       <EmailPopup
         isOpen={showEmailPopup}
-        recipients={
-          allPagesSelected
-            ? checkedUser
-            : crmUsers.filter((user) => user.isChecked)
-        }
+        recipients={checkedUser}
         onClose={() => {
           setShowEmailPopup(false);
           setReRun(!reRun);
