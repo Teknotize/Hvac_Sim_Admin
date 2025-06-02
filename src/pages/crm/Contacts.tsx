@@ -58,7 +58,7 @@ export default function Contacts() {
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const crmUsers = useCRMStore((state) => state.crmUsers);
-  const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]);
+
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -219,7 +219,7 @@ export default function Contacts() {
 
       const response = await apiClient.get(apiUrl);
 
-      const { data: allUsers, pagination } = response.data;
+      const { data: allUsers } = response.data;
 
       if (!allUsers || allUsers.length === 0) {
         showToast("No users found to select", "error");
@@ -314,9 +314,7 @@ export default function Contacts() {
     }));
 
     setCRMUsers(updatedUsers);
-    setOriginalUsers((prev) =>
-      prev.map((user) => ({ ...user, isChecked: false }))
-    );
+
     setEnabled(false);
     setCheckedUser([]);
     setSelectedIds(new Set());
@@ -525,7 +523,7 @@ export default function Contacts() {
           if (!hasMatchingResults) {
             showToast("No users found matching your search", "error");
             setCRMUsers([]);
-            setOriginalUsers([]);
+
             setTotalPages(1);
             setTotalItems(0);
             setLoading(false);
@@ -557,7 +555,6 @@ export default function Contacts() {
           };
         });
 
-        setOriginalUsers(mappedUsers);
         setCRMUsers(mappedUsers);
 
         // Update pagination state using the backend's pagination info
@@ -573,7 +570,6 @@ export default function Contacts() {
         showToast("No matched users", "error");
         // Reset state on error
         setCRMUsers([]);
-        setOriginalUsers([]);
         setTotalPages(1);
         setTotalItems(0);
       } finally {
