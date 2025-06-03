@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Contacts from "./pages/crm/Contacts";
 import PdfManual from "./pages/crm/PdfManual";
 import Cms from "./pages/cms/Cms";
+import Distriburor from "./pages/Distriburor";
 import MainLayout from "./components/layout/MainLayout";
 import Toast from "./components/toast/loginToast";
 import useTokenRefresh from "./utils/refreshTokenTimer";
@@ -41,12 +42,7 @@ function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route
-              path="distributors"
-              element={
-                <div className="p-4">Distributors Page (Coming Soon)</div>
-              }
-            />
+            <Route path="distributors" element={<Distriburor />} />
             <Route path="app-data" element={<AppData />} />
             <Route path="crm/contacts" element={<Contacts />} />
             <Route path="crm/pdf-manual" element={<PdfManual />} />
