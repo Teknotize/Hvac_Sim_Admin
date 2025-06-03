@@ -36,7 +36,7 @@ export default function PdfManual() {
     download_link: "",
     status: false,
   });
-
+  console.log("formData", formData);
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
   const [selectedManaualId, setselectedManaualId] = useState<string>("");
