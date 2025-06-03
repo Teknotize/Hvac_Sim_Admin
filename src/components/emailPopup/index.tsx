@@ -38,6 +38,7 @@ export default function EmailPopup({
   }, [recipients]);
 
   const removeRecipient = (user: any) => {
+    console.log("hi", tempRecipients);
     setTempRecipients((prev) =>
       prev.filter((recipient) => recipient._id !== user._id)
     );
@@ -114,50 +115,43 @@ export default function EmailPopup({
         </Button>
         <h2>Send Email</h2>
         <Field className="fieldDv">
-          <Label>To</Label>
+          <Label>
+            To 
+          </Label>
           <div className="emailInputCol">
             {tempRecipients.length < 9 ? (
               <>
-                {tempRecipients?.map((recipient) => (
-                  <div
-                    className={`emailItem type0${
-                      Math.floor(Math.random() * 3) + 1
-                    }`}
-                  >
-                    <figure>
-                      <span>{recipient.name.charAt(0)}</span>
-                    </figure>
-                    <span>{recipient.name}</span>
-                    <i onClick={() => removeRecipient(recipient)}>
-                      <FontAwesomeIcon icon={faXmark} />
-                    </i>
-                  </div>
-                ))}
+
+              {tempRecipients?.map((recipient) => (
+              <div className={`emailItem type0${Math.floor(Math.random() * 3) + 1}`}>
+                <figure>
+                  <span>{recipient.name.charAt(0)}</span>
+                </figure>
+                <span>{recipient.name}</span>
+                <i onClick={() => removeRecipient(recipient)}>
+                  <FontAwesomeIcon icon={faXmark} />
+                </i>
+              </div>
+            ))}
+
               </>
             ) : (
               <>
-                {tempRecipients?.slice(0, 9).map((recipient) => (
-                  <div
-                    className={`emailItem shrinked type0${
-                      Math.floor(Math.random() * 3) + 1
-                    }`}
-                  >
-                    <figure>
-                      <span>{recipient.name.charAt(0)}</span>
-                    </figure>
-                  </div>
-                ))}
-                <div
-                  className={`emailItem shrinked type0${
-                    Math.floor(Math.random() * 3) + 1
-                  }`}
-                >
+              {tempRecipients?.slice(0, 9).map((recipient) => (
+                <div className={`emailItem shrinked type0${Math.floor(Math.random() * 3) + 1}`}>
                   <figure>
-                    <span>+ {tempRecipients.length - 9}</span>
+                    <span>{recipient.name.charAt(0)}</span>
+                  </figure>
+                </div>
+              ))}
+              <div className={`emailItem shrinked type0${Math.floor(Math.random() * 3) + 1}`}>
+                  <figure>
+                    <span>+{tempRecipients.length - 9}</span>
                   </figure>
                 </div>
               </>
             )}
+            
 
             {/* <div className='textInput'>
               <span>{to}</span><Input name="to" placeholder='Type email address' value={to} onChange={(e) => setTo(e.target.value)} />

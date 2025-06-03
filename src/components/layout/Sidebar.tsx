@@ -70,7 +70,7 @@ export default function Sidebar() {
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isProfilePopOpen, setisProfilePopOpen] = useState(false);
-
+  console.log("userData", userData);
   const handleEditClick = () => {
     fileInputRef.current?.click(); // Trigger file input on icon click
   };
@@ -123,6 +123,7 @@ export default function Sidebar() {
       }
 
       const res = await updateProfile(formData);
+      console.log("res:", res); // 🔍 Debug log
 
       if (res?.success) {
         showToast(res.message || "Profile updated successfully.", "success");
