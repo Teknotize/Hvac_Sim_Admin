@@ -189,7 +189,7 @@ export default function Contacts() {
       // Build query parameters for all users
       const queryParams = new URLSearchParams({
         page: "1",
-        fetchAll: "true",
+        fetchAll: "true"
       });
 
       // Add filter parameters if they exist
@@ -206,19 +206,19 @@ export default function Contacts() {
         queryParams.append("endDate", currentDateRange.endDate.toISOString());
       }
       if (activeSubscriptionLevels.length > 0) {
-        queryParams.append(
-          "subscriptionLevel",
-          activeSubscriptionLevels.join(",")
-        );
+        activeSubscriptionLevels.forEach((level) => {
+          const formattedLevel = level.toLowerCase().replace(/\s+/g, '-');
+          queryParams.append("subscriptionLevel", formattedLevel);
+        });
       }
       if (searchQuery) {
         queryParams.append("search", searchQuery);
       }
 
       const apiUrl = `/admin/get-crm-users?${queryParams.toString()}`;
+      console.log('Select All API Request:', apiUrl);
 
       const response = await apiClient.get(apiUrl);
-
       const { data: allUsers } = response.data;
 
       if (!allUsers || allUsers.length === 0) {
@@ -228,7 +228,12 @@ export default function Contacts() {
 
       // Map all users for email with proper tag normalization
       const mappedUsers: CRMUser[] = allUsers.map((user: any) => {
-        const normalizedTags = (user.tags || [])
+        // Ensure tags is always an array
+        const userTags = Array.isArray(user.tags) ? user.tags : 
+                        typeof user.tags === 'string' ? [user.tags] : 
+                        [];
+        
+        const normalizedTags = userTags
           .filter(Boolean)
           .map((tag: string) => {
             const normalizedTag = normalizeTag(tag);
@@ -422,10 +427,6 @@ export default function Contacts() {
     setSelectedIds(new Set());
     setEnabled(false);
     setAllPagesSelected(false);
-    // Automatically select all users after filter is applied
-    setTimeout(() => {
-      handleSelectAllPages();
-    }, 500); // Small delay to ensure data is loaded
   };
 
   // Handle subscription filter change
@@ -435,14 +436,14 @@ export default function Contacts() {
     setSelectedIds(new Set());
     setEnabled(false);
     setAllPagesSelected(false);
-    // Automatically select all users after filter is applied
-    setTimeout(() => {
-      handleSelectAllPages();
-    }, 500); // Small delay to ensure data is loaded
   };
 
   // Handle date filter change
   const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+    console.log('=== Date Filter Change ===');
+    console.log('Start Date:', startDate);
+    console.log('End Date:', endDate);
+    
     setCurrentDateRange({
       startDate,
       endDate,
@@ -451,10 +452,6 @@ export default function Contacts() {
     setSelectedIds(new Set());
     setEnabled(false);
     setAllPagesSelected(false);
-    // Automatically select all users after filter is applied
-    setTimeout(() => {
-      handleSelectAllPages();
-    }, 500); // Small delay to ensure data is loaded
   };
 
   // Fetch data from API
@@ -462,15 +459,18 @@ export default function Contacts() {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Calculate skip value
+        const skip = (currentPage - 1) * itemsPerPage;
+        
         // Build query parameters
         const queryParams = new URLSearchParams({
-          page: currentPage.toString(),
+          page: Math.max(1, currentPage).toString(),
           limit: itemsPerPage.toString(),
+          skip: skip.toString()
         });
 
         // Add search parameter if it exists
         if (searchQuery && searchQuery.trim() !== "") {
-          // Use the correct parameter name for search
           queryParams.append("search", searchQuery.trim());
         }
 
@@ -479,69 +479,67 @@ export default function Contacts() {
           queryParams.append("tags", activeTags.join(","));
         }
 
+        // Add date range filter with proper formatting
         if (currentDateRange.startDate) {
-          queryParams.append(
-            "startDate",
-            currentDateRange.startDate.toISOString()
-          );
+          const startDate = new Date(currentDateRange.startDate);
+          startDate.setHours(0, 0, 0, 0); // Set to start of day
+          queryParams.append("startDate", startDate.toISOString());
+          console.log('Start Date Filter:', startDate.toISOString());
         }
         if (currentDateRange.endDate) {
-          queryParams.append("endDate", currentDateRange.endDate.toISOString());
+          const endDate = new Date(currentDateRange.endDate);
+          endDate.setHours(23, 59, 59, 999); // Set to end of day
+          queryParams.append("endDate", endDate.toISOString());
+          console.log('End Date Filter:', endDate.toISOString());
         }
+
         if (activeSubscriptionLevels.length > 0) {
-          queryParams.append(
-            "subscriptionLevel",
-            activeSubscriptionLevels.join(",")
-          );
+          activeSubscriptionLevels.forEach((level) => {
+            const formattedLevel = level.toLowerCase().replace(/\s+/g, '-');
+            queryParams.append("subscriptionLevel", formattedLevel);
+          });
         }
 
         const apiUrl = `/admin/get-crm-users?${queryParams.toString()}`;
+        console.log('=== Pagination Debug Info ===');
+        console.log('API Request URL:', apiUrl);
+        console.log('Current Page:', currentPage);
+        console.log('Items Per Page:', itemsPerPage);
+        console.log('Skip Value:', skip);
+        console.log('Active Date Range:', {
+          startDate: currentDateRange.startDate?.toISOString(),
+          endDate: currentDateRange.endDate?.toISOString()
+        });
 
         const response = await apiClient.get(apiUrl);
+        console.log('=== API Response ===');
+        console.log('Response Data:', response.data);
+        console.log('Number of Records Received:', response.data.data.length);
 
         const { data: users, pagination } = response.data;
-
-        // Validate if the search results actually contain the search term
-        if (searchQuery && searchQuery.trim() !== "") {
-          const searchTerm = searchQuery.toLowerCase().trim();
-          const normalizedSearchTerm = normalizeSearchTerm(searchTerm);
-
-          const hasMatchingResults = users.some((user: any) => {
-            const userSubscriptionLevel =
-              user.subscriptionLevel?.toLowerCase() || "";
-            const displaySubscriptionLevel =
-              userSubscriptionLevel === "admin-paid"
-                ? "admin paid"
-                : userSubscriptionLevel;
-
-            return (
-              user.name?.toLowerCase().includes(searchTerm) ||
-              user.email?.toLowerCase().includes(searchTerm) ||
-              user.phone?.toLowerCase().includes(searchTerm) ||
-              user.business?.toLowerCase().includes(searchTerm) ||
-              user.tags?.some((tag: string) =>
-                tag.toLowerCase().includes(searchTerm)
-              ) ||
-              userSubscriptionLevel.includes(normalizedSearchTerm) ||
-              displaySubscriptionLevel.includes(searchTerm)
-            );
-          });
-
-          if (!hasMatchingResults) {
-            showToast("No users found matching your search", "error");
-            setCRMUsers([]);
-
-            setTotalPages(1);
-            setTotalItems(0);
-            setLoading(false);
-            return;
-          }
-        }
+        console.log('=== Pagination Details ===');
+        console.log('Backend Pagination:', {
+          totalItems: pagination.totalItems,
+          totalPages: pagination.totalPages,
+          currentPage: pagination.currentPage,
+          itemsPerPage: pagination.itemsPerPage,
+          skip: pagination.skip,
+          remainingRecords: pagination.remainingRecords,
+          hasNextPage: pagination.hasNextPage,
+          hasPreviousPage: pagination.hasPreviousPage,
+          isLastPage: pagination.isLastPage,
+          fetchLimit: pagination.fetchLimit,
+          filteredBy: pagination.filteredBy
+        });
 
         // Map the users data with proper type checking and tag normalization
         const mappedUsers: CRMUser[] = users.map((user: any) => {
-          // Normalize tags to ensure they're in the correct format
-          const normalizedTags = (user.tags || [])
+          // Ensure tags is always an array
+          const userTags = Array.isArray(user.tags) ? user.tags : 
+                          typeof user.tags === 'string' ? [user.tags] : 
+                          [];
+          
+          const normalizedTags = userTags
             .filter(Boolean)
             .map((tag: string) => {
               const normalizedTag = normalizeTag(tag);
@@ -565,12 +563,34 @@ export default function Contacts() {
         setCRMUsers(mappedUsers);
 
         // Update pagination state using the backend's pagination info
+        console.log('=== Final Pagination State ===');
+        console.log('Total Items:', pagination.totalItems);
+        console.log('Total Pages:', pagination.totalPages);
+        console.log('Current Page:', currentPage);
+        console.log('Records on Current Page:', mappedUsers.length);
+        console.log('Is Last Page:', pagination.isLastPage);
+        console.log('Remaining Records:', pagination.remainingRecords);
+        console.log('Filtered By:', pagination.filteredBy);
+        console.log('Fetch Limit:', pagination.fetchLimit);
+
+        // Use backend's pagination values directly
         setTotalPages(pagination.totalPages);
         setTotalItems(pagination.totalItems);
 
         // If current page is greater than total pages, reset to last page
         if (currentPage > pagination.totalPages) {
+          console.log('Resetting to last page:', pagination.totalPages);
           setCurrentPage(pagination.totalPages);
+        }
+
+        // Log if we're missing records on the last page
+        if (pagination.isLastPage && mappedUsers.length !== pagination.remainingRecords) {
+          console.warn('Last page record count mismatch:', {
+            expected: pagination.remainingRecords,
+            actual: mappedUsers.length,
+            totalItems: pagination.totalItems,
+            itemsPerPage: pagination.itemsPerPage
+          });
         }
       } catch (error) {
         console.error("Error fetching CRM users:", error);
@@ -593,6 +613,7 @@ export default function Contacts() {
     activeSubscriptionLevels,
     refreshFlag,
     searchQuery,
+    totalItems,
   ]);
 
   // Pagination info for display

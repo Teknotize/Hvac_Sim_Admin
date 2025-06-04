@@ -162,7 +162,12 @@ export default function PageHeader({
   const handleApplySubscriptionFilters = () => {
     const selectedLevels = tempSelectedSubscriptionLevels
       .filter((level) => level.checked)
-      .map((level) => level.name);
+      .map((level) => {
+        if (level.name.toLowerCase() === "admin paid") {
+          return "admin-paid";
+        }
+        return level.name.toLowerCase();
+      });
 
     setSelectedSubscriptionLevels(tempSelectedSubscriptionLevels);
     onSubscriptionFilterChange?.({
