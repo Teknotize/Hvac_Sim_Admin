@@ -88,44 +88,23 @@ export default function PageHeader({
     { id: 2, name: "admin-paid", checked: false },
   ]);
 
-  const [tempSelectedTags, setTempSelectedTags] = useState(
-    tags.map((tag) => ({ ...tag, checked: false }))
-  );
-  const [tempSelectedSubscriptionLevels, setTempSelectedSubscriptionLevels] =
-    useState([
-      { id: 1, name: "free", checked: false },
-      { id: 2, name: "admin-paid", checked: false },
-    ]);
-  const [tempDateState, setTempDateState] = useState<Range[]>([defaultDate]);
-
-  const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false);
-  const [isTagsPopoverOpen, setIsTagsPopoverOpen] = useState(false);
-  const [isSubscriptionPopoverOpen, setIsSubscriptionPopoverOpen] =
-    useState(false);
-
   const handleResetTags = () => {
-    const resetTags = tags.map((tag) => ({ ...tag, checked: false }));
-    setSelectedTags(resetTags);
-    setTempSelectedTags(resetTags);
+    setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
     setFiltersApplied((prev) => ({ ...prev, tags: false }));
     onClearIndividualFilter?.("tags");
   };
 
   const handleResetDate = () => {
     setDateState([defaultDate]);
-    setTempDateState([defaultDate]);
     setDateChanged(false);
     setFiltersApplied((prev) => ({ ...prev, date: false }));
     onClearIndividualFilter?.("date");
   };
 
   const handleResetSubscription = () => {
-    const resetSubscription = [
-      { id: 1, name: "free", checked: false },
-      { id: 2, name: "admin-paid", checked: false },
-    ];
-    setSelectedSubscriptionLevels(resetSubscription);
-    setTempSelectedSubscriptionLevels(resetSubscription);
+    setSelectedSubscriptionLevels((prev) =>
+      prev.map((level) => ({ ...level, checked: false }))
+    );
     setFiltersApplied((prev) => ({ ...prev, subscription: false }));
     onClearIndividualFilter?.("subscription");
   };
@@ -142,11 +121,10 @@ export default function PageHeader({
 
   const [datSstate, setDateState] = useState<Range[]>([defaultDate]);
   const handleApplyFilters = () => {
-    const selectedTagNames = tempSelectedTags
+    const selectedTagNames = selectedTags
       .filter((tag) => tag.checked)
       .map((tag) => tag.name);
 
-    setSelectedTags(tempSelectedTags);
     onTagsFilterChange?.({
       tags: selectedTagNames,
     });
@@ -154,13 +132,13 @@ export default function PageHeader({
   };
 
   const handleSubscriptionCheckboxChange = (id: number, checked: boolean) => {
-    setTempSelectedSubscriptionLevels((prev) =>
+    setSelectedSubscriptionLevels((prev) =>
       prev.map((level) => (level.id === id ? { ...level, checked } : level))
     );
   };
 
   const handleApplySubscriptionFilters = () => {
-    const selectedLevels = tempSelectedSubscriptionLevels
+    const selectedLevels = selectedSubscriptionLevels
       .filter((level) => level.checked)
       .map((level) => {
         if (level.name.toLowerCase() === "admin paid") {
@@ -169,7 +147,6 @@ export default function PageHeader({
         return level.name.toLowerCase();
       });
 
-    setSelectedSubscriptionLevels(tempSelectedSubscriptionLevels);
     onSubscriptionFilterChange?.({
       subscriptionLevels: selectedLevels,
     });
@@ -210,7 +187,7 @@ export default function PageHeader({
   }, [selectedTags, selectedSubscriptionLevels, datSstate]);
 
   const handleCheckboxChange = (id: number, checked: boolean) => {
-    setTempSelectedTags((prev) =>
+    setSelectedTags((prev) =>
       prev.map((tag) => (tag.id === id ? { ...tag, checked } : tag))
     );
   };
@@ -317,24 +294,6 @@ export default function PageHeader({
     dateSelectedCallback?.(startDate, endDate);
   };
 
-  useEffect(() => {
-    if (!isDatePopoverOpen) {
-      setTempDateState(datSstate);
-    }
-  }, [isDatePopoverOpen]);
-
-  useEffect(() => {
-    if (!isTagsPopoverOpen) {
-      setTempSelectedTags(selectedTags);
-    }
-  }, [isTagsPopoverOpen]);
-
-  useEffect(() => {
-    if (!isSubscriptionPopoverOpen) {
-      setTempSelectedSubscriptionLevels(selectedSubscriptionLevels);
-    }
-  }, [isSubscriptionPopoverOpen]);
-
   return (
     <div className="page-header">
       <div className="flex items-center">
@@ -379,308 +338,274 @@ export default function PageHeader({
                 <div className="filters">
                   <div className="filter-item">
                     <Popover className="action-drop">
-                      {({ open, close }) => {
-                        useEffect(() => {
-                          setIsDatePopoverOpen(open);
-                          if (!open) {
-                            setTempDateState(datSstate);
-                          }
-                        }, [open]);
-                        return (
-                          <>
-                            <PopoverButton
-                              className={clsx(
-                                "block btn btn-outline-grey icon-end",
-                                filtersApplied.date && "active"
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={clsx(
+                              "block btn btn-outline-grey icon-end",
+                              dateChanged && "active"
+                            )}
+                          >
+                            <span>
+                              Date <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              {datSstate[0]?.startDate?.toLocaleDateString()} -{" "}
+                              {datSstate[0]?.endDate?.toLocaleDateString()}
+                              {filtersApplied.date && (
+                                <FontAwesomeIcon
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetDate();
+                                  }}
+                                  icon={faXmark}
+                                  className="cursor-pointer"
+                                />
                               )}
-                            >
-                              {filtersApplied.date ? (
-                                <span className="active">
-                                  {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
-                                  -{" "}
-                                  {datSstate[0]?.endDate?.toLocaleDateString()}
-                                  <FontAwesomeIcon
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleResetDate();
-                                    }}
-                                    icon={faXmark}
-                                    className="cursor-pointer"
-                                  />
-                                </span>
-                              ) : (
-                                <span>
-                                  Date <FontAwesomeIcon icon={faChevronDown} />
-                                </span>
-                              )}
-                            </PopoverButton>
-                            <PopoverPanel
-                              transition
-                              anchor="bottom end"
-                              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                            >
-                              <DateRangePicker
-                                onChange={(item) => {
-                                  setTempDateState([item.selection]);
-                                  setDateChanged(true);
-                                }}
-                                moveRangeOnFirstSelection={false}
-                                months={2}
-                                ranges={tempDateState}
-                                direction="horizontal"
-                                rangeColors={["#B92825"]}
-                              />
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <DateRangePicker
+                              onChange={(item) => {
+                                setDateState([item.selection]);
+                                setDateChanged(true);
+                              }}
+                              moveRangeOnFirstSelection={false}
+                              months={2}
+                              ranges={datSstate}
+                              direction="horizontal"
+                              rangeColors={["#B92825"]}
+                            />
 
-                              <div className="btnRow justify-end">
+                            <div className="btnRow justify-end">
+                              <Button
+                                className="btn btn-link"
+                                onClick={handleResetDate}
+                              >
+                                Reset
+                              </Button>
+                              <Button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                  const startDate = datSstate[0]?.startDate;
+                                  const endDate = datSstate[0]?.endDate;
+
+                                  if (
+                                    startDate instanceof Date &&
+                                    endDate instanceof Date
+                                  ) {
+                                    handleDateFilterChange(startDate, endDate);
+                                    close();
+                                  }
+                                }}
+                                disabled={!dateChanged}
+                              >
+                                Apply
+                              </Button>
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
+                    </Popover>
+
+                    <Popover className="action-drop">
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={`block btn btn-outline-grey icon-end ${
+                              selectedTags.filter((tag) => tag.checked).length >
+                                0 && "active"
+                            }`}
+                          >
+                            <span>
+                              Tags <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              Tags
+                              <b>
+                                {selectedTags.filter((tag) => {
+                                  return tag.checked;
+                                }).length !== 0
+                                  ? selectedTags.filter((tag) => {
+                                      return tag.checked;
+                                    }).length
+                                  : ""}
+                              </b>
+                              {filtersApplied.tags && (
+                                <FontAwesomeIcon
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetTags();
+                                  }}
+                                  icon={faXmark}
+                                  className="cursor-pointer"
+                                />
+                              )}
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <div className="list-menu">
+                              <div className="list-group">
+                                {selectedTags.map((tag) => (
+                                  <div
+                                    className="list-group-item"
+                                    key={tag.id}
+                                    onClick={() =>
+                                      handleCheckboxChange(tag.id, !tag.checked)
+                                    }
+                                  >
+                                    <Checkbox
+                                      checked={tag.checked}
+                                      onChange={(checked) =>
+                                        handleCheckboxChange(tag.id, checked)
+                                      }
+                                      className="group list-checkbox-item data-[checked]:checked"
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faCheck}
+                                        className="opacity-0 group-data-[checked]:opacity-100"
+                                      />
+                                    </Checkbox>
+                                    <span>{tag.name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="btnRow">
                                 <Button
-                                  className="btn btn-link"
-                                  onClick={handleResetDate}
+                                  className="btn btn-link flex-1"
+                                  onClick={handleResetTags}
                                 >
                                   Reset
                                 </Button>
                                 <Button
-                                  className="btn btn-primary"
+                                  className="btn btn-primary flex-1"
                                   onClick={() => {
-                                    const startDate =
-                                      tempDateState[0]?.startDate;
-                                    const endDate = tempDateState[0]?.endDate;
-
-                                    if (
-                                      startDate instanceof Date &&
-                                      endDate instanceof Date
-                                    ) {
-                                      handleDateFilterChange(
-                                        startDate,
-                                        endDate
-                                      );
-                                      close();
-                                    }
+                                    handleApplyFilters();
+                                    close(); // Close dropdown
                                   }}
-                                  disabled={!dateChanged}
+                                  disabled={selectedTags.every(
+                                    (tag) => !tag.checked
+                                  )}
                                 >
                                   Apply
                                 </Button>
                               </div>
-                            </PopoverPanel>
-                          </>
-                        );
-                      }}
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
                     </Popover>
 
                     <Popover className="action-drop">
-                      {({ open, close }) => {
-                        useEffect(() => {
-                          setIsTagsPopoverOpen(open);
-                          if (!open) {
-                            setTempSelectedTags(selectedTags);
-                          }
-                        }, [open]);
-                        return (
-                          <>
-                            <PopoverButton
-                              className={`block btn btn-outline-grey icon-end ${
-                                selectedTags.filter((tag) => tag.checked)
-                                  .length > 0 && "active"
-                              }`}
-                            >
-                              {filtersApplied.tags ? (
-                                <span className="active">
-                                  Tags
-                                  <b>
-                                    {
-                                      selectedTags.filter((tag) => tag.checked)
-                                        .length
-                                    }
-                                  </b>
-                                  <FontAwesomeIcon
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleResetTags();
-                                    }}
-                                    icon={faXmark}
-                                    className="cursor-pointer"
-                                  />
-                                </span>
-                              ) : (
-                                <span>
-                                  Tags <FontAwesomeIcon icon={faChevronDown} />
-                                </span>
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={`block btn btn-outline-grey icon-end ${
+                              selectedSubscriptionLevels.filter(
+                                (level) => level.checked
+                              ).length > 0 && "active"
+                            }`}
+                          >
+                            <span>
+                              Subscription{" "}
+                              <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              Subscription
+                              <b>
+                                {selectedSubscriptionLevels.filter(
+                                  (level) => level.checked
+                                ).length !== 0
+                                  ? selectedSubscriptionLevels.filter(
+                                      (level) => level.checked
+                                    ).length
+                                  : ""}
+                              </b>
+                              {filtersApplied.subscription && (
+                                <FontAwesomeIcon
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetSubscription();
+                                  }}
+                                  icon={faXmark}
+                                  className="cursor-pointer"
+                                />
                               )}
-                            </PopoverButton>
-                            <PopoverPanel
-                              transition
-                              anchor="bottom end"
-                              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                            >
-                              <div className="list-menu">
-                                <div className="list-group">
-                                  {tempSelectedTags.map((tag) => (
-                                    <div
-                                      className="list-group-item"
-                                      key={tag.id}
-                                      onClick={() =>
-                                        handleCheckboxChange(
-                                          tag.id,
-                                          !tag.checked
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <div className="list-menu">
+                              <div className="list-group">
+                                {selectedSubscriptionLevels.map((level) => (
+                                  <div
+                                    className="list-group-item"
+                                    key={level.id}
+                                    onClick={() =>
+                                      handleSubscriptionCheckboxChange(
+                                        level.id,
+                                        !level.checked
+                                      )
+                                    }
+                                  >
+                                    <Checkbox
+                                      checked={level.checked}
+                                      onChange={(checked) =>
+                                        handleSubscriptionCheckboxChange(
+                                          level.id,
+                                          checked
                                         )
                                       }
+                                      className="group list-checkbox-item data-[checked]:checked"
                                     >
-                                      <Checkbox
-                                        checked={tag.checked}
-                                        onChange={(checked) =>
-                                          handleCheckboxChange(tag.id, checked)
-                                        }
-                                        className="group list-checkbox-item data-[checked]:checked"
-                                      >
-                                        <FontAwesomeIcon
-                                          icon={faCheck}
-                                          className="opacity-0 group-data-[checked]:opacity-100"
-                                        />
-                                      </Checkbox>
-                                      <span>{tag.name}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                                <div className="btnRow">
-                                  <Button
-                                    className="btn btn-link flex-1"
-                                    onClick={handleResetTags}
-                                  >
-                                    Reset
-                                  </Button>
-                                  <Button
-                                    className="btn btn-primary flex-1"
-                                    onClick={() => {
-                                      handleApplyFilters();
-                                      close();
-                                    }}
-                                    disabled={tempSelectedTags.every(
-                                      (tag) => !tag.checked
-                                    )}
-                                  >
-                                    Apply
-                                  </Button>
-                                </div>
+                                      <FontAwesomeIcon
+                                        icon={faCheck}
+                                        className="opacity-0 group-data-[checked]:opacity-100"
+                                      />
+                                    </Checkbox>
+                                    <span className="capitalize">
+                                      {level.name === "admin-paid"
+                                        ? "Admin Paid"
+                                        : level.name}
+                                    </span>
+                                  </div>
+                                ))}
                               </div>
-                            </PopoverPanel>
-                          </>
-                        );
-                      }}
-                    </Popover>
-
-                    <Popover className="action-drop">
-                      {({ open, close }) => {
-                        useEffect(() => {
-                          setIsSubscriptionPopoverOpen(open);
-                          if (!open) {
-                            setTempSelectedSubscriptionLevels(
-                              selectedSubscriptionLevels
-                            );
-                          }
-                        }, [open]);
-                        return (
-                          <>
-                            <PopoverButton
-                              className={`block btn btn-outline-grey icon-end ${
-                                selectedSubscriptionLevels.filter(
-                                  (level) => level.checked
-                                ).length > 0 && "active"
-                              }`}
-                            >
-                              {filtersApplied.subscription ? (
-                                <span className="active">
-                                  Subscription
-                                  <b>
-                                    {
-                                      selectedSubscriptionLevels.filter(
-                                        (level) => level.checked
-                                      ).length
-                                    }
-                                  </b>
-                                  <FontAwesomeIcon
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleResetSubscription();
-                                    }}
-                                    icon={faXmark}
-                                    className="cursor-pointer"
-                                  />
-                                </span>
-                              ) : (
-                                <span>
-                                  Subscription{" "}
-                                  <FontAwesomeIcon icon={faChevronDown} />
-                                </span>
-                              )}
-                            </PopoverButton>
-                            <PopoverPanel
-                              transition
-                              anchor="bottom end"
-                              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                            >
-                              <div className="list-menu">
-                                <div className="list-group">
-                                  {tempSelectedSubscriptionLevels.map(
-                                    (level) => (
-                                      <div
-                                        className="list-group-item"
-                                        key={level.id}
-                                        onClick={() =>
-                                          handleSubscriptionCheckboxChange(
-                                            level.id,
-                                            !level.checked
-                                          )
-                                        }
-                                      >
-                                        <Checkbox
-                                          checked={level.checked}
-                                          onChange={(checked) =>
-                                            handleSubscriptionCheckboxChange(
-                                              level.id,
-                                              checked
-                                            )
-                                          }
-                                          className="group list-checkbox-item data-[checked]:checked"
-                                        >
-                                          <FontAwesomeIcon
-                                            icon={faCheck}
-                                            className="opacity-0 group-data-[checked]:opacity-100"
-                                          />
-                                        </Checkbox>
-                                        <span className="capitalize">
-                                          {level.name === "admin-paid"
-                                            ? "Admin Paid"
-                                            : level.name}
-                                        </span>
-                                      </div>
-                                    )
+                              <div className="btnRow">
+                                <Button
+                                  className="btn btn-link flex-1"
+                                  onClick={handleResetSubscription}
+                                >
+                                  Reset
+                                </Button>
+                                <Button
+                                  className="btn btn-primary flex-1"
+                                  onClick={() => {
+                                    handleApplySubscriptionFilters();
+                                    close();
+                                  }}
+                                  disabled={selectedSubscriptionLevels.every(
+                                    (level) => !level.checked
                                   )}
-                                </div>
-                                <div className="btnRow">
-                                  <Button
-                                    className="btn btn-link flex-1"
-                                    onClick={handleResetSubscription}
-                                  >
-                                    Reset
-                                  </Button>
-                                  <Button
-                                    className="btn btn-primary flex-1"
-                                    onClick={() => {
-                                      handleApplySubscriptionFilters();
-                                      close();
-                                    }}
-                                    disabled={tempSelectedSubscriptionLevels.every(
-                                      (level) => !level.checked
-                                    )}
-                                  >
-                                    Apply
-                                  </Button>
-                                </div>
+                                >
+                                  Apply
+                                </Button>
                               </div>
-                            </PopoverPanel>
-                          </>
-                        );
-                      }}
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
                     </Popover>
                   </div>
                 </div>
@@ -716,26 +641,6 @@ export default function PageHeader({
                 onAddNewPdfClick?.();
               }}
             >
-              <FontAwesomeIcon icon={faPlus} /> Add New
-            </Button>
-          </div>
-        )}
-        {route === "distributors" && (
-          <div className="filterArea">
-            <Field className="search-field">
-              <FontAwesomeIcon icon={faSearch} />
-              <Input as={Fragment}>
-                {({ focus, hover }) => (
-                  <input
-                    name="search"
-                    placeholder="Search"
-                    className={clsx(focus && "itemfocus", hover && "itemhover")}
-                    onChange={(e) => onSearchChange?.(e.target.value)}
-                  />
-                )}
-              </Input>
-            </Field>
-            <Button className="btn btn-primary" onClick={() => {}}>
               <FontAwesomeIcon icon={faPlus} /> Add New
             </Button>
           </div>

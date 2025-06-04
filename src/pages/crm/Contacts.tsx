@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PageHeader from "../../components/layout/PageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,10 +17,12 @@ import {
   DialogueCheckMarkIcon,
 } from "../../components/svg/icons";
 import { apiClient } from "../../config";
+import { useEffect } from "react";
 import useCRMStore from "../../store/useCRMStore";
 import formatDateTime from "../../utils/DateConversion";
 import EmailPopup from "../../components/emailPopup";
 import Loader from "../../components/loader";
+
 import {
   deleteContactUserById,
   updateSubscriptionLevel,
@@ -28,21 +30,11 @@ import {
 import useToastStore from "../../store/useToastStore";
 
 interface CRMUser {
-  _id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  business?: string;
-  tags: string[];
-  createdAt: string;
-  subscriptionLevel?: string;
-  isChecked?: boolean;
+  [key: string]: any;
 }
-
 interface TagsFilterData {
   tags: string[];
 }
-
 interface DateRange {
   startDate: Date | null;
   endDate: Date | null;
@@ -58,13 +50,11 @@ export default function Contacts() {
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const crmUsers = useCRMStore((state) => state.crmUsers);
-
+  const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 10;
   const [checkedUser, setCheckedUser] = useState<CRMUser[]>([]);
+  const itemsPerPage = 10;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { showToast } = useToastStore();
   const [showEmail, setShowEmail] = useState(false);
@@ -75,28 +65,18 @@ export default function Contacts() {
     startDate: null,
     endDate: null,
   });
+
   const [isEmailSentSuccess, setIsEmailSentSuccess] = useState(false);
+
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
   const [allPagesSelected, setAllPagesSelected] = useState(false);
+
   const [activeSubscriptionLevels, setActiveSubscriptionLevels] = useState<
     string[]
   >([]);
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const tagLabelMap: { [key: string]: string } = {
-    "contact us": "Contact Us Form",
-    workbook: "Download Manual",
-    "contact rep": "Product Inquiry",
-    app: "App User",
-    "mobile user": "Mobile User",
-    ghl: "GHL",
-    distributor: "Distributor",
-    mlc: "MLC",
-    "hvac-school": "HVAC School",
-  };
-
-  const tagColors: { [key: string]: string } = {
+  const tagColors: any = {
     "app-user": "clr-indigo",
     "contact-us-form": "clr-orange",
     "download-manual": "clr-pink",
@@ -104,25 +84,19 @@ export default function Contacts() {
     "product-inquiry1": "clr-darkblue",
     "product-inquiry2": "clr-green",
     "product-inquiry3": "clr-green",
-    ghl: "clr-teal",
-    distributor: "clr-olive",
-    mlc: "clr-violet",
-    "hvac-school": "clr-cyan",
-    "hvac-excellence": "clr-vividgreen",
   };
 
   const getTagColor = (tag: string) => {
-    const trimmed = tag.trim();
-    const tagText = trimmed.toLowerCase().replace(/\s+/g, "-");
-    return tagColors[tagText] || "default-color";
+    let tagText = tag?.toLowerCase().replace(/\s+/g, "-");
+    return tagColors[tagText]; // Default fallback color if tag not found
   };
 
-  // Normalize tag for comparison
-  const normalizeTag = (tag: string) => {
-    return tag.toLowerCase().trim();
-  };
+  useEffect(() => {
+    const hasCheckedUser =
+      crmUsers.some((user) => user.isChecked) ||
+      originalUsers.some((user) => user.isChecked);
 
-  // Handle checkbox changes
+
   const handleCheckboxChange = (id: string, checked: boolean, type: string) => {
     if (type === "single") {
       const newSelectedIds = new Set(selectedIds);
@@ -138,16 +112,13 @@ export default function Contacts() {
         user._id === id ? { ...user, isChecked: checked } : user
       );
       setCRMUsers(updatedUsers);
-
-      // Update checkedUser array for email
-      const checkedUsers = updatedUsers.filter((user) => user.isChecked);
-      setCheckedUser(checkedUsers);
-      setShowEmail(checkedUsers.length > 0);
     } else {
       // "Select All" for current page
       const newSelectedIds = new Set(selectedIds);
-      const currentPageIds = crmUsers.map((user) => user._id);
-      const allChecked = crmUsers.every((user) => selectedIds.has(user._id));
+      const currentPageIds = paginatedUsers.map((user) => user._id);
+      const allChecked = paginatedUsers.every((user) =>
+        selectedIds.has(user._id)
+      );
 
       currentPageIds.forEach((id) => {
         if (allChecked) {
@@ -168,23 +139,15 @@ export default function Contacts() {
         return { ...user, isChecked: shouldCheck };
       });
       setCRMUsers(updatedUsers);
-
-      // Update checkedUser array for email
-      const checkedUsers = updatedUsers.filter((user) => user.isChecked);
-      setCheckedUser(checkedUsers);
-      setShowEmail(checkedUsers.length > 0);
     }
   };
+  const handleSelectAllPages = () => {
+    const allIds = crmUsers.map((user) => user._id);
+    const newSelectedIds = new Set(allIds);
 
-  // Handle select all pages
-  const handleSelectAllPages = async () => {
-    try {
-      setLoading(true);
-      // Build query parameters for all users
-      const queryParams = new URLSearchParams({
-        page: "1",
-        fetchAll: "true",
-      });
+    setSelectedIds(newSelectedIds);
+    setAllPagesSelected(true);
+
 
       // Add filter parameters if they exist
       if (activeTags.length > 0) {
@@ -281,17 +244,12 @@ export default function Contacts() {
     } finally {
       setLoading(false);
     }
-  };
 
-  // Handle clear selection
+  };
   const handleClearSelection = () => {
     setSelectedIds(new Set());
     setAllPagesSelected(false);
-    setEnabled(false);
-    setCheckedUser([]);
-    setShowEmail(false);
 
-    // Update current page users to show unchecked state
     const updatedUsers = crmUsers.map((user) => ({
       ...user,
       isChecked: false,
@@ -299,25 +257,23 @@ export default function Contacts() {
     setCRMUsers(updatedUsers);
   };
 
-  // Handle uncheck all users
   const uncheckAllUsers = () => {
+    // Update all users in the main array
     const updatedUsers = crmUsers.map((user) => ({
       ...user,
       isChecked: false,
     }));
 
+    // Update all relevant states
     setCRMUsers(updatedUsers);
-
-    setEnabled(false);
-    setCheckedUser([]);
-    setSelectedIds(new Set());
-    setShowEmail(false);
+    setOriginalUsers((prev) =>
+      prev.map((user) => ({ ...user, isChecked: false }))
+    ); // Also update originalUsers if needed
+    setEnabled(false); // Uncheck the "Select All" checkbox
+    setCheckedUser([]); // Clear all checked users
+    setSelectedIds(new Set()); // Clear the selected IDs if using Set approach
   };
-
-  // Handle delete user
-  const handleDelete = async (userId: string | null) => {
-    if (!userId) return;
-
+  const handleDelete = async (userId: any) => {
     try {
       const res = await deleteContactUserById(userId);
       if (res.status !== 200) {
@@ -325,15 +281,207 @@ export default function Contacts() {
         return;
       }
 
+      // First update the refresh flag
       setRefreshFlag((prev) => !prev);
+
+      // Then show success message
       showToast(res.message || "User deleted successfully", "success");
       setIsDeleteItemConfirmation(false);
+
+      // After successful deletion, reapply current filters
+      const filteredUsers = filterUsers(
+        originalUsers.filter((user) => user._id !== userId), // Remove deleted user from original data
+        "",
+        activeTags,
+        currentDateRange.startDate?.toISOString(),
+        currentDateRange.endDate?.toISOString()
+      );
+      setCRMUsers(filteredUsers);
+      setOriginalUsers((prev) => prev.filter((user) => user._id !== userId));
     } catch (error) {
       console.error("Delete error:", error);
     }
   };
+  const tagLabelMap: { [key: string]: string } = {
+    "contact us": "Contact Us Form",
+    workbook: "Download Manual",
+    "contact rep": "Product Inquiry",
+    app: "App User",
+  };
+  const displayTagSet = new Set(Object.values(tagLabelMap)); // contains all readable tags
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await apiClient.get("/admin/get-crm-users");
+        const users = response.data.map((user: any) => ({
+          ...user,
+          tags: user.tags.map((tag: string) =>
+            displayTagSet.has(tag) ? tag : tagLabelMap[tag] || tag
+          ),
+          isChecked: false,
+        }));
+        console.log("new data", users);
+        setOriginalUsers(users);
 
-  // Handle toggle subscription
+        // After fetching new data, reapply current filters
+        const filteredUsers = filterUsers(
+          users,
+          "",
+          activeTags,
+          currentDateRange.startDate?.toISOString(),
+          currentDateRange.endDate?.toISOString()
+        );
+        setCRMUsers(filteredUsers);
+      } catch (error) {
+        console.error("Error fetching CRM users:", error);
+        showToast("Error fetching users", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [setCRMUsers, refreshFlag]);
+
+  useEffect(() => {
+    setCheckedUser(crmUsers.filter((user) => selectedIds.has(user._id)));
+  }, [selectedIds, crmUsers, reRun]);
+  const filterUsers = (
+    users: CRMUser[],
+    searchTerm: string,
+    tags: string[],
+    startDate?: string,
+    endDate?: string,
+    subscriptionLevels?: string[]
+  ) => {
+    let filteredUsers = [...users];
+
+    // Apply search filter if search term exists
+    if (searchTerm && searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
+      filteredUsers = filteredUsers.filter((user) => {
+        const name = user.name?.toLowerCase() || "";
+        const email = user.email?.toLowerCase() || "";
+        const phone = user.phone?.toLowerCase() || "";
+        const business = user.business?.toLowerCase() || "";
+        const subscriptionLevel = user.subscriptionLevel?.toLowerCase() || "";
+
+        // Handle both string and array tags for search
+        const userTags = Array.isArray(user.tags) ? user.tags : [user.tags];
+        const hasMatchingTag = userTags.some((tag) =>
+          String(tag).toLowerCase().includes(term)
+        );
+
+        return (
+          name.includes(term) ||
+          email.includes(term) ||
+          phone.includes(term) ||
+          business.includes(term) ||
+          subscriptionLevel.includes(term) ||
+          hasMatchingTag
+        );
+      });
+    }
+
+    // Apply tags filter if tags exist
+    if (tags.length > 0) {
+      filteredUsers = filteredUsers.filter((user) => {
+        // Handle both string and array tags
+        const userTags = Array.isArray(user.tags) ? user.tags : [user.tags];
+        return tags.some((tag) =>
+          userTags.some(
+            (userTag) =>
+              String(userTag).toLowerCase() === String(tag).toLowerCase()
+          )
+        );
+      });
+    }
+
+    // Apply subscription level filter if subscription levels exist
+    if (subscriptionLevels && subscriptionLevels.length > 0) {
+      filteredUsers = filteredUsers.filter((user) =>
+        subscriptionLevels.includes(user.subscriptionLevel)
+      );
+    }
+
+    // Apply date range filter if both startDate and endDate are provided
+    if (startDate && endDate) {
+      const start = new Date(startDate).setHours(0, 0, 0, 0);
+      const end = new Date(endDate).setHours(23, 59, 59, 999);
+
+      filteredUsers = filteredUsers.filter((user) => {
+        const userDate = new Date(user.createdAt).getTime();
+        return userDate >= start && userDate <= end;
+      });
+    }
+
+    return filteredUsers.map((user) => ({
+      ...user,
+      isChecked: selectedIds.has(user._id),
+    }));
+  };
+
+  const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+    // Update date range state
+    setCurrentDateRange({
+      startDate,
+      endDate,
+    });
+
+    // Apply all active filters together
+    const filteredUsers = filterUsers(
+      originalUsers,
+      "",
+      activeTags,
+      startDate.toISOString(),
+      endDate.toISOString(),
+      activeSubscriptionLevels
+    );
+    setCRMUsers(filteredUsers);
+    setCurrentPage(1);
+  };
+
+  const handleTagsFilterChange = (data: TagsFilterData) => {
+    const tags = data.tags;
+    setActiveTags(tags);
+
+    // Apply all active filters together
+    const filteredUsers = filterUsers(
+      originalUsers,
+      "",
+      tags,
+      currentDateRange.startDate?.toISOString(),
+      currentDateRange.endDate?.toISOString(),
+      activeSubscriptionLevels
+    );
+    setCRMUsers(filteredUsers);
+    setCurrentPage(1);
+  };
+
+  const handleSubscriptionFilterChange = (data: SubscriptionFilterData) => {
+    const levels = data.subscriptionLevels;
+    setActiveSubscriptionLevels(levels);
+
+    // Apply all active filters together
+    const filteredUsers = filterUsers(
+      originalUsers,
+      "",
+      activeTags,
+      currentDateRange.startDate?.toISOString(),
+      currentDateRange.endDate?.toISOString(),
+      levels
+    );
+    setCRMUsers(filteredUsers);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    const filteredUsers = filterUsers(originalUsers, value, activeTags);
+    setCRMUsers(filteredUsers);
+    setCurrentPage(1);
+  };
+
   const handleToggleSubscription = async (id: string) => {
     try {
       await updateSubscriptionLevel(id);
@@ -345,55 +493,36 @@ export default function Contacts() {
     }
   };
 
-  // Handle search change
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    setCurrentPage(1); // Reset to first page when search changes
-  };
-
-  // Update checked users when selection changes
+  const totalPages = Math.ceil(crmUsers.length / itemsPerPage);
+  const paginatedUsers = crmUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  console.log("paginatedUsers", paginatedUsers);
   useEffect(() => {
-    if (allPagesSelected) {
-      return;
-    }
-    const checkedUsers = crmUsers.filter((user) => user.isChecked);
-    setCheckedUser(checkedUsers);
-    setShowEmail(checkedUsers.length > 0 || allPagesSelected);
-  }, [selectedIds, crmUsers, allPagesSelected]);
-
-  // Add a new effect to handle all pages selection
-  useEffect(() => {
-    if (allPagesSelected) {
-      setShowEmail(true);
-    }
-  }, [allPagesSelected]);
-
-  // Handle page change
+    const allChecked =
+      paginatedUsers.length > 0 &&
+      paginatedUsers.every((user) => selectedIds.has(user._id));
+    setEnabled(allChecked);
+  }, [paginatedUsers, selectedIds]);
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
-      // Reset selection when changing pages
-      setSelectedIds(new Set());
-      setEnabled(false);
-      setAllPagesSelected(false);
     }
   };
-
-  // Handle clear filters
   const handleClearFilters = () => {
-    setCurrentPage(1);
+    setCRMUsers(originalUsers);
     setActiveTags([]);
     setActiveSubscriptionLevels([]);
     setCurrentDateRange({
       startDate: null,
       endDate: null,
     });
+    setCurrentPage(1);
     setSelectedIds(new Set());
     setEnabled(false);
-    setAllPagesSelected(false);
   };
 
-  // Handle individual filter clear
   const handleClearIndividualFilter = (
     filterType: "date" | "tags" | "subscription"
   ) => {
@@ -402,12 +531,39 @@ export default function Contacts() {
         startDate: null,
         endDate: null,
       });
+      const filteredUsers = filterUsers(
+        originalUsers,
+        "",
+        activeTags,
+        undefined,
+        undefined,
+        activeSubscriptionLevels
+      );
+      setCRMUsers(filteredUsers);
     } else if (filterType === "tags") {
       setActiveTags([]);
+      const filteredUsers = filterUsers(
+        originalUsers,
+        "",
+        [],
+        currentDateRange.startDate?.toISOString(),
+        currentDateRange.endDate?.toISOString(),
+        activeSubscriptionLevels
+      );
+      setCRMUsers(filteredUsers);
     } else if (filterType === "subscription") {
       setActiveSubscriptionLevels([]);
+      const filteredUsers = filterUsers(
+        originalUsers,
+        "",
+        activeTags,
+        currentDateRange.startDate?.toISOString(),
+        currentDateRange.endDate?.toISOString()
+      );
+      setCRMUsers(filteredUsers);
     }
     setCurrentPage(1);
+
     setSelectedIds(new Set());
     setEnabled(false);
     setAllPagesSelected(false);
@@ -575,25 +731,22 @@ export default function Contacts() {
     start: totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1,
     end: Math.min((currentPage - 1) * itemsPerPage + itemsPerPage, totalItems),
     total: totalItems,
+
   };
 
   return (
     <>
       <PageHeader
         title="Contacts"
-        onSearchChange={handleSearchChange}
+        onSearchChange={(value) => handleSearchChange(value)}
         route="contacts"
-        onSendEmailClick={() => {
-          if (checkedUser.length > 0) {
-            setShowEmailPopup(true);
-          } else {
-            showToast("Please select at least one user to send email", "error");
-          }
-        }}
+        onSendEmailClick={() => setShowEmailPopup(true)}
         showEmail={showEmail}
-        onTagsFilterChange={handleTagsFilterChange}
-        onSubscriptionFilterChange={handleSubscriptionFilterChange}
-        clearFilter={handleClearFilters}
+        onTagsFilterChange={(data) => handleTagsFilterChange(data)}
+        onSubscriptionFilterChange={(data) =>
+          handleSubscriptionFilterChange(data)
+        }
+        clearFilter={() => handleClearFilters()}
         dateSelectedCallback={handleDateFilterChange}
         onClearIndividualFilter={handleClearIndividualFilter}
       />
@@ -604,8 +757,8 @@ export default function Contacts() {
               <div className="masgRow">
                 {enabled && !allPagesSelected && (
                   <p className="text-sm">
-                    All <strong>{crmUsers.length}</strong> users on this page
-                    are selected.{" "}
+                    All <strong>{paginatedUsers.length}</strong> users on this
+                    page are selected.{" "}
                     <a
                       href="#"
                       className="text-blue-600 underline"
@@ -614,14 +767,14 @@ export default function Contacts() {
                         handleSelectAllPages();
                       }}
                     >
-                      Select all {totalItems} users
+                      Select all {crmUsers.length} users
                     </a>
                   </p>
                 )}
 
                 {allPagesSelected && (
                   <p className="text-sm">
-                    All <strong>{totalItems}</strong> users are selected.{" "}
+                    All <strong>{crmUsers.length}</strong> users are selected.{" "}
                     <a
                       href="#"
                       className="text-red-600 underline"
@@ -664,8 +817,8 @@ export default function Contacts() {
               </div>
             </div>
             <div className="table-body">
-              {crmUsers.length > 0 ? (
-                crmUsers.map((contact) => (
+              {paginatedUsers.length > 0 ? (
+                paginatedUsers.map((contact) => (
                   <div className="table-row" key={contact._id}>
                     <div className="table-cell cell-checkbox">
                       <Checkbox
@@ -698,7 +851,7 @@ export default function Contacts() {
                     </div>
                     <div className="table-cell cell-email">
                       <p className="email-item">
-                        {contact.tags.includes("Mobile User") && (
+                        {contact.tags === "mobile user" && (
                           <ApprovedEmailIcon />
                         )}{" "}
                         <span>{contact.email}</span>
@@ -731,7 +884,7 @@ export default function Contacts() {
                           {contact.tags.map((tag: string) => (
                             <span
                               key={tag}
-                              className={`${getTagColor(tag)} capitalize`}
+                              className={`${getTagColor(tag)} capitalize `}
                             >
                               {tag}
                             </span>
@@ -758,6 +911,15 @@ export default function Contacts() {
                           className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
                         >
                           <div className="action-menu">
+                            {/* <a
+                              href="javascript:void(0)"
+                              onClick={() => {
+                                setIsEditContactItem(true);
+                              }}
+                              className="action-menu-item"
+                            >
+                              <p>Edit</p>
+                            </a> */}
                             <span
                               onClick={() => {
                                 setSelectedUserId(contact._id);
@@ -808,8 +970,9 @@ export default function Contacts() {
             <div className="table-row">
               <div className="table-cell pagination-cell">
                 <p className="pagination-info" style={{ marginRight: "20px" }}>
-                  Showing {paginationInfo.start} to {paginationInfo.end} of{" "}
-                  {paginationInfo.total} records
+                  Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+                  {Math.min(currentPage * itemsPerPage, crmUsers.length)} of{" "}
+                  {crmUsers.length} records
                 </p>
 
                 <div className="pagination">
@@ -833,6 +996,7 @@ export default function Contacts() {
                         </p>
                       ))
                     ) : (
+                      // Smart pagination for more than 5 pages
                       <>
                         {/* Always show first page */}
                         <p
@@ -847,31 +1011,33 @@ export default function Contacts() {
 
                         {/* Show middle pages */}
                         {(() => {
-                          let start = Math.max(2, currentPage - 1);
-                          let end = Math.min(totalPages - 1, currentPage + 1);
+                          let start, end;
 
-                          // Adjust if near start
                           if (currentPage <= 3) {
+                            // Near start: show 2, 3, 4
+                            start = 2;
                             end = 4;
-                          }
-                          // Adjust if near end
-                          if (currentPage >= totalPages - 2) {
+                          } else if (currentPage >= totalPages - 2) {
+                            // Near end: show n-3, n-2, n-1
                             start = totalPages - 3;
+                            end = totalPages - 1;
+                          } else {
+                            // Middle: show current-1, current, current+1
+                            start = currentPage - 1;
+                            end = currentPage + 1;
                           }
 
                           const pages = [];
                           for (let i = start; i <= end; i++) {
-                            if (i > 1 && i < totalPages) {
-                              pages.push(
-                                <p
-                                  key={i}
-                                  className={currentPage === i ? "active" : ""}
-                                  onClick={() => handlePageChange(i)}
-                                >
-                                  {i}
-                                </p>
-                              );
-                            }
+                            pages.push(
+                              <p
+                                key={i}
+                                className={currentPage === i ? "active" : ""}
+                                onClick={() => handlePageChange(i)}
+                              >
+                                {i}
+                              </p>
+                            );
                           }
                           return pages;
                         })()}
@@ -880,16 +1046,12 @@ export default function Contacts() {
                         {currentPage < totalPages - 2 && <p>...</p>}
 
                         {/* Always show last page */}
-                        {totalPages > 1 && (
-                          <p
-                            className={
-                              currentPage === totalPages ? "active" : ""
-                            }
-                            onClick={() => handlePageChange(totalPages)}
-                          >
-                            {totalPages}
-                          </p>
-                        )}
+                        <p
+                          className={currentPage === totalPages ? "active" : ""}
+                          onClick={() => handlePageChange(totalPages)}
+                        >
+                          {totalPages}
+                        </p>
                       </>
                     )}
                   </div>
@@ -927,12 +1089,92 @@ export default function Contacts() {
           uncheckAllUsers();
           handleClearSelection();
         }}
-        onSuccess={() => {
-          setIsEmailSentSuccess(true);
-          uncheckAllUsers();
-          handleClearSelection();
-        }}
+        onSuccess={() => setIsEmailSentSuccess(true)}
       />
+      {/* <Dialog
+        open={isEditContactItem}
+        onClose={() => setIsEditContactItem(false)}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 flex w-screen items-center justify-center p-4 bg-black/40 dialog-item dialog-item-edit-contact">
+          <DialogPanel className="max-w-full w-4xl space-y-4 border bg-white p-6 rounded-xl dialog-panel">
+            <div className="dialog-header">
+              <h3>Edit Contact</h3>
+              <Button
+                className="closeBtn"
+                onClick={() => setIsEditContactItem(false)}
+              >
+                <FontAwesomeIcon icon={faXmark} />
+              </Button>
+            </div>
+            <div className="dialog-body">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Field className="fieldDv">
+                    <Label>Name</Label>
+                    <Input
+                      name="name"
+                      placeholder="Enter Name"
+                      value={formData.name}
+                    />
+                  </Field>
+                  <Field className="fieldDv">
+                    <Label>Phone</Label>
+                    <Input
+                      name="phone"
+                      placeholder="Enter Phone"
+                      value={formData.phone}
+                    />
+                  </Field>
+                  <Field className="fieldDv">
+                    <Label>Email</Label>
+                    <Input
+                      name="email"
+                      placeholder="Enter Email"
+                      value={formData.email}
+                    />
+                  </Field>
+                  <Field className="fieldDv">
+                    <Label>Business</Label>
+                    <Input
+                      name="business"
+                      placeholder="Enter Business"
+                      value={formData.business}
+                    />
+                  </Field>
+                  <Field className="fieldDv">
+                    <Label>Tags</Label>
+                    <Input
+                      name="tags"
+                      placeholder="Enter Tags"
+                      value={formData.tags}
+                    />
+                  </Field>
+                </div>
+                <div>
+                  <Field className="fieldDv">
+                    <Label>Date</Label>
+                    <Calendar
+                      onChange={(item) => setDate(item)}
+                      date={date}
+                      color={"#B92825"}
+                    />
+                  </Field>
+                </div>
+              </div>
+            </div>
+            <div className="dialog-footer">
+              {/* <Button className="btn btn-primary-outline" onClick={() => setIsEditContactItem(false)}>Cancel</Button> */}
+      {/* <Button
+                className="btn btn-primary"
+                onClick={() => setIsEditContactItem(false)}
+              >
+                Save Changes
+              </Button> */}
+      {/* </div>
+          </DialogPanel>
+        </div>
+      </Dialog> */}{" "}
       <Dialog
         open={isEmailSentSuccess}
         onClose={() => setIsEmailSentSuccess(false)}
