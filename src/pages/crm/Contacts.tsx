@@ -210,7 +210,6 @@ export default function Contacts() {
       }
 
       const apiUrl = `/admin/get-crm-users?${queryParams.toString()}`;
-      console.log("Select All API Request:", apiUrl);
 
       const response = await apiClient.get(apiUrl);
       const { data: allUsers } = response.data;
@@ -434,10 +433,6 @@ export default function Contacts() {
 
   // Handle date filter change
   const handleDateFilterChange = (startDate: Date, endDate: Date) => {
-    console.log("=== Date Filter Change ===");
-    console.log("Start Date:", startDate);
-    console.log("End Date:", endDate);
-
     setCurrentDateRange({
       startDate,
       endDate,
@@ -478,13 +473,11 @@ export default function Contacts() {
           const startDate = new Date(currentDateRange.startDate);
           startDate.setHours(0, 0, 0, 0); // Set to start of day
           queryParams.append("startDate", startDate.toISOString());
-          console.log("Start Date Filter:", startDate.toISOString());
         }
         if (currentDateRange.endDate) {
           const endDate = new Date(currentDateRange.endDate);
           endDate.setHours(23, 59, 59, 999); // Set to end of day
           queryParams.append("endDate", endDate.toISOString());
-          console.log("End Date Filter:", endDate.toISOString());
         }
 
         if (activeSubscriptionLevels.length > 0) {
@@ -495,36 +488,10 @@ export default function Contacts() {
         }
 
         const apiUrl = `/admin/get-crm-users?${queryParams.toString()}`;
-        console.log("=== Pagination Debug Info ===");
-        console.log("API Request URL:", apiUrl);
-        console.log("Current Page:", currentPage);
-        console.log("Items Per Page:", itemsPerPage);
-        console.log("Skip Value:", skip);
-        console.log("Active Date Range:", {
-          startDate: currentDateRange.startDate?.toISOString(),
-          endDate: currentDateRange.endDate?.toISOString(),
-        });
 
         const response = await apiClient.get(apiUrl);
-        console.log("=== API Response ===");
-        console.log("Response Data:", response.data);
-        console.log("Number of Records Received:", response.data.data.length);
 
         const { data: users, pagination } = response.data;
-        console.log("=== Pagination Details ===");
-        console.log("Backend Pagination:", {
-          totalItems: pagination.totalItems,
-          totalPages: pagination.totalPages,
-          currentPage: pagination.currentPage,
-          itemsPerPage: pagination.itemsPerPage,
-          skip: pagination.skip,
-          remainingRecords: pagination.remainingRecords,
-          hasNextPage: pagination.hasNextPage,
-          hasPreviousPage: pagination.hasPreviousPage,
-          isLastPage: pagination.isLastPage,
-          fetchLimit: pagination.fetchLimit,
-          filteredBy: pagination.filteredBy,
-        });
 
         // Map the users data with proper type checking and tag normalization
         const mappedUsers: CRMUser[] = users.map((user: any) => {
@@ -557,15 +524,6 @@ export default function Contacts() {
         setCRMUsers(mappedUsers);
 
         // Update pagination state using the backend's pagination info
-        console.log("=== Final Pagination State ===");
-        console.log("Total Items:", pagination.totalItems);
-        console.log("Total Pages:", pagination.totalPages);
-        console.log("Current Page:", currentPage);
-        console.log("Records on Current Page:", mappedUsers.length);
-        console.log("Is Last Page:", pagination.isLastPage);
-        console.log("Remaining Records:", pagination.remainingRecords);
-        console.log("Filtered By:", pagination.filteredBy);
-        console.log("Fetch Limit:", pagination.fetchLimit);
 
         // Use backend's pagination values directly
         setTotalPages(pagination.totalPages);
@@ -573,7 +531,6 @@ export default function Contacts() {
 
         // If current page is greater than total pages, reset to last page
         if (currentPage > pagination.totalPages) {
-          console.log("Resetting to last page:", pagination.totalPages);
           setCurrentPage(pagination.totalPages);
         }
 
