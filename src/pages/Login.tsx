@@ -1,75 +1,98 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Input, Field, Label } from '@headlessui/react'
-import { Button } from '@headlessui/react'
-import '../style.scss'
-import logo from '../assets/images/logo.png'
-import Loader from '../components/loader';
-import useToastStore from '../store/useToastStore';
-import axios from 'axios';
-import { useAuthStore } from '../store/useAuthStore';
-import { BASE_URL } from '../config';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Input, Field, Label } from "@headlessui/react";
+import { Button } from "@headlessui/react";
+import "../style.scss";
+import logo from "../assets/images/logo.png";
+import Loader from "../components/loader";
+import useToastStore from "../store/useToastStore";
+import axios from "axios";
+import { useAuthStore } from "../store/useAuthStore";
+import { BASE_URL } from "../config";
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isChecking, setIsChecking] = useState(false); 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
   const navigate = useNavigate();
   const showToast = useToastStore((state) => state.showToast);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsChecking(true); 
-
+    if (!email || !password) {
+      showToast("Please enter both email and password.", "error");
+      return;
+    }
+    setIsChecking(true);
     try {
-        const response = await axios.post(`${BASE_URL}/auth/login-beta`, {
-      email,
-      password,
-    });
+      const response = await axios.post(`${BASE_URL}/auth/login-beta`, {
+        email,
+        password,
+      });
 
       if (response.data.success) {
-        const { accessToken, refreshToken } = response.data;
-        useAuthStore.getState().setTokens(accessToken, refreshToken);   
-        showToast("Login successful!", "success"); 
-        navigate('/dashboard');
+        const { accessToken, refreshToken, user } = response.data;
+        if (user?.userType === "admin") {
+          useAuthStore.getState().setTokens(accessToken, refreshToken);
+          showToast("Login successful!", "success");
+          navigate("/dashboard");
+        } else {
+          console.log(
+            user?.userType,
+            user?.userType === "admin",
+            typeof user?.userType
+          );
+          showToast("Only administrators are allowed to log in.", "error");
+        }
       } else {
-        showToast(response?.data?.message||"Invalid email or password", "error"); 
+        showToast(
+          response?.data?.message || "Invalid email or password",
+          "error"
+        );
       }
     } catch (e: any) {
       console.error("Error sending request", e);
-      showToast( e.response?.data?.message||"An Error occured", "error");  
+      showToast(e.response?.data?.message || "An Error occured", "error");
     } finally {
-      setIsChecking(false); 
+      setIsChecking(false);
     }
-  };  
+  };
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen login-screen">
-
       <div className="flex-1 order-2 md:order-1 flex items-center justify-center">
         <div className="loginBox">
-          <figure className="login-logo"> <img src={logo} alt="logo" /> </figure>
+          <figure className="login-logo">
+            {" "}
+            <img src={logo} alt="logo" />{" "}
+          </figure>
           <h2>Sign into Account</h2>
           <h3>Please enter your credentials for login</h3>
           <form>
-
             <Field className="form-group">
               <Label className="data-[disabled]:opacity-50">Email</Label>
-              <Input className="data-[disabled]:bg-gray-100" type="email" name="email" placeholder="Email"
+              <Input
+                className="data-[disabled]:bg-gray-100"
+                type="email"
+                name="email"
+                placeholder="Email"
                 autoFocus={true}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                />
+              />
             </Field>
 
             <Field className="form-group">
               <Label className="data-[disabled]:opacity-50">Password</Label>
-              <Input className="data-[disabled]:bg-gray-100" type="password" name="password" placeholder="Password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-                />
+              <Input
+                className="data-[disabled]:bg-gray-100"
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </Field>
 
-          
             {/* <div className="form-group">
               <label htmlFor="email">Email</label>
               <Input type="email" id="email" name="email" placeholder="Email"
@@ -85,26 +108,30 @@ export default function Login() {
               />
             </div> */}
             <Field className="btnRow">
-            <Button
-  disabled={isChecking}
-  style={{
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center', // Ensures text & loader are vertically aligned
-    backgroundColor: isChecking ? 'rgba(192, 44, 36,0.5)' : 'rgba(192, 44, 36,1)' 
-  }}
-  onClick={handleSubmit}
-  type="submit"
-  className="btn btn-primary"
->
-  Sign in
-  {isChecking && <span style={{ marginLeft: '8px' }}><Loader /></span>}
-
-</Button>
-
+              <Button
+                disabled={isChecking}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center", // Ensures text & loader are vertically aligned
+                  backgroundColor: isChecking
+                    ? "rgba(192, 44, 36,0.5)"
+                    : "rgba(192, 44, 36,1)",
+                }}
+                onClick={handleSubmit}
+                type="submit"
+                className="btn btn-primary"
+              >
+                Sign in
+                {isChecking && (
+                  <span style={{ marginLeft: "8px" }}>
+                    <Loader />
+                  </span>
+                )}
+              </Button>
             </Field>
-            <div className='errorRow'>
+            <div className="errorRow">
               {/* {error && <p className='error'>{error}</p>} */}
             </div>
           </form>
@@ -113,10 +140,14 @@ export default function Login() {
       <div className="flex-1 order-1 md:order-2 flex items-center justify-center login-bg">
         <div className="innerContent">
           <h1>Welcome to our community</h1>
-          <p>We are dedicated to bridging the gap between theory and real-world application. Our platform seamlessly integrates into your existing curriculum, providing an engaging and effective way to reinforce HVAC principles and diagnostic processes in the classroom.</p>
+          <p>
+            We are dedicated to bridging the gap between theory and real-world
+            application. Our platform seamlessly integrates into your existing
+            curriculum, providing an engaging and effective way to reinforce
+            HVAC principles and diagnostic processes in the classroom.
+          </p>
         </div>
       </div>
-
 
       {/*
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-10 shadow-md">
@@ -187,7 +218,6 @@ export default function Login() {
         </form>
       </div>
       */}
-
     </div>
   );
-} 
+}
