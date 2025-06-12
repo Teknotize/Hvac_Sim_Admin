@@ -46,6 +46,7 @@ interface SubscriptionFilterData {
 
 export default function Contacts() {
   const [enabled, setEnabled] = useState(false);
+  const maxUsers = {string:"10,000",number:10000}
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -54,7 +55,7 @@ export default function Contacts() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [checkedUser, setCheckedUser] = useState<CRMUser[]>([]);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { showToast } = useToastStore();
   const [showEmail, setShowEmail] = useState(false);
@@ -76,21 +77,13 @@ export default function Contacts() {
     string[]
   >([]);
 
-  const tagColors: any = {
-    "app-user": "clr-indigo",
-    "contact-us-form": "clr-orange",
-    "download-manual": "clr-pink",
-    "product-inquiry": "clr-skyblue",
-    "product-inquiry1": "clr-darkblue",
-    "product-inquiry2": "clr-green",
-    "product-inquiry3": "clr-green",
-  };
 
   const getTagColor = (tag: string) => {
-    let tagText = tag?.toLowerCase().replace(/\s+/g, "-");
-    return tagColors[tagText]; // Default fallback color if tag not found
+    let tagText = tag?.trim().toLowerCase().replace(/\s+/g, "-");
+    console.log(tagText);
+    return tagColors[tagText] || "clr-default"; // Add a fallback if desired
   };
-
+  
   useEffect(() => {
     const hasCheckedUser =
       crmUsers.some((user) => user.isChecked) ||
@@ -144,15 +137,19 @@ export default function Contacts() {
     }
   };
   const handleSelectAllPages = () => {
-    const allIds = crmUsers.map((user) => user._id);
-    const newSelectedIds = new Set(allIds);
-
+    const firstTenThousand = crmUsers.slice(0, maxUsers.number);
+    
+    const firstTenThousandIds = firstTenThousand.map((user) => user._id);
+    // Create a Set of their IDs
+    const newSelectedIds = new Set(firstTenThousandIds);
+    console.log(newSelectedIds)
     setSelectedIds(newSelectedIds);
     setAllPagesSelected(true);
 
     const updatedUsers = crmUsers.map((user) => ({
       ...user,
-      isChecked: true,
+      isChecked: newSelectedIds.has(user._id),
+
     }));
     setCRMUsers(updatedUsers);
   };
@@ -217,7 +214,28 @@ export default function Contacts() {
     workbook: "Download Manual",
     "contact rep": "Product Inquiry",
     app: "App User",
+    "mobile user": "Mobile User",
+    ghl: "GHL",
+    distributor: "Distributor",
+    mlc: "MLC",
+    "hvac-school": "HVAC School",
   };
+
+  const tagColors: { [key: string]: string } = {
+    "app-user": "clr-indigo",
+    "contact-us-form": "clr-orange",
+    "download-manual": "clr-pink",
+    "product-inquiry": "clr-skyblue",
+    "product-inquiry1": "clr-darkblue",
+    "product-inquiry2": "clr-green",
+    "product-inquiry3": "clr-green",
+    ghl: "clr-teal",
+    distributor: "clr-olive",
+    mlc: "clr-violet",
+    "hvac-school": "clr-cyan",
+    "hvac-excellence": "clr-vividgreen",
+  };
+
   const displayTagSet = new Set(Object.values(tagLabelMap)); // contains all readable tags
   useEffect(() => {
     const fetchData = async () => {
@@ -498,8 +516,9 @@ export default function Contacts() {
               <div className="masgRow">
                 {enabled && !allPagesSelected && (
                   <p className="text-sm">
-                    All <strong>{paginatedUsers.length}</strong> users on this
-                    page are selected.{" "}
+                    {/* All <strong>{paginatedUsers.length}</strong> users on this
+                    page are selected.{" "} */}
+                    {`Select ${crmUsers.length>10000 ?maxUsers.string:crmUsers.length} out of ${crmUsers.length} users.`}{' '} 
                     <a
                       href="#"
                       className="text-blue-600 underline"
@@ -508,14 +527,17 @@ export default function Contacts() {
                         handleSelectAllPages();
                       }}
                     >
-                      Select all {crmUsers.length} users
+                      {/* Select all {crmUsers.length} users */}
+                      Select all {crmUsers.length>10000 ?maxUsers.string:crmUsers.length} users
                     </a>
                   </p>
                 )}
 
                 {allPagesSelected && (
                   <p className="text-sm">
-                    All <strong>{crmUsers.length}</strong> users are selected.{" "}
+                    {/* All <strong>{maxUsers.string}</strong> users are selected.{" "} */}
+                    {`Selected ${crmUsers.length>10000 ?maxUsers.string:crmUsers.length} out of ${crmUsers.length} users.`}{' '} 
+                  
                     <a
                       href="#"
                       className="text-red-600 underline"
@@ -708,8 +730,38 @@ export default function Contacts() {
             </div>
           </div>
           <div className="table-footer">
-            <div className="table-row">
+            <div className="table-row" >
+  
+  
               <div className="table-cell pagination-cell">
+              <label
+  style={{
+    display: "flex",
+    alignItems: "center",          
+    gap: "8px",
+    margin: "0 20px 0 0",
+    whiteSpace: "nowrap"           
+  }}
+>
+  <span>Entries per page:</span>
+  <select
+    value={itemsPerPage}
+    onChange={e => {
+      setItemsPerPage(Number(e.target.value));
+      setCurrentPage(1); // Reset to first page when changing page size
+    }}
+    style={{
+      padding: "2px 8px",
+      borderRadius: "4px",
+      border: "1px solid #ccc",
+    }}
+  >
+    {[10, 25, 50, 100].map(size => (
+      <option key={size} value={size}>{size}</option>
+    ))}
+  </select>
+</label>
+
                 <p className="pagination-info" style={{ marginRight: "20px" }}>
                   Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
                   {Math.min(currentPage * itemsPerPage, crmUsers.length)} of{" "}
@@ -788,7 +840,7 @@ export default function Contacts() {
 
                         {/* Always show last page */}
                         <p
-                          className={currentPage === totalPages ? "active" : ""}
+                          className={currentPage === totalPages ? "active " : ""}
                           onClick={() => handlePageChange(totalPages)}
                         >
                           {totalPages}

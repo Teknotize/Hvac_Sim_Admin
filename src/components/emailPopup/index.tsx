@@ -35,10 +35,10 @@ export default function EmailPopup({
 
   useEffect(() => {
     setTempRecipients(recipients);
-  }, [recipients]);
+    console.log("hi", tempRecipients.length);
+  }, [recipients,tempRecipients]);
 
   const removeRecipient = (user: any) => {
-    console.log("hi", tempRecipients);
     setTempRecipients((prev) =>
       prev.filter((recipient) => recipient._id !== user._id)
     );
@@ -119,7 +119,7 @@ export default function EmailPopup({
             To 
           </Label>
           <div className="emailInputCol">
-            {tempRecipients.length < 9 ? (
+            {tempRecipients?.length < 9 ? (
               <>
 
               {tempRecipients?.map((recipient) => (
@@ -149,6 +149,7 @@ export default function EmailPopup({
                     <span>+{tempRecipients.length - 9}</span>
                   </figure>
                 </div>
+                
               </>
             )}
             
