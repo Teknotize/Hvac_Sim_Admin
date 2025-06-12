@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import { Button, Checkbox } from "@headlessui/react";
-import { FilterIcon } from "../../components/svg/icons";
-import { Field, Input, Label } from "@headlessui/react";
+import { FilterIcon, UploadIcon } from "../../components/svg/icons";
+import { Field, Input } from "@headlessui/react";
 import clsx from "clsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,76 +20,26 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import useToastStore from "../../store/useToastStore";
 import { createBadgeWithCSV } from "../../api/AppData";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
-import { useState } from 'react';
-import useEmailToastStore from '../../store/userEmailToastStore';
+import CsvFileIcon from "../../assets/images/icon-file-csv.png";
 
-export default function PageHeader({ 
-    title, 
-    route, 
-    onSendEmailClick,
-    onSearchChange,
-    showEmail
-  }: { 
-    title: string, 
-    route?: string,
-    onSendEmailClick?: () => void,
-    onSearchChange?: (value: string) => void,
-    showEmail?: boolean
-  }) {
-      const { startProgress, updateProgress, completeProgress } = useEmailToastStore();
-      const [showPopup, setShowPopup] = useState(false);
-  
-      // Test function to trigger the progress
-      const testEmailProgress = () => {
-          setShowPopup(true);
-          
-          // Hardcoded values
-          const totalEmails = 10;
-          let currentProgress = 0;
-  
-          // Initialize progress
-          startProgress(totalEmails);
-          
-          // Update progress every 2 seconds
-          const interval = setInterval(() => {
-            currentProgress += 1;
-            updateProgress(currentProgress);
-            console.log(`Progress: ${currentProgress}/${totalEmails}`); // Debug log
-  
-            // Complete when done
-            if (currentProgress >= totalEmails) {
-              clearInterval(interval);
-              completeProgress(true);
-              setShowPopup(false);
-            }
-          }, 2000);
-  
-          return () => clearInterval(interval);
-      };
-    return (
-        <div className="page-header">
-            <div className="flex items-center">
-                <div className="flex-1">
-                    <h1 className="page-title">{title}</h1>
-                </div>
-                {route === 'contacts' && (
-                    <div className="filterArea">
-                        {showEmail&&
-                        <Button className="btn btn-primary" onClick={()=>{  onSendEmailClick?.();testEmailProgress();} }>
-                            Send Email
-                            </Button>}
-
-                        <Field className="search-field">
-                        <FontAwesomeIcon icon={faSearch} />
-                        <Input as={Fragment}>
-                            {({ focus, hover }) => (
-                                <input
-                                name="search"
-                                placeholder="Search"
-                                className={clsx(focus && 'itemfocus', hover && 'itemhover')}
-                                onChange={(e) => onSearchChange?.(e.target.value)}
-=======
+interface PageHeaderProps {
+  title: string;
+  route?: string;
+  onSendEmailClick?: () => void;
+  onSearchChange?: (value: string) => void;
+  onAddNewPdfClick?: () => void;
+  setRefreshFlag?: any;
+  showEmail?: boolean;
+  onTagsFilterChange?: (filters: { tags: string[] }) => void;
+  onSubscriptionFilterChange?: (filters: {
+    subscriptionLevels: string[];
+  }) => void;
+  clearFilter?: () => void;
+  dateSelectedCallback?: (startDate: Date, endDate: Date) => void;
+  onClearIndividualFilter?: (
+    filterType: "date" | "tags" | "subscription"
+  ) => void;
+}
 
 export default function PageHeader({
   title,
@@ -99,27 +49,20 @@ export default function PageHeader({
   showEmail,
   onAddNewPdfClick,
   onTagsFilterChange,
+  onSubscriptionFilterChange,
   clearFilter,
   dateSelectedCallback,
   setRefreshFlag,
   onClearIndividualFilter,
-}: {
-  title: string;
-  route?: string;
-  onSendEmailClick?: () => void;
-  onSearchChange?: (value: string) => void;
-  onAddNewPdfClick?: () => void;
-  setRefreshFlag?: any;
-  showEmail?: boolean;
-  onTagsFilterChange?: (filters: { tags: string[] }) => void;
-  clearFilter?: () => void;
-  dateSelectedCallback?: (startDate: Date, endDate: Date) => void;
-  onClearIndividualFilter?: (filterType: "date" | "tags") => void;
-}) {
+}: PageHeaderProps) {
   const [filterActive, setFilterActive] = useState(false);
   const [dateChanged, setDateChanged] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
-  const [filtersApplied, setFiltersApplied] = useState(false);
+  const [filtersApplied, setFiltersApplied] = useState({
+    tags: false,
+    subscription: false,
+    date: false,
+  });
   const [isFileUploadOpen, setIsFileUploadOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -128,7 +71,7 @@ export default function PageHeader({
   const { showToast } = useToastStore();
   const [formData, setFormData] = useState({
     name: "",
-    icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new",
+    icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new.png",
     is_locked: false,
     unlock_condition: "Unlock with Fingerprint",
     type: "Conditional",
@@ -140,25 +83,40 @@ export default function PageHeader({
   const [selectedTags, setSelectedTags] = useState(
     tags.map((tag) => ({ ...tag, checked: false }))
   );
+  const [selectedSubscriptionLevels, setSelectedSubscriptionLevels] = useState([
+    { id: 1, name: "free", checked: false },
+    { id: 2, name: "admin-paid", checked: false },
+  ]);
+
   const handleResetTags = () => {
     setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
-    setFiltersApplied(false);
+    setFiltersApplied((prev) => ({ ...prev, tags: false }));
     onClearIndividualFilter?.("tags");
   };
 
   const handleResetDate = () => {
     setDateState([defaultDate]);
     setDateChanged(false);
+    setFiltersApplied((prev) => ({ ...prev, date: false }));
     onClearIndividualFilter?.("date");
+  };
+
+  const handleResetSubscription = () => {
+    setSelectedSubscriptionLevels((prev) =>
+      prev.map((level) => ({ ...level, checked: false }))
+    );
+    setFiltersApplied((prev) => ({ ...prev, subscription: false }));
+    onClearIndividualFilter?.("subscription");
   };
 
   const handleResetAll = () => {
     handleResetTags();
     handleResetDate();
+    handleResetSubscription();
     clearFilter?.();
     setDateState([defaultDate]);
     setFilterCount(0);
-    setFiltersApplied(false);
+    setFiltersApplied({ tags: false, subscription: false, date: false });
   };
 
   const [datSstate, setDateState] = useState<Range[]>([defaultDate]);
@@ -170,18 +128,35 @@ export default function PageHeader({
     onTagsFilterChange?.({
       tags: selectedTagNames,
     });
-    setFiltersApplied(true);
+    setFiltersApplied((prev) => ({ ...prev, tags: true }));
   };
+
+  const handleSubscriptionCheckboxChange = (id: number, checked: boolean) => {
+    setSelectedSubscriptionLevels((prev) =>
+      prev.map((level) => (level.id === id ? { ...level, checked } : level))
+    );
+  };
+
+  const handleApplySubscriptionFilters = () => {
+    const selectedLevels = selectedSubscriptionLevels
+      .filter((level) => level.checked)
+      .map((level) => level.name);
+
+    onSubscriptionFilterChange?.({
+      subscriptionLevels: selectedLevels,
+    });
+    setFiltersApplied((prev) => ({ ...prev, subscription: true }));
+  };
+
   useEffect(() => {
     const totalSelectedFilters = () => {
       let count = 0;
-      let isCheckedCount = 0;
 
-      selectedTags.forEach((tag) => {
-        if (tag.checked) isCheckedCount += 1;
-      });
+      if (selectedTags.some((tag) => tag.checked)) {
+        count += 1;
+      }
 
-      if (isCheckedCount > 0) {
+      if (selectedSubscriptionLevels.some((level) => level.checked)) {
         count += 1;
       }
 
@@ -201,11 +176,10 @@ export default function PageHeader({
     const newCount = totalSelectedFilters();
     setFilterCount(newCount);
 
-    // Only call clearFilter if count transitions from >0 to 0
     if (filterCount > 0 && newCount === 0) {
       clearFilter?.();
     }
-  }, [selectedTags, datSstate]);
+  }, [selectedTags, selectedSubscriptionLevels, datSstate]);
 
   const handleCheckboxChange = (id: number, checked: boolean) => {
     setSelectedTags((prev) =>
@@ -213,36 +187,52 @@ export default function PageHeader({
     );
   };
 
-  const handleFileUpload = (category: string) => {
+  const handleFileUpload = (category: string, AppCategory: string) => {
     setSelectedCategory(category);
     setFormData((prev) => ({
       ...prev,
       category: category,
+      AppCategory: AppCategory,
     }));
     setIsFileUploadOpen(true);
   };
+  const validateAndSetFile = (file: File) => {
+    setFileError(""); // Reset error
+    const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
+    if (fileExtension !== "csv") {
+      setFileError("Please select a CSV file only");
+      setSelectedFile(null);
+      return;
+    }
+
+    setSelectedFile(file);
+    const fileNameWithoutExtension = file.name.replace(".csv", "");
+    setFormData((prev) => ({
+      ...prev,
+      name: fileNameWithoutExtension,
+    }));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFileError(""); // Reset error message
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const fileExtension = file.name.split(".").pop()?.toLowerCase();
-
-      if (fileExtension !== "csv") {
-        setFileError("Please select a CSV file only");
-        setSelectedFile(null);
-        e.target.value = ""; // Clear the file input
-        return;
-      }
-
-      setSelectedFile(file);
-      // Remove .csv extension from the name
-      const fileNameWithoutExtension = file.name.replace(".csv", "");
-      setFormData((prev) => ({
-        ...prev,
-        name: fileNameWithoutExtension,
-      }));
+      validateAndSetFile(e.target.files[0]);
+      e.target.value = ""; // Reset input
     }
+  };
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      validateAndSetFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleUploadSubmit = async (e: any) => {
@@ -292,6 +282,13 @@ export default function PageHeader({
     }
   };
 
+  const handleDateFilterChange = (startDate: Date, endDate: Date) => {
+    setDateState([{ ...defaultDate, startDate, endDate }]);
+    setDateChanged(true);
+    setFiltersApplied((prev) => ({ ...prev, date: true }));
+    dateSelectedCallback?.(startDate, endDate);
+  };
+
   return (
     <div className="page-header">
       <div className="flex items-center">
@@ -335,88 +332,80 @@ export default function PageHeader({
               <>
                 <div className="filters">
                   <div className="filter-item">
-                    <>
-                      <Popover className="action-drop">
-                        {({ close }) => (
-                          <>
-                            <PopoverButton
-                              className={clsx(
-                                "block btn btn-outline-grey icon-end",
-                                dateChanged && "active"
-                              )}
-                            >
-                              <span>
-                                Date <FontAwesomeIcon icon={faChevronDown} />
-                              </span>
-                              <span className="active">
-                                {datSstate[0]?.startDate?.toLocaleDateString()}{" "}
-                                - {datSstate[0]?.endDate?.toLocaleDateString()}
+                    <Popover className="action-drop">
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={clsx(
+                              "block btn btn-outline-grey icon-end",
+                              dateChanged && "active"
+                            )}
+                          >
+                            <span>
+                              Date <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              {datSstate[0]?.startDate?.toLocaleDateString()} -{" "}
+                              {datSstate[0]?.endDate?.toLocaleDateString()}
+                              {filtersApplied.date && (
                                 <FontAwesomeIcon
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleResetDate();
                                   }}
                                   icon={faXmark}
->>>>>>> d159f8ab435dafc184bec71f667c94b4ee2a338a
+                                  className="cursor-pointer"
                                 />
-                              </span>
-                            </PopoverButton>
+                              )}
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <DateRangePicker
+                              onChange={(item) => {
+                                setDateState([item.selection]);
+                                setDateChanged(true);
+                              }}
+                              moveRangeOnFirstSelection={false}
+                              months={2}
+                              ranges={datSstate}
+                              direction="horizontal"
+                              rangeColors={["#B92825"]}
+                            />
 
-                            <PopoverPanel
-                              transition
-                              anchor="bottom end"
-                              className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
-                            >
-                              <DateRangePicker
-                                onChange={(item) => {
-                                  setDateState([item.selection]);
-                                  setDateChanged(true);
+                            <div className="btnRow justify-end">
+                              <Button
+                                className="btn btn-link"
+                                onClick={handleResetDate}
+                              >
+                                Reset
+                              </Button>
+                              <Button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                  const startDate = datSstate[0]?.startDate;
+                                  const endDate = datSstate[0]?.endDate;
+
+                                  if (
+                                    startDate instanceof Date &&
+                                    endDate instanceof Date
+                                  ) {
+                                    handleDateFilterChange(startDate, endDate);
+                                    close();
+                                  }
                                 }}
-                                moveRangeOnFirstSelection={false}
-                                months={2}
-                                ranges={datSstate}
-                                direction="horizontal"
-                                rangeColors={["#B92825"]}
-                              />
-
-                              <div className="btnRow justify-end">
-                                <Button
-                                  className="btn btn-link"
-                                  onClick={handleResetDate}
-                                >
-                                  Reset
-                                </Button>
-                                <Button
-                                  className="btn btn-primary"
-                                  onClick={() => {
-                                    const startDate = datSstate[0]?.startDate;
-                                    const endDate = datSstate[0]?.endDate;
-
-                                    if (
-                                      startDate instanceof Date &&
-                                      endDate instanceof Date
-                                    ) {
-                                      dateSelectedCallback?.(
-                                        startDate,
-                                        endDate
-                                      );
-                                      setFilterCount(
-                                        (prevCount) => prevCount + 1
-                                      );
-
-                                      close(); // Close dropdown
-                                    }
-                                  }}
-                                  disabled={!dateChanged}
-                                >
-                                  Apply
-                                </Button>
-                              </div>
-                            </PopoverPanel>
-                          </>
-                        )}
-                      </Popover>
-                    </>
+                                disabled={!dateChanged}
+                              >
+                                Apply
+                              </Button>
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
+                    </Popover>
 
                     <Popover className="action-drop">
                       {({ close }) => (
@@ -441,7 +430,7 @@ export default function PageHeader({
                                     }).length
                                   : ""}
                               </b>
-                              {filtersApplied && (
+                              {filtersApplied.tags && (
                                 <FontAwesomeIcon
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -509,6 +498,110 @@ export default function PageHeader({
                         </>
                       )}
                     </Popover>
+
+                    <Popover className="action-drop">
+                      {({ close }) => (
+                        <>
+                          <PopoverButton
+                            className={`block btn btn-outline-grey icon-end ${
+                              selectedSubscriptionLevels.filter(
+                                (level) => level.checked
+                              ).length > 0 && "active"
+                            }`}
+                          >
+                            <span>
+                              Subscription{" "}
+                              <FontAwesomeIcon icon={faChevronDown} />
+                            </span>
+                            <span className="active">
+                              Subscription
+                              <b>
+                                {selectedSubscriptionLevels.filter(
+                                  (level) => level.checked
+                                ).length !== 0
+                                  ? selectedSubscriptionLevels.filter(
+                                      (level) => level.checked
+                                    ).length
+                                  : ""}
+                              </b>
+                              {filtersApplied.subscription && (
+                                <FontAwesomeIcon
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResetSubscription();
+                                  }}
+                                  icon={faXmark}
+                                  className="cursor-pointer"
+                                />
+                              )}
+                            </span>
+                          </PopoverButton>
+                          <PopoverPanel
+                            transition
+                            anchor="bottom end"
+                            className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          >
+                            <div className="list-menu">
+                              <div className="list-group">
+                                {selectedSubscriptionLevels.map((level) => (
+                                  <div
+                                    className="list-group-item"
+                                    key={level.id}
+                                    onClick={() =>
+                                      handleSubscriptionCheckboxChange(
+                                        level.id,
+                                        !level.checked
+                                      )
+                                    }
+                                  >
+                                    <Checkbox
+                                      checked={level.checked}
+                                      onChange={(checked) =>
+                                        handleSubscriptionCheckboxChange(
+                                          level.id,
+                                          checked
+                                        )
+                                      }
+                                      className="group list-checkbox-item data-[checked]:checked"
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faCheck}
+                                        className="opacity-0 group-data-[checked]:opacity-100"
+                                      />
+                                    </Checkbox>
+                                    <span className="capitalize">
+                                      {level.name === "admin-paid"
+                                        ? "Admin Paid"
+                                        : level.name}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="btnRow">
+                                <Button
+                                  className="btn btn-link flex-1"
+                                  onClick={handleResetSubscription}
+                                >
+                                  Reset
+                                </Button>
+                                <Button
+                                  className="btn btn-primary flex-1"
+                                  onClick={() => {
+                                    handleApplySubscriptionFilters();
+                                    close();
+                                  }}
+                                  disabled={selectedSubscriptionLevels.every(
+                                    (level) => !level.checked
+                                  )}
+                                >
+                                  Apply
+                                </Button>
+                              </div>
+                            </div>
+                          </PopoverPanel>
+                        </>
+                      )}
+                    </Popover>
                   </div>
                 </div>
               </>
@@ -560,21 +653,79 @@ export default function PageHeader({
                 anchor="bottom end"
                 className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
               >
-                <div className="action-menu">
-                  <Link
-                    to={""}
-                    className="action-menu-item"
-                    onClick={() => handleFileUpload("Combustion")}
-                  >
-                    <p>Combustion</p>
-                  </Link>
-                  <Link
-                    to={""}
-                    className="action-menu-item"
-                    onClick={() => handleFileUpload("Refrigerant")}
-                  >
-                    <p>Refrigerant</p>
-                  </Link>
+                <div className="action-menu space-y-4">
+                  {/* Megacore */}
+                  <div>
+                    <p className="font-semibold text-gray-800">Megacore</p>
+                    <div className="pl-4 space-y-2">
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload("Combustion", "Mega Core")
+                        }
+                      >
+                        Combustion
+                      </Link>
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload("Refrigerant", "Mega Core")
+                        }
+                      >
+                        Refrigerant
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Knowledge Evaluator */}
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      Knowledge Evaluator
+                    </p>
+                    <div className="pl-4 space-y-2">
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload("Combustion", "Knowledge Evaluator")
+                        }
+                      >
+                        Combustion
+                      </Link>
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload("Refrigerant", "Knowledge Evaluator")
+                        }
+                      >
+                        Refrigerant
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Comfort Cooling */}
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      Comfort Cooling Simulator
+                    </p>
+                    <div className="pl-4 space-y-2">
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload(
+                            "Refrigerant",
+                            "Comfort Cooling Simulator"
+                          )
+                        }
+                      >
+                        Refrigerant
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </PopoverPanel>
             </Popover>
@@ -599,17 +750,74 @@ export default function PageHeader({
                   setFileError("");
                 }}
               >
-                <FontAwesomeIcon icon={faXmark} />
+                <FontAwesomeIcon
+                  onClick={() => setSelectedFile(null)}
+                  icon={faXmark}
+                />
               </Button>
             </div>
             <div className="dialog-body">
-              <Field className="fieldDv">
-                <Label>CSV File</Label>
-                <Input type="file" accept=".csv" onChange={handleFileChange} />
+              <div className="uploadAreaDv ">
+                {/* <Label>CSV File</Label> */}
+                <div className="uploadArea">
+                  <label
+                    htmlFor="dropzone-file1"
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    className={`${
+                      false ? "error-file" : ""
+                    } file-dropzone-container`}
+                  >
+                    <div className="inner">
+                      <UploadIcon />
+                      <p>
+                        Drag your file to start uploading <span>or</span>{" "}
+                        <button
+                          className="btn btn-primary-outline"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const input =
+                              document.getElementById("dropzone-file1");
+                            if (input) (input as HTMLInputElement).click(); // trigger input
+                          }}
+                        >
+                          Browse
+                        </button>
+                      </p>
+                    </div>
+                    <input
+                      name="sec4_img"
+                      id="dropzone-file1"
+                      type="file"
+                      className="hidden"
+                      accept=".csv"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  <div className="uploaded-files-container">
+                    {selectedFile && (
+                      <div className="upload-item">
+                        <div className="icon">
+                          <img src={CsvFileIcon} alt="file icon" />
+                        </div>
+                        <div className="info">
+                          <p>{selectedFile?.name}</p>
+                          <p>{selectedFile?.size}</p>
+                        </div>
+                        <div
+                          className="action"
+                          onClick={() => setSelectedFile(null)}
+                        >
+                          <FontAwesomeIcon icon={faXmark} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 {fileError && (
                   <p className="text-red-500 text-sm mt-1">{fileError}</p>
                 )}
-              </Field>
+              </div>
             </div>
             <div className="dialog-footer">
               <Button

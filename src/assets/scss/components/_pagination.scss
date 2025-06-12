@@ -1,17 +1,52 @@
 @use '../base/mixins' as *;
 
-.pagination{
-    display: flex; align-items: center; gap: 10px;
-    .pagination-button{
-        width: 30px; height: 30px; border-radius: 5px; background-color: var(--base-color-primary); display: flex; align-items: center; justify-content: center; cursor: pointer;
-        svg{ width: 12px; height: 12px; color: #fff; }
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .pagination-button {
+        width: 30px;
+        height: 30px;
+        border-radius: 5px;
+        background-color: var(--base-color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        svg {
+            width: 12px;
+            height: 12px;
+            color: #fff;
+        }
     }
-    .pagination-numbers{
-        display: flex; align-items: center; gap: 10px;
-        p{
-            @include para(14px, 400, 0, 0); color: var(--txt-color); width: 30px; height: 30px; display: flex ; justify-content: center; align-items: center; border-radius: 5px; cursor: pointer;
-            &.active{background-color: var(--base-color-primary); color: #fff;}
-            &:hover{background-color: rgba(var(--base-color-primary-rgb), 0.1);}
+
+    .pagination-numbers {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        p {
+            @include para(14px, 400, 0, 0);
+            color: var(--txt-color);
+            // width: 30px;
+            // height: 30px;
+            padding: 4px 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            cursor: pointer;
+
+            &.active {
+                background-color: var(--base-color-primary);
+                color: #fff;
+            }
+
+            &:hover {
+                background-color: rgba(var(--base-color-primary-rgb), 0.1);
+            }
         }
     }
 }
