@@ -518,7 +518,7 @@ export default function Contacts() {
                   <p className="text-sm">
                     {/* All <strong>{paginatedUsers.length}</strong> users on this
                     page are selected.{" "} */}
-                    {`Select ${maxUsers.string} out of ${crmUsers.length} users.`}{' '} 
+                    {`Select ${crmUsers.length>10000 ?maxUsers.string:crmUsers.length} out of ${crmUsers.length} users.`}{' '} 
                     <a
                       href="#"
                       className="text-blue-600 underline"
@@ -528,7 +528,7 @@ export default function Contacts() {
                       }}
                     >
                       {/* Select all {crmUsers.length} users */}
-                      Select all {maxUsers.string} users
+                      Select all {crmUsers.length>10000 ?maxUsers.string:crmUsers.length} users
                     </a>
                   </p>
                 )}
@@ -536,7 +536,7 @@ export default function Contacts() {
                 {allPagesSelected && (
                   <p className="text-sm">
                     {/* All <strong>{maxUsers.string}</strong> users are selected.{" "} */}
-                    {`Selected ${maxUsers.string} out of ${crmUsers.length} users.`}{' '} 
+                    {`Selected ${crmUsers.length>10000 ?maxUsers.string:crmUsers.length} out of ${crmUsers.length} users.`}{' '} 
                   
                     <a
                       href="#"
