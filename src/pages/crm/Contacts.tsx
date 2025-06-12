@@ -287,14 +287,14 @@ export default function Contacts() {
 
     // Apply search filter if search term exists
     if (searchTerm && searchTerm.trim()) {
+      
       const term = searchTerm.trim().toLowerCase();
       filteredUsers = filteredUsers.filter((user) => {
         const name = user.name?.toLowerCase() || "";
         const email = user.email?.toLowerCase() || "";
-        const phone = user.phone?.toLowerCase() || "";
+        const phone = typeof user.phone === "string" ? user.phone.toLowerCase() : String(user.phone || "");
         const business = user.business?.toLowerCase() || "";
         const subscriptionLevel = user.subscriptionLevel?.toLowerCase() || "";
-
         // Handle both string and array tags for search
         const userTags = Array.isArray(user.tags) ? user.tags : [user.tags];
         const hasMatchingTag = userTags.some((tag) =>
@@ -405,6 +405,7 @@ export default function Contacts() {
   };
 
   const handleSearchChange = (value: string) => {
+    console.log(originalUsers.length)
     const filteredUsers = filterUsers(originalUsers, value, activeTags);
     setCRMUsers(filteredUsers);
     setCurrentPage(1);

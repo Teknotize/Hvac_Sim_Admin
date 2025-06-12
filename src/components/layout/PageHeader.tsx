@@ -11,7 +11,7 @@ import {
   faXmark,
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { Popover, PopoverButton, PopoverPanel,Transition } from "@headlessui/react";
 
 import { DateRangePicker, Range } from "react-date-range";
 import { tags, defaultDate } from "../../utils/constants";
@@ -69,6 +69,7 @@ export default function PageHeader({
   const [fileError, setFileError] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const { showToast } = useToastStore();
+  const [shouldResetOnClose, setShouldResetOnClose] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new.png",
@@ -91,8 +92,8 @@ export default function PageHeader({
   const handleResetTags = () => {
     setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
     setFiltersApplied((prev) => ({ ...prev, tags: false }));
-    onClearIndividualFilter?.("tags");
-  };
+    onClearIndividualFilter?.("tags");}
+  
 
   const handleResetDate = () => {
     setDateState([defaultDate]);
@@ -442,10 +443,20 @@ export default function PageHeader({
                               )}
                             </span>
                           </PopoverButton>
+                          <Transition
+     afterLeave={() => {
+       // Only reset if no filter is applied and user didn't click Apply
+       if (shouldResetOnClose && !filtersApplied.tags) {
+         handleResetAll();
+       }
+       setShouldResetOnClose(true); // Reset for next time
+     }}
+   >
                           <PopoverPanel
                             transition
                             anchor="bottom end"
                             className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
+                          
                           >
                             <div className="list-menu">
                               <div className="list-group">
@@ -483,6 +494,7 @@ export default function PageHeader({
                                 <Button
                                   className="btn btn-primary flex-1"
                                   onClick={() => {
+                                    setShouldResetOnClose(false);
                                     handleApplyFilters();
                                     close(); // Close dropdown
                                   }}
@@ -495,6 +507,7 @@ export default function PageHeader({
                               </div>
                             </div>
                           </PopoverPanel>
+                          </Transition>
                         </>
                       )}
                     </Popover>
