@@ -149,12 +149,15 @@ export default function PageHeader({
     setFiltersApplied((prev) => ({ ...prev, subscription: true }));
   };
 
+  
   useEffect(() => {
     const totalSelectedFilters = () => {
       let count = 0;
 
       if (selectedTags.some((tag) => tag.checked)) {
         count += 1;
+
+        setShouldResetOnClose(true);
       }
 
       if (selectedSubscriptionLevels.some((level) => level.checked)) {
