@@ -36,6 +36,10 @@
     }
 
     .table-footer {
+        // position: sticky;
+        // bottom: 0;
+        // left: 0;
+        // z-index: 10;
         background-color: #fff;
         border-top: 1px solid var(--table-border-color);
         border-bottom: 1px solid var(--table-border-color);
@@ -170,6 +174,9 @@
 
     &.table-contacts-page {
         .table-wrapper {
+            max-height: 70vh; // or whatever fits your layout
+            overflow-y: auto;
+            position: relative;
 
             .table-header,
             .table-body {
