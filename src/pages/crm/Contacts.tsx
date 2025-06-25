@@ -286,7 +286,7 @@ if (crmUsers.length === 0 || fetchAgain) {
     const fetchEmailLimit = async () => {
       try {
         const response = await apiClient.get("/admin/email-limit");
-        const { remainingLimit, lastReset } = response.data;
+        const { remainingLimit } = response.data;
         setmaxUsers({
           number: remainingLimit,
           string: remainingLimit.toLocaleString(), // formats as "4,000" etc.
