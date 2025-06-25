@@ -1,6 +1,10 @@
 const formatDateTime = (isoString: string) => {
     const dateObj = new Date(isoString);
   
+    if (isNaN(dateObj.getTime())) {
+    return { date: "N/A", time: "" };
+  }
+
     // Format date as "Month DD, YYYY"
     const date = dateObj.toLocaleDateString("en-US", {
       year: "numeric",

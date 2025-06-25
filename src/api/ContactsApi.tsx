@@ -10,3 +10,7 @@ export const updateSubscriptionLevel = async (id: any) => {
   );
   return response.data;
 };
+
+export const unsubscribeContactUserById = async (id: any) => {
+  return apiClient.put(`/admin/unsubscribe-contact/${id}`);
+};
