@@ -25,7 +25,7 @@ import Loader from "../../components/loader";
 
 import {
   deleteContactUserById,
-  unsubscribeContactUserById,
+  // unsubscribeContactUserById,
   updateSubscriptionLevel,
 } from "../../api/ContactsApi";
 import useToastStore from "../../store/useToastStore";
