@@ -249,7 +249,7 @@ const itemsPerPage = useCRMStore((state) => state.itemsPerPage);
       setLoading(true);
       try {
         const response = await apiClient.get("/admin/get-crm-users");
-        console.log("Fetched CRM users:", response?.data,Array.isArray(response?.data));
+        // console.log("Fetched CRM users:", response?.data,Array.isArray(response?.data));
         const users = response?.data?.map((user: any) => ({
           ...user,
           tags: user.tags.map((tag: string) =>
@@ -625,9 +625,9 @@ const handleUnsubscribe = async (userEmail: string) => {
                 <div className="table-cell cell-email">Email</div>
                 <div className="table-cell cell-business">Business</div>
                 <div className="table-cell cell-business">Subscription</div>
-                <div className="table-cell cell-date">Expiry Date</div>
                 <div className="table-cell cell-tags">Tags</div>
                 <div className="table-cell cell-date">Date</div>
+                <div className="table-cell cell-date">Expiry Date</div>
                 <div className="table-cell cell-action">Action</div>
               </div>
             </div>
@@ -697,22 +697,6 @@ const handleUnsubscribe = async (userEmail: string) => {
                         )}
                       </p>
                     </div>
-                    {/* <div className="table-cell cell-business">
-  <p>
-    {contact?.purchaseInfo?.expiry
-      ? formatDateTime()
-      : "N/A"}
-      
-  </p>
-</div> */}
- <div className="table-cell cell-date">
-                      <p className="date">
-                        {formatDateTime(contact?.purchaseInfo?.expiry).date}{" "}
-                        <span className="time">
-                          {formatDateTime(contact?.purchaseInfo?.expiry).time}
-                        </span>
-                      </p>
-                    </div>
                     <div className="table-cell cell-tags">
                       <p className="tags">
                         <div className="flex flex-col gap-1">
@@ -735,6 +719,15 @@ const handleUnsubscribe = async (userEmail: string) => {
                         </span>
                       </p>
                     </div>
+                    <div className="table-cell cell-date">
+                      <p className="date">
+                        {formatDateTime(contact?.purchaseInfo?.expiry).date}{" "}
+                        <span className="time">
+                          {formatDateTime(contact?.purchaseInfo?.expiry).time}
+                        </span>
+                      </p>
+                    </div>
+ 
                     <div className="table-cell cell-action justify-end">
                       <Popover className="action-drop">
                         <PopoverButton className="block">
@@ -775,25 +768,16 @@ const handleUnsubscribe = async (userEmail: string) => {
                                   >
                                     <p>Mark As Admin Paid</p>
                                   </span>
-                                ) : contact.subscriptionLevel ===
-                                  "admin-paid" ? (
-                                  <span
-                                    onClick={() =>
-                                      handleToggleSubscription(contact._id)
-                                    }
-                                    className="action-menu-item cursor-pointer"
-                                  >
-                                    <p>Mark As Free</p>
-                                  </span>
-                                ) : null}
+                                ): contact.subscriptionLevel === "admin-paid" || contact.subscriptionLevel === "paid" ? (
+      <span
+        onClick={() => handleToggleSubscription(contact._id)}
+        className="action-menu-item cursor-pointer"
+      >
+        <p>Mark As Free</p>
+      </span>
+    ) : null}
                               </>
                             )}
-  <span
-  onClick={() => handleUnsubscribe(contact.email)}
-  className="action-menu-item cursor-pointer"
->
-  <p>Unsubscribe</p>
-</span>
                           </div>
                         </PopoverPanel>
                       </Popover>
