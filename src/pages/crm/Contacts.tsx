@@ -526,24 +526,24 @@ if (crmUsers.length === 0 || fetchAgain) {
     }
     setCurrentPage(1);
   };
-const handleUnsubscribe = async (userEmail: string) => {
-  try {
-    setLoading(true);
-    const res = await unsubscribeContactUserById(userEmail); // Pass email
-    if (res.status !== 200) {
-      showToast("Failed to unsubscribe user", "error");
-      setLoading(false);
-      return;
-    }
-    showToast(res.data.message || "User unsubscribed successfully", "success");
-    setFetchAgain(true); // trigger refetch
-  } catch (error) {
-    showToast("Failed to unsubscribe user", "error");
-    console.error("Unsubscribe error:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+// const handleUnsubscribe = async (userEmail: string) => {
+//   try {
+//     setLoading(true);
+//     const res = await unsubscribeContactUserById(userEmail); // Pass email
+//     if (res.status !== 200) {
+//       showToast("Failed to unsubscribe user", "error");
+//       setLoading(false);
+//       return;
+//     }
+//     showToast(res.data.message || "User unsubscribed successfully", "success");
+//     setFetchAgain(true); // trigger refetch
+//   } catch (error) {
+//     showToast("Failed to unsubscribe user", "error");
+//     console.error("Unsubscribe error:", error);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
   return (
     <>
       <PageHeader
