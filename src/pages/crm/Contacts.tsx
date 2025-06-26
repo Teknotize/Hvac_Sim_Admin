@@ -249,7 +249,7 @@ const itemsPerPage = useCRMStore((state) => state.itemsPerPage);
       setLoading(true);
       try {
         const response = await apiClient.get("/admin/get-crm-users");
-        console.log("Fetched CRM users:", response);
+        console.log("Fetched CRM users:", response?.data,Array.isArray(response?.data));
         const users = response?.data?.map((user: any) => ({
           ...user,
           tags: user.tags.map((tag: string) =>
