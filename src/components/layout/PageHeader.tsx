@@ -86,7 +86,8 @@ export default function PageHeader({
   );
   const [selectedSubscriptionLevels, setSelectedSubscriptionLevels] = useState([
     { id: 1, name: "free", checked: false },
-    { id: 2, name: "admin-paid", checked: false },
+    { id: 2, name: "paid", checked: false },
+    { id: 3, name: "admin-paid", checked: false },
   ]);
 
   const handleResetTags = () => {
