@@ -25,6 +25,7 @@ import Loader from "../../components/loader";
 
 import {
   deleteContactUserById,
+  // unsubscribeContactUserById,
   updateSubscriptionLevel,
 } from "../../api/ContactsApi";
 import useToastStore from "../../store/useToastStore";
@@ -46,7 +47,7 @@ interface SubscriptionFilterData {
 
 export default function Contacts() {
   const [enabled, setEnabled] = useState(false);
-  const maxUsers = {string:"10,000",number:10000}
+  const [maxUsers,setmaxUsers] = useState({string:"10,000",number:10000})
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -55,18 +56,21 @@ export default function Contacts() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [checkedUser, setCheckedUser] = useState<CRMUser[]>([]);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  // const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+   const setItemsPerPageStore = useCRMStore((state) => state.setItemsPerPage);
+const itemsPerPage = useCRMStore((state) => state.itemsPerPage);
   const { showToast } = useToastStore();
   const [showEmail, setShowEmail] = useState(false);
   const [reRun, setReRun] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [refreshFlag, setRefreshFlag] = useState(false);
+  const [fetchAgain, setFetchAgain] = useState(false);
   const [currentDateRange, setCurrentDateRange] = useState<DateRange>({
     startDate: null,
     endDate: null,
   });
-
+  const [refetchCount,setRefetchCount]=useState(false)
   const [isEmailSentSuccess, setIsEmailSentSuccess] = useState(false);
 
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
@@ -80,7 +84,7 @@ export default function Contacts() {
 
   const getTagColor = (tag: string) => {
     let tagText = tag?.trim().toLowerCase().replace(/\s+/g, "-");
-    console.log(tagText);
+    
     return tagColors[tagText] || "clr-default"; // Add a fallback if desired
   };
   
@@ -142,7 +146,6 @@ export default function Contacts() {
     const firstTenThousandIds = firstTenThousand.map((user) => user._id);
     // Create a Set of their IDs
     const newSelectedIds = new Set(firstTenThousandIds);
-    console.log(newSelectedIds)
     setSelectedIds(newSelectedIds);
     setAllPagesSelected(true);
 
@@ -182,15 +185,18 @@ export default function Contacts() {
   };
   const handleDelete = async (userId: any) => {
     try {
+      setFetchAgain(true)
       const res = await deleteContactUserById(userId);
       if (res.status !== 200) {
+        setFetchAgain(false)
         showToast("Failed to delete user", "error");
         return;
       }
+        setFetchAgain(false)
 
       // First update the refresh flag
       setRefreshFlag((prev) => !prev);
-
+      
       // Then show success message
       showToast(res.message || "User deleted successfully", "success");
       setIsDeleteItemConfirmation(false);
@@ -206,6 +212,7 @@ export default function Contacts() {
       setCRMUsers(filteredUsers);
       setOriginalUsers((prev) => prev.filter((user) => user._id !== userId));
     } catch (error) {
+      setFetchAgain(false)
       console.error("Delete error:", error);
     }
   };
@@ -242,14 +249,14 @@ export default function Contacts() {
       setLoading(true);
       try {
         const response = await apiClient.get("/admin/get-crm-users");
-        const users = response.data.map((user: any) => ({
+        console.log("Fetched CRM users:", response?.data,Array.isArray(response?.data));
+        const users = response?.data?.map((user: any) => ({
           ...user,
           tags: user.tags.map((tag: string) =>
             displayTagSet.has(tag) ? tag : tagLabelMap[tag] || tag
           ),
           isChecked: false,
         }));
-        console.log("new data", users);
         setOriginalUsers(users);
 
         // After fetching new data, reapply current filters
@@ -266,11 +273,35 @@ export default function Contacts() {
         showToast("Error fetching users", "error");
       } finally {
         setLoading(false);
+           setFetchAgain(false); 
       }
     };
-
+if (crmUsers.length === 0 || fetchAgain) {
     fetchData();
-  }, [setCRMUsers, refreshFlag]);
+  }
+   
+  }, [setCRMUsers, refreshFlag,fetchAgain]);
+
+
+  useEffect(() => {
+    const fetchEmailLimit = async () => {
+      try {
+        const response = await apiClient.get("/admin/email-limit");
+        const { remainingLimit } = response.data;
+        setmaxUsers({
+          number: remainingLimit,
+          string: remainingLimit.toLocaleString(), // formats as "4,000" etc.
+        });
+        // Optionally store in state
+      } catch (error) {
+        console.error("Error fetching email limit", error);
+        // showToast("Error fetching email limit", "error");
+      }
+    };
+  
+    fetchEmailLimit();
+  }, [refetchCount]);
+  
 
   useEffect(() => {
     setCheckedUser(crmUsers.filter((user) => selectedIds.has(user._id)));
@@ -405,7 +436,7 @@ export default function Contacts() {
   };
 
   const handleSearchChange = (value: string) => {
-    console.log(originalUsers.length)
+    console.log("Search value:", crmUsers.length,fetchAgain)
     const filteredUsers = filterUsers(originalUsers, value, activeTags);
     setCRMUsers(filteredUsers);
     setCurrentPage(1);
@@ -413,10 +444,13 @@ export default function Contacts() {
 
   const handleToggleSubscription = async (id: string) => {
     try {
+      setFetchAgain(true)
       await updateSubscriptionLevel(id);
       setRefreshFlag(!refreshFlag);
       showToast("Subscription level updated successfully", "success");
+      setFetchAgain(false)
     } catch (error) {
+      setFetchAgain(false)
       console.error("Failed to update subscription level:", error);
       showToast("Failed to update subscription level", "error");
     }
@@ -427,7 +461,6 @@ export default function Contacts() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  console.log("paginatedUsers", paginatedUsers);
   useEffect(() => {
     const allChecked =
       paginatedUsers.length > 0 &&
@@ -493,7 +526,24 @@ export default function Contacts() {
     }
     setCurrentPage(1);
   };
-
+// const handleUnsubscribe = async (userEmail: string) => {
+//   try {
+//     setLoading(true);
+//     const res = await unsubscribeContactUserById(userEmail); // Pass email
+//     if (res.status !== 200) {
+//       showToast("Failed to unsubscribe user", "error");
+//       setLoading(false);
+//       return;
+//     }
+//     showToast(res.data.message || "User unsubscribed successfully", "success");
+//     setFetchAgain(true); // trigger refetch
+//   } catch (error) {
+//     showToast("Failed to unsubscribe user", "error");
+//     console.error("Unsubscribe error:", error);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
   return (
     <>
       <PageHeader
@@ -577,6 +627,7 @@ export default function Contacts() {
                 <div className="table-cell cell-business">Subscription</div>
                 <div className="table-cell cell-tags">Tags</div>
                 <div className="table-cell cell-date">Date</div>
+                <div className="table-cell cell-date">Expiry Date</div>
                 <div className="table-cell cell-action">Action</div>
               </div>
             </div>
@@ -627,17 +678,21 @@ export default function Contacts() {
                     <div className="table-cell cell-business">
                       <p className="subscription">
                         {contact.subscriptionLevel && (
-                          <span
-                            key={contact.subscriptionLevel}
-                            className={`capitalize  ${
-                              contact.subscriptionLevel === "admin-paid"
-                                ? "bg-[#1943A1]"
-                                : "bg-[#1F9E8A]"
-                            } `}
-                          >
+                      <span
+  className={`px-2 py-1 rounded-full text-white text-sm font-semibold
+    ${contact.subscriptionLevel === "admin-paid"
+      ? "bg-[#1943A1]"
+      : contact.subscriptionLevel === "paid"
+      ? "bg-black"
+      : "bg-[#1F9E8A]"
+    }`}
+>
+                            
                             {contact.subscriptionLevel === "admin-paid"
-                              ? "Admin Paid"
-                              : "Free"}
+  ? "Admin Paid"
+  : contact.subscriptionLevel === "paid"
+  ? "Paid"
+  : "Free"}
                           </span>
                         )}
                       </p>
@@ -664,6 +719,15 @@ export default function Contacts() {
                         </span>
                       </p>
                     </div>
+                    <div className="table-cell cell-date">
+                      <p className="date">
+                        {formatDateTime(contact?.purchaseInfo?.expiry).date}{" "}
+                        <span className="time">
+                          {formatDateTime(contact?.purchaseInfo?.expiry).time}
+                        </span>
+                      </p>
+                    </div>
+ 
                     <div className="table-cell cell-action justify-end">
                       <Popover className="action-drop">
                         <PopoverButton className="block">
@@ -704,17 +768,14 @@ export default function Contacts() {
                                   >
                                     <p>Mark As Admin Paid</p>
                                   </span>
-                                ) : contact.subscriptionLevel ===
-                                  "admin-paid" ? (
-                                  <span
-                                    onClick={() =>
-                                      handleToggleSubscription(contact._id)
-                                    }
-                                    className="action-menu-item cursor-pointer"
-                                  >
-                                    <p>Mark As Free</p>
-                                  </span>
-                                ) : null}
+                                ): contact.subscriptionLevel === "admin-paid" || contact.subscriptionLevel === "paid" ? (
+      <span
+        onClick={() => handleToggleSubscription(contact._id)}
+        className="action-menu-item cursor-pointer"
+      >
+        <p>Mark As Free</p>
+      </span>
+    ) : null}
                               </>
                             )}
                           </div>
@@ -748,7 +809,8 @@ export default function Contacts() {
   <select
     value={itemsPerPage}
     onChange={e => {
-      setItemsPerPage(Number(e.target.value));
+      // setItemsPerPage(Number(e.target.value));
+        setItemsPerPageStore(Number(e.target.value));      // Zustand store
       setCurrentPage(1); // Reset to first page when changing page size
     }}
     style={{
@@ -883,7 +945,7 @@ export default function Contacts() {
           uncheckAllUsers();
           handleClearSelection();
         }}
-        onSuccess={() => setIsEmailSentSuccess(true)}
+        onSuccess={() => {setIsEmailSentSuccess(true);setRefetchCount(!refetchCount)}}
       />
       {/* <Dialog
         open={isEditContactItem}
