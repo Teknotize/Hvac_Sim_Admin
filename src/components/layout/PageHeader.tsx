@@ -553,6 +553,14 @@ export default function PageHeader({
                               )}
                             </span>
                           </PopoverButton>
+                            <Transition
+                                afterLeave={() => {
+                                  // Only reset if no filter is applied and user didn't click Apply
+                                  if (!filtersApplied.subscription) {
+                                    handleResetSubscription();
+                                  }
+                                }}
+                              >
                           <PopoverPanel
                             transition
                             anchor="bottom end"
@@ -616,6 +624,7 @@ export default function PageHeader({
                               </div>
                             </div>
                           </PopoverPanel>
+                              </Transition>
                         </>
                       )}
                     </Popover>
