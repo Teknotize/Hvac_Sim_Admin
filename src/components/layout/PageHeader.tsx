@@ -63,6 +63,14 @@ export default function PageHeader({
     subscription: false,
     date: false,
   });
+  const [lastAppliedTags, setLastAppliedTags] = useState(
+  tags.map((tag) => ({ ...tag, checked: false }))
+);
+const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useState([
+  { id: 1, name: "free", checked: false },
+  { id: 2, name: "paid", checked: false },
+  { id: 3, name: "admin-paid", checked: false },
+]);
   const [isFileUploadOpen, setIsFileUploadOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -91,9 +99,11 @@ export default function PageHeader({
   ]);
 
   const handleResetTags = () => {
-    setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
-    setFiltersApplied((prev) => ({ ...prev, tags: false }));
-    onClearIndividualFilter?.("tags");}
+  setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
+  setLastAppliedTags(tags.map((tag) => ({ ...tag, checked: false })));
+  setFiltersApplied((prev) => ({ ...prev, tags: false }));
+  onClearIndividualFilter?.("tags");
+};
   
 
   const handleResetDate = () => {
@@ -104,12 +114,16 @@ export default function PageHeader({
   };
 
   const handleResetSubscription = () => {
-    setSelectedSubscriptionLevels((prev) =>
-      prev.map((level) => ({ ...level, checked: false }))
-    );
-    setFiltersApplied((prev) => ({ ...prev, subscription: false }));
-    onClearIndividualFilter?.("subscription");
-  };
+  const resetLevels = [
+    { id: 1, name: "free", checked: false },
+    { id: 2, name: "paid", checked: false },
+    { id: 3, name: "admin-paid", checked: false },
+  ];
+  setSelectedSubscriptionLevels(resetLevels);
+  setLastAppliedSubscriptionLevels(resetLevels);
+  setFiltersApplied((prev) => ({ ...prev, subscription: false }));
+  onClearIndividualFilter?.("subscription");
+};
 
   const handleResetAll = () => {
     handleResetTags();
@@ -123,15 +137,18 @@ export default function PageHeader({
 
   const [datSstate, setDateState] = useState<Range[]>([defaultDate]);
   const handleApplyFilters = () => {
-    const selectedTagNames = selectedTags
-      .filter((tag) => tag.checked)
-      .map((tag) => tag.name);
+  const selectedTagNames = selectedTags
+    .filter((tag) => tag.checked)
+    .map((tag) => tag.name);
 
-    onTagsFilterChange?.({
-      tags: selectedTagNames,
-    });
-    setFiltersApplied((prev) => ({ ...prev, tags: true }));
-  };
+  onTagsFilterChange?.({
+    tags: selectedTagNames,
+  });
+  setFiltersApplied((prev) => ({ ...prev, tags: true }));
+  
+  // Store the applied state
+  setLastAppliedTags([...selectedTags]);
+};
 
   const handleSubscriptionCheckboxChange = (id: number, checked: boolean) => {
     setSelectedSubscriptionLevels((prev) =>
@@ -140,15 +157,18 @@ export default function PageHeader({
   };
 
   const handleApplySubscriptionFilters = () => {
-    const selectedLevels = selectedSubscriptionLevels
-      .filter((level) => level.checked)
-      .map((level) => level.name);
+  const selectedLevels = selectedSubscriptionLevels
+    .filter((level) => level.checked)
+    .map((level) => level.name);
 
-    onSubscriptionFilterChange?.({
-      subscriptionLevels: selectedLevels,
-    });
-    setFiltersApplied((prev) => ({ ...prev, subscription: true }));
-  };
+  onSubscriptionFilterChange?.({
+    subscriptionLevels: selectedLevels,
+  });
+  setFiltersApplied((prev) => ({ ...prev, subscription: true }));
+  
+  // Store the applied state
+  setLastAppliedSubscriptionLevels([...selectedSubscriptionLevels]);
+};
 
   
   useEffect(() => {
@@ -337,6 +357,7 @@ export default function PageHeader({
               <>
                 <div className="filters">
                   <div className="filter-item">
+                    
                     <Popover className="action-drop">
                       {({ close }) => (
                         <>
@@ -448,14 +469,19 @@ export default function PageHeader({
                             </span>
                           </PopoverButton>
                           <Transition
-     afterLeave={() => {
-       // Only reset if no filter is applied and user didn't click Apply
-       if (shouldResetOnClose && !filtersApplied.tags) {
-         handleResetAll();
-       }
-       setShouldResetOnClose(true); // Reset for next time
-     }}
-   >
+                            afterLeave={() => {
+                              // Only reset to last applied state if user didn't click Apply
+                              if (shouldResetOnClose && filtersApplied.tags) {
+                                // Revert to last applied state
+                                setSelectedTags([...lastAppliedTags]);
+                              } else if (shouldResetOnClose && !filtersApplied.tags) {
+                                // Reset to empty if no filters were ever applied
+                                setSelectedTags(tags.map((tag) => ({ ...tag, checked: false })));
+                              }
+                              setShouldResetOnClose(true); // Reset for next time
+                            }}
+                          >
+
                           <PopoverPanel
                             transition
                             anchor="bottom end"
@@ -554,13 +580,21 @@ export default function PageHeader({
                             </span>
                           </PopoverButton>
                             <Transition
-                                afterLeave={() => {
-                                  // Only reset if no filter is applied and user didn't click Apply
-                                  if (!filtersApplied.subscription) {
-                                    handleResetSubscription();
-                                  }
-                                }}
-                              >
+                              afterLeave={() => {
+                                // Only reset to last applied state if user didn't click Apply
+                                if (filtersApplied.subscription) {
+                                  // Revert to last applied state
+                                  setSelectedSubscriptionLevels([...lastAppliedSubscriptionLevels]);
+                                } else {
+                                  // Reset to empty if no filters were ever applied
+                                  setSelectedSubscriptionLevels([
+                                    { id: 1, name: "free", checked: false },
+                                    { id: 2, name: "paid", checked: false },
+                                    { id: 3, name: "admin-paid", checked: false },
+                                  ]);
+                                }
+                              }}
+                            >
                           <PopoverPanel
                             transition
                             anchor="bottom end"
