@@ -138,6 +138,8 @@
             flex: 1;
             display: flex;
             align-items: center;
+            --width-07: 250px;
+            --width-06: 220px;
             --width-05: 200px;
             --width-04: 180px;
             --width-03: 150px;
@@ -153,9 +155,9 @@
 
             &.cell {
                 &-checkbox { flex: 0 0 var(--width-01); }
-                &-user { flex: 1 0 var(--width-03); }
-                &-phone { flex: 1 0 var(--width-02); }
-                &-email { flex: 1 0 var(--width-05); }
+                &-user { flex: 1 0 var(--width-04); }
+                &-phone { flex: 1 0 var(--width-03); }
+                &-email { flex: 1 0 var(--width-06); }
                 &-business { flex: 1 0 var(--width-04); }
                 &-tags { flex: 0 0 var(--width-04); }
                 &-date { flex: 0 0 var(--width-04); }
@@ -179,10 +181,10 @@
 
             .table-header,
             .table-body {
-                min-width: 1350px;
+                min-width: 1700px;
 
                 @include desktopLarge {
-                    min-width: 1400px;
+                    // min-width: 1700px;
                 }
             }
         }

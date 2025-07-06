@@ -699,7 +699,7 @@ if (crmUsers.length === 0 || fetchAgain) {
                     </div>
                     <div className="table-cell cell-tags">
                       <p className="tags">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-wrap gap-1">
                           {contact.tags.map((tag: string) => (
                             <span
                               key={tag}
