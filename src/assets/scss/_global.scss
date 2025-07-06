@@ -55,6 +55,10 @@
     }
 
     .table-footer {
+        // position: sticky;
+        // bottom: 0;
+        // left: 0;
+        // z-index: 10;
         background-color: #fff;
         border-top: 1px solid var(--table-border-color);
         border-bottom: 1px solid var(--table-border-color);
@@ -65,16 +69,23 @@
                 color: var(--txt-color);
             }
         }
-        .masgRow{
-            p{
-                @include para(14px, 400, 0, 10px 0); color: var(--txt-color); text-align: center;
-                a{ color: var(--base-color-primary); }
+
+        .masgRow {
+            p {
+                @include para(14px, 400, 0, 10px 0);
+                color: var(--txt-color);
+                text-align: center;
+
+                a {
+                    color: var(--base-color-primary);
+                }
             }
         }
     }
+
     //for showing --all emails are selected---- upside 
     .mailsection {
-     
+
 
         .table-row {
             .table-cell {
@@ -82,13 +93,20 @@
                 color: var(--txt-color);
             }
         }
-        .masgRow{
-            p{
-                @include para(14px, 400, 0, 10px 0); color: var(--txt-color); text-align: center;
-                a{ color: var(--base-color-primary); }
+
+        .masgRow {
+            p {
+                @include para(14px, 400, 0, 10px 0);
+                color: var(--txt-color);
+                text-align: center;
+
+                a {
+                    color: var(--base-color-primary);
+                }
             }
         }
     }
+
     .noData {
         display: flex;
         align-items: center;
@@ -147,57 +165,118 @@
                 &-status { flex: 1 0 var(--width-03); }
             }
 
-            &.pagination-cell { justify-content: flex-end; }
+            &.pagination-cell {
+                justify-content: flex-end;
+            }
         }
     }
 
     &.table-contacts-page {
         .table-wrapper {
+            max-height: 70vh; // or whatever fits your layout
+            overflow-y: auto;
+            position: relative;
 
             .table-header,
             .table-body {
                 min-width: 1350px;
-                @include desktopLarge { min-width: 1400px; }
+
+                @include desktopLarge {
+                    min-width: 1400px;
+                }
             }
         }
     }
 
     .table-checkbox-item {
-        display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 3px; background-color: transparent; border: 2px solid #8B8D98;
-        svg { width: 12px; height: 12px; color: #fff; }
-        &[data-checked] { background-color: var(--base-color-primary); border-color: var(--base-color-primary); }
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        background-color: transparent;
+        border: 2px solid #8B8D98;
+
+        svg {
+            width: 12px;
+            height: 12px;
+            color: #fff;
+        }
+
+        &[data-checked] {
+            background-color: var(--base-color-primary);
+            border-color: var(--base-color-primary);
+        }
     }
 
     .user-dp-card {
-        display: flex; align-items: center; gap: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
         figure {
-            width: 30px; height: 30px; border-radius: 50%; background-color: var(--button-border-color); display: flex; align-items: center; justify-content: center;
-            span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--button-border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            span {
+                @include para(14px, 400, 0, 0);
+                color: var(--txt-color);
+            }
         }
-        span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
+
+        span {
+            @include para(14px, 400, 0, 0);
+            color: var(--txt-color);
+        }
+
         &.type01 {
-            figure{
+            figure {
                 background-color: rgba(#0035F1, 0.1);
-                span{color: #0035F1;}
+
+                span {
+                    color: #0035F1;
+                }
             }
         }
+
         &.type02 {
-            figure{
+            figure {
                 background-color: rgba(#B72346, 0.1);
-                span{color: #B72346;}
+
+                span {
+                    color: #B72346;
+                }
             }
         }
+
         &.type03 {
-            figure{
+            figure {
                 background-color: rgba(#09132E, 0.1);
-                span{color: #09132E;}
+
+                span {
+                    color: #09132E;
+                }
             }
         }
     }
 
     .email-item {
-        display: flex; align-items: center; gap: 5px;
-        svg { width: 17px; height: 17px; @include svgColor(#4361EE); }
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        svg {
+            width: 17px;
+            height: 17px;
+            @include svgColor(#4361EE);
+        }
+
         // span { max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
     }
 
@@ -211,80 +290,246 @@
     }
 
     .tags {
-        display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+
         span {
-            background-color: #EEEEF4; border-radius: 30px; @include para(10px, 400, 0, 4px 10px); color: var(--txt-color);
-            &.clr-indigo{background-color: #4D00DE; color: #fff;}
-            &.clr-skyblue{background-color: #299DFA; color: #fff;}
-            &.clr-darkblue{background-color: #1943A1; color: #fff;}
-            &.clr-orange{background-color: #F18903; color: #fff;}
-            &.clr-green{background-color: #1F9E8A; color: #fff;}
-            &.clr-pink{background-color: #FF5275; color: #fff;}
+            background-color: #EEEEF4;
+            border-radius: 30px;
+            @include para(10px, 400, 0, 4px 10px);
+            color: var(--txt-color);
+
+            &.clr-indigo {
+                background-color: #4D00DE;
+                color: #fff;
+            }
+
+            &.clr-skyblue {
+                background-color: #299DFA;
+                color: #fff;
+            }
+
+            &.clr-darkblue {
+                background-color: #1943A1;
+                color: #fff;
+            }
+
+            &.clr-orange {
+                background-color: #F18903;
+                color: #fff;
+            }
+
+            &.clr-green {
+                background-color: #1F9E8A;
+                color: #fff;
+            }
+
+            &.clr-pink {
+                background-color: #FF5275;
+                color: #fff;
+            }
+
+            &.clr-amber {
+                background-color: #F59E0B;
+                color: #fff;
+            }
+
+            &.clr-red {
+                background-color: #EF4444;
+                color: #fff;
+            }
+
+            &.clr-purple {
+                background-color: #8B5CF6;
+                color: #fff;
+            }
+
+            &.clr-teal {
+                background-color: #14B8A6;
+                color: #fff;
+            }
+
+            // Added missing colors:
+            &.clr-vividgreen {
+                background-color: #22C55E; // bright green
+                color: #fff;
+            }
+
+            &.clr-cyan {
+                background-color: #06B6D4; // cyan/light blue
+                color: #fff;
+            }
+
+            &.clr-olive {
+                background-color: #556B2F; // olive green
+                color: #fff;
+            }
+
+            &.clr-violet {
+                background-color: #7C3AED; // violet/purple
+                color: #fff;
+            }
         }
+
     }
+
     //added for the subscription in contact page
     .subscription {
-        display: flex; align-items: center; gap: 5px; flex-wrap: wrap; 
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+
         span {
-             border-radius: 30px; @include para(10px, 400, 0, 4px 10px); color: #fff; 
+            border-radius: 30px;
+            @include para(10px, 400, 0, 4px 10px);
+            color: #fff;
         }
     }
+
     .date {
-        .time { @include para(12px, 400, 0, 0); display: block; }
+        .time {
+            @include para(12px, 400, 0, 0);
+            display: block;
+        }
     }
+
     .action-drop {
-        button { font-size: 20px; min-width: 30px; cursor: pointer;
+        button {
+            font-size: 20px;
+            min-width: 30px;
+            cursor: pointer;
         }
     }
 }
 
-.tab-group-01{
-    .tab-list{
-        border-bottom: 1px solid var(--table-border-color); margin: 0 0 20px;
-        button{
-            @include para(14px, 400, 0, 8px 15px); border-bottom: 2px solid transparent; color: var(--txt-color); cursor: pointer;
-            &[data-selected]{
-                color: #000; border-bottom: 2px solid var(--base-color-primary);
+.tab-group-01 {
+    .tab-list {
+        border-bottom: 1px solid var(--table-border-color);
+        margin: 0 0 20px;
+
+        button {
+            @include para(14px, 400, 0, 8px 15px);
+            border-bottom: 2px solid transparent;
+            color: var(--txt-color);
+            cursor: pointer;
+
+            &[data-selected] {
+                color: #000;
+                border-bottom: 2px solid var(--base-color-primary);
             }
         }
     }
 }
 
-.secBtnRow{
-    display: flex; align-items: center; gap: 10px; margin: 0 0 20px;
-    .btn{
-        padding: 5px 20px; background-color: #fff; color: var(--base-color-primary); border: 1px solid var(--base-color-primary);
-        &.active{
-            background-color: var(--base-color-primary); color: #fff;
+.secBtnRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px;
+
+    .btn {
+        padding: 5px 20px;
+        background-color: #fff;
+        color: var(--base-color-primary);
+        border: 1px solid var(--base-color-primary);
+
+        &.active {
+            background-color: var(--base-color-primary);
+            color: #fff;
         }
     }
 }
-.secContent{
-    .secContent-item{
-        display: none; background-color: #fff; border-radius: 10px; padding: 20px; border: 1px solid var(--table-border-color);
-        &.active{display: block;}
 
-        .fieldDv{
-            margin-bottom: 20px;
-            label{@include para(14px, 400, 0, 0); color: var(--txt-color);}
-            input{@include para(14px, 400, 0, 12px 10px); color: var(--txt-color); border: 1px solid var(--table-border-color); border-radius: 5px;}
-            textarea{@include para(14px, 400, 0, 12px 10px); color: var(--txt-color); border: 1px solid var(--table-border-color); border-radius: 5px; min-height: calc(100vh - 525px);}
+.secContent {
+    .secContent-item {
+        display: none;
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        border: 1px solid var(--table-border-color);
+
+        &.active {
+            display: block;
         }
 
-        .btnRow{
-            display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 20px -20px 0; padding: 0 20px; padding-top: 20px; border-top: 1px solid var(--table-border-color);
+        .fieldDv {
+            margin-bottom: 20px;
+
+            label {
+                @include para(14px, 400, 0, 0);
+                color: var(--txt-color);
+            }
+
+            input {
+                @include para(14px, 400, 0, 12px 10px);
+                color: var(--txt-color);
+                border: 1px solid var(--table-border-color);
+                border-radius: 5px;
+            }
+
+            textarea {
+                @include para(14px, 400, 0, 12px 10px);
+                color: var(--txt-color);
+                border: 1px solid var(--table-border-color);
+                border-radius: 5px;
+                min-height: calc(100vh - 525px);
+            }
+        }
+
+        .btnRow {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            margin: 20px -20px 0;
+            padding: 0 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--table-border-color);
         }
     }
 }
 
 .sendEmailPop {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0); z-index: 999; align-items: flex-end; justify-content: flex-end; display: none;
-    &.active { display: flex; }
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    z-index: 999;
+    align-items: flex-end;
+    justify-content: flex-end;
+    display: none;
+
+    &.active {
+        display: flex;
+    }
 
     .sendEmailPop-wrapper {
-        background-color: #fff; border-radius: 10px; width: 50%; padding: 20px; margin: 0px 30px 20px 0px; border: 1px solid var(--table-border-color); cursor: pointer; position: relative;
+        background-color: #fff;
+        border-radius: 10px;
+        width: 50%;
+        padding: 20px;
+        margin: 0px 30px 20px 0px;
+        border: 1px solid var(--table-border-color);
+        cursor: pointer;
+        position: relative;
 
-        .closeBtn { position: absolute; top: 20px; right: 20px; background-color: var(--color-gray-200); border-radius: 50%; @include para(20px, 400, 0, 5px); line-height: 1; min-width: 30px; cursor: pointer; color: var(--txt-color); }
+        .closeBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--color-gray-200);
+            border-radius: 50%;
+            @include para(20px, 400, 0, 5px);
+            line-height: 1;
+            min-width: 30px;
+            cursor: pointer;
+            color: var(--txt-color);
+        }
 
         h2 {
             @include para(24px, 600, 0, 20px 0);
@@ -293,60 +538,146 @@
 
         .fieldDv {
             .emailInputCol {
-                display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 5px; border-radius: 5px; position: relative; max-height: 150px; overflow: auto; border: 1px solid var(--table-border-color);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                padding: 5px;
+                border-radius: 5px;
+                position: relative;
+                max-height: 150px;
+                overflow: auto;
+                border: 1px solid var(--table-border-color);
 
                 // &:focus-within{outline: 2px solid var(--base-color-primary);}
                 .emailItem {
-                    display: flex; align-items: center; gap: 10px; background-color: var(--table-border-color); border-radius: 50px; padding: 4px; transition: var(--trans-primary);
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    background-color: var(--table-border-color);
+                    border-radius: 50px;
+                    padding: 4px;
+                    transition: var(--trans-primary);
+
                     figure {
-                        width: 30px; height: 30px; border-radius: 50%; background-color: #fff; display: flex; align-items: center; justify-content: center;
-                        span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        background-color: #fff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        span {
+                            @include para(14px, 400, 0, 0);
+                            color: var(--txt-color);
+                        }
                     }
-                    span { @include para(14px, 400, 0, 0); color: var(--txt-color); }
-                    i { @include para(20px, 400, 0px 10px 0px 0px, 0); color: var(--txt-color-dark);  transition: var(--trans-primary);}
+
+                    span {
+                        @include para(14px, 400, 0, 0);
+                        color: var(--txt-color);
+                    }
+
+                    i {
+                        @include para(20px, 400, 0px 10px 0px 0px, 0);
+                        color: var(--txt-color-dark);
+                        transition: var(--trans-primary);
+                    }
 
                     &.shrinked {
                         gap: 0px;
-                        +.shrinked { margin-left: -25px; }
+
+                        +.shrinked {
+                            margin-left: -25px;
+                            background-color: 'red';
+                        }
                     }
 
                     &.type01 {
-                        figure{
+                        figure {
                             background-color: rgba(#0035F1, 0.1);
-                            span{color: #0035F1;}
+
+                            span {
+                                color: #0035F1;
+                            }
                         }
                     }
+
                     &.type02 {
-                        figure{
+                        figure {
                             background-color: rgba(#B72346, 0.1);
-                            span{color: #B72346;}
+
+                            span {
+                                color: #B72346;
+                            }
                         }
                     }
+
                     &.type03 {
-                        figure{
+                        figure {
                             background-color: rgba(#09132E, 0.1);
-                            span{color: #09132E;}
+
+                            span {
+                                color: #09132E;
+                            }
                         }
                     }
-                    
-                    &:hover{
+
+                    &:hover {
                         background-color: rgba(var(--base-color-primary-rgb), 0.1);
-                        i{color: var(--base-color-primary);}
+
+                        i {
+                            color: var(--base-color-primary);
+                        }
                     }
                 }
 
                 .textInput {
                     position: relative;
-                    input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; outline: none; border: none; padding: 0; }
-                    span { opacity: 0; display: block; min-width: 140px; height: 38px; }
+
+                    input {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        outline: none;
+                        border: none;
+                        padding: 0;
+                    }
+
+                    span {
+                        opacity: 0;
+                        display: block;
+                        min-width: 140px;
+                        height: 38px;
+                    }
                 }
 
                 .emailDroplist {
-                    position: absolute; top: 100%; left: 0; width: 100%; background-color: #fff; border: 1px solid var(--table-border-color); padding: 5px; z-index: 1; max-height: 187px; overflow: auto;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    width: 100%;
+                    background-color: #fff;
+                    border: 1px solid var(--table-border-color);
+                    padding: 5px;
+                    z-index: 1;
+                    max-height: 187px;
+                    overflow: auto;
+
                     ul {
                         li {
-                            @include para(14px, 400, 0, 0); color: var(--txt-color); padding: 10px; border-radius: 5px; cursor: pointer;
-                            &:hover { background-color: rgba(var(--base-color-primary-rgb), 0.1); }
+                            @include para(14px, 400, 0, 0);
+                            color: var(--txt-color);
+                            padding: 10px;
+                            border-radius: 5px;
+                            cursor: pointer;
+
+                            &:hover {
+                                background-color: rgba(var(--base-color-primary-rgb), 0.1);
+                            }
                         }
                     }
                 }
@@ -354,40 +685,118 @@
         }
 
         .rsw-editor {
-            .rsw-ce { height: 300px; max-height: calc(100vh - 540px); }
+            .rsw-ce {
+                height: 300px;
+                max-height: calc(100vh - 540px);
+            }
         }
 
-        .btnRow { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding-top: 20px; }
+        .btnRow {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 20px;
+        }
     }
 }
 
 
 .fileDownloadDv {
-    background-color: #faf4f5; border-radius: 24px; width: calc(25% - 18px); padding: 2px; border: 2px solid var(--button-border-color); cursor: pointer; position: relative;
+    background-color: #faf4f5;
+    border-radius: 24px;
+    width: calc(25% - 18px);
+    padding: 2px;
+    border: 2px solid var(--button-border-color);
+    cursor: pointer;
+    position: relative;
+
     .downloadBtn {
-        position: absolute; top: 20px; right: 20px; z-index: 1; background-color: #FAF4F5; border-radius: 5px; padding: 10px; cursor: pointer;
-        svg { width: 20px; height: 20px; @include svgColor(var(--base-color-primary)); }
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1;
+        background-color: #FAF4F5;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+
+        svg {
+            width: 20px;
+            height: 20px;
+            @include svgColor(var(--base-color-primary));
+        }
     }
 
     .action-drop {
-        position: absolute; top: 20px; right: 20px; z-index: 1;
-        button { font-size: 20px; min-width: 30px; cursor: pointer; }
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1;
+
+        button {
+            font-size: 20px;
+            min-width: 30px;
+            cursor: pointer;
+        }
     }
 
     .fileLockIcon {
-        position: absolute; top: 20px; left: 20px; z-index: 1; width: 34px; opacity: 0;
-        img { width: 100%; height: 100%; object-fit: contain; }
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 1;
+        width: 34px;
+        opacity: 0;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
     }
 
-    .iconDv { background-color: #fff; border-radius: 24px; padding: 10px; display: flex; align-items: center; justify-content: center; min-height: 180px; }
+    .iconDv {
+        background-color: #fff;
+        border-radius: 24px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 180px;
+    }
 
-    h3 { @include para(16px, 600, 0, 20px); color: #000; min-height: 88px; }
+    h3 {
+        @include para(16px, 600, 0, 20px);
+        color: #000;
+        min-height: 88px;
+    }
 
     .templateInfo {
-        position: relative; padding: 20px; padding-left: 80px;
-        figure { width: 45px; height: 45px; border-radius: 10px; position: absolute; top: 20px; left: 20px; @include imgCover; }
-        h3 { padding: 0px; min-height: 0px; margin-bottom: 5px; }
-        p { @include para(12px, 400, 0, 0); color: var(--txt-color); }
+        position: relative;
+        padding: 20px;
+        padding-left: 80px;
+
+        figure {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            @include imgCover;
+        }
+
+        h3 {
+            padding: 0px;
+            min-height: 0px;
+            margin-bottom: 5px;
+        }
+
+        p {
+            @include para(12px, 400, 0, 0);
+            color: var(--txt-color);
+        }
     }
 
     &:hover {
@@ -397,7 +806,7 @@
     &.locked {
         background-color: #EFF5F8;
         // pointer-events: none;  
-        
+
         // In the AppData component, we implemented options to enable or disable modules. Initially, we set pointer-events: none when disabling a module to prevent user interaction. However, this also made it impossible to re-enable the module since all pointer events were blocked. To address this issue, we’ve temporarily commented out the pointer-events code.
 
         // .iconDv {
@@ -410,38 +819,104 @@
     }
 }
 
-.uploadAreaDv{
-    .uploadArea{
-        .file-dropzone-container{
-            width: 100%; height: 230px; display: flex; align-items: center; justify-content: center; background-color: rgba(var(--base-color-primary-rgb), 0.04); border-radius: 10px; border: 1px solid var(--base-color-primary); margin: 0 0 20px; cursor: pointer;
-            .inner{
-                display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-                p{
-                    @include para(14px, 400, 0, 0); color: var(--txt-color); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-                    span{text-transform: uppercase; color: #6D6D6D; display: block;}
-                    button{
-                        @include para(14px, 400, 0, 10px 20px); border-radius: 5px;
+.uploadAreaDv {
+    .uploadArea {
+        .file-dropzone-container {
+            width: 100%;
+            height: 230px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(var(--base-color-primary-rgb), 0.04);
+            border-radius: 10px;
+            border: 1px solid var(--base-color-primary);
+            margin: 0 0 20px;
+            cursor: pointer;
+
+            .inner {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+
+                p {
+                    @include para(14px, 400, 0, 0);
+                    color: var(--txt-color);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+
+                    span {
+                        text-transform: uppercase;
+                        color: #6D6D6D;
+                        display: block;
+                    }
+
+                    button {
+                        @include para(14px, 400, 0, 10px 20px);
+                        border-radius: 5px;
                     }
                 }
             }
         }
-        .uploaded-files-container{
-            .upload-item{
-                display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #E7E7E7; border-radius: 10px; padding: 10px; margin: 10px 0;
-                .icon{
-                    
-                    img{width: 40px; height: auto;}
-                }
-                .info{
-                    flex: 1;
-                    p{
-                        @include para(14px, 400, 0, 0); color: var(--txt-color); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px;
-                        +p{@include para(12px, 400, 0, 0); color: var(--txt-color-dark);}
+
+        .uploaded-files-container {
+            .upload-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                border: 1px solid #E7E7E7;
+                border-radius: 10px;
+                padding: 10px;
+                margin: 10px 0;
+
+                .icon {
+
+                    img {
+                        width: 40px;
+                        height: auto;
                     }
                 }
-                .action{
-                    display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background-color: rgba(#858585, 0.3); cursor: pointer; border:2px solid #858585;
-                    svg{width: 10px; height: 10px; @include svgColor(#858585);}
+
+                .info {
+                    flex: 1;
+
+                    p {
+                        @include para(14px, 400, 0, 0);
+                        color: var(--txt-color);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-start;
+                        justify-content: center;
+                        gap: 5px;
+
+                        +p {
+                            @include para(12px, 400, 0, 0);
+                            color: var(--txt-color-dark);
+                        }
+                    }
+                }
+
+                .action {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background-color: rgba(#858585, 0.3);
+                    cursor: pointer;
+                    border: 2px solid #858585;
+
+                    svg {
+                        width: 10px;
+                        height: 10px;
+                        @include svgColor(#858585);
+                    }
                 }
             }
         }
@@ -451,7 +926,17 @@
 
 
 .hvac-toast {
-    background-color: #fff; color: var(--txt-color); font-size: 14px; border-radius: 5px 0px 0px 5px; border-left: 5px solid #ccc; padding: 10px 20px; box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1); display: flex; align-items: center; min-height: 70px;
+    background-color: #fff;
+    color: var(--txt-color);
+    font-size: 14px;
+    border-radius: 5px 0px 0px 5px;
+    border-left: 5px solid #ccc;
+    padding: 10px 20px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    min-height: 70px;
+
     &.toast {
         &-success {
             border-color: var(--color-success);

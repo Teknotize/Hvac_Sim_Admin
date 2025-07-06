@@ -22,13 +22,15 @@ const useTokenRefresh = () => {
         console.log("Access token refreshed immediately after login");
       });
     }
-    // ✅ Set interval to refresh token every 14.5 minutes
+
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
     const refreshTokenInterval = setInterval(async () => {
       console.log("Inside interval - attempting refresh");
       await refreshAccessToken();
       console.log("Access token refreshed via interval");
-    }, 420000); // 14.5 minutes
-
+    // }, 420000); // 14.5 minutes
+}, TWENTY_FOUR_HOURS)
     return () => {
       console.log("Clearing interval on unmount");
       clearInterval(refreshTokenInterval);
