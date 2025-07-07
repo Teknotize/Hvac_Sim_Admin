@@ -2,62 +2,44 @@ import {
   Button,
   Popover,
   PopoverButton,
-  Input
-  
+  Input,
 } from "@headlessui/react";
-import { addDistributor } from "../../api/DistributorData";
 import { useState } from "react";
+import { updateDistributor } from "../../api/DistributorData";
 import useToastStore from "../../store/useToastStore"; 
 
+const EditDistrubutor = ({ distributor, onClose, onSuccess }) => {
+
+       const { showToast } = useToastStore();
 
 
-const AddDistrubutorForm = ({ onSuccess, onClose }) => {
-  
+    const [formData, setFormData] = useState({ ...distributor });
 
-  const [formData, setFormData] = useState({
-    distributorName: "",
-    state: "",
-    salesperson1: "",
-    salesperson2: "",
-    salesperson3: "",
-  });
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        }));
+    };
 
-    const { showToast } = useToastStore();
-
-  const handleChange = (e) => {
-  const { name, value } = e.target;
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-  };
-
-  const handleSubmit = async () => {
+  const handleUpdate = async () => {
     try {
-      await addDistributor({ ...formData, Status: "Active" });
-      showToast("Distributor added successfully!", "success");
-      setFormData({
-        distributorName: "",
-        state: "",
-        salesperson1: "",
-        salesperson2: "",
-        salesperson3: "",
-      });
-      if (onSuccess) onSuccess(); // 🔁 REFRESH TABLE
-      if (onClose) onClose();
-    } catch (error) {
-      showToast("Error adding distributor.", "error");
-      console.error(error);
+      await updateDistributor(distributor._id, formData);
+      showToast("Distributor Updated successfully!", "success");
+      onSuccess(); // refresh table
+      onClose();   // close modal
+    } catch (err) {
+      showToast("Error updating distributor.", "error");
+      console.error(err);
     }
   };
-
-
+    
   return (
     <>
-    <div className="mt-4 border-t border-gray-200">
+      <div className="mt-4 border-t border-gray-200"></div>
 
-    </div>
-    <div className="mt-8 mb-8 grid grid-cols-2 gap-8 m-y-8 text-black px-6 py-4">
+     <div className="mt-8 mb-8 grid grid-cols-2 gap-8 m-y-8 text-black px-6 py-4">
         <div className="">
             <p className="text-medium text-xs pb-[5px]">Distributor Name</p>
             <Input
@@ -157,19 +139,19 @@ const AddDistrubutorForm = ({ onSuccess, onClose }) => {
             className="border px-[16px] py-[14px] border-gray-200 w-full rounded-lg text-sm text-black" />
         </div>
     </div>
-    <div className="filterArea p-4 flex justify-end border-gray-200 border-t px-[25px] py-[19px]">
-                <Popover className="action-drop">
-                  <PopoverButton className="block">
-                    <Button
-                    onClick={handleSubmit} 
-                    className="btn-primary px-[20px] py-[12px] rounded-3xl">
-                      <span className="text-sm ">Save Changes</span>
-                    </Button>
-                  </PopoverButton>
-                </Popover>
-    </div>
-    </>
-  )
-}
 
-export default AddDistrubutorForm
+      <div className="filterArea p-4 flex justify-end border-gray-200 border-t px-[25px] py-[19px]">
+        <Popover className="action-drop">
+          <PopoverButton className="block">
+            <Button onClick={handleUpdate}
+            className="btn-primary px-[20px] py-[12px] rounded-3xl">
+              <span className="text-sm">Save Changes</span>
+            </Button>
+          </PopoverButton>
+        </Popover>
+      </div>
+    </>
+  );
+};
+
+export default EditDistrubutor;
