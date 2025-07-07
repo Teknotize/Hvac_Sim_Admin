@@ -1,4 +1,5 @@
 import { addDays } from "date-fns";
+import { AppUserDataType,InquiryDataType,TotalOrderDataType } from "./types";
 export const tags = [ 
   {
     id: 1,
@@ -62,3 +63,67 @@ export const defaultDate = {
   endDate: addDays(new Date(), 0),
   key: "selection",
 };
+
+export const   stats = [
+    { name: 'Distributors', value: 8 ,subText:"open",till: "2023-10-01",color:"text-blue-500"},
+    { name: 'Sales Persons', value: 24, subText:"Lorem Ipsium",till: "2023-10-01",color:"text-yellow-500"},
+    { name: 'Inquiries', value: 15 ,subText:"open",till: "2023-10-01",color:"text-red-700"},
+    { name: 'Active Users', value: 63 ,subText:"Lorem Ipsium",till: "2023-10-01",color:"text-teal-700"},
+  ];
+
+  
+
+export const tempAppUserData: AppUserDataType[] = [
+  
+  { name: 'Total User', value: 400 },
+  { name: 'Active User', value: 100 },
+];
+export const tempInquiriesData: InquiryDataType[] = [
+  { name: 'Week 1', inquiries: 18500 },
+  { name: 'Week 2', inquiries: 42000 },
+  { name: 'Week 3', inquiries: 27800 },
+  { name: 'Week 4', inquiries: 36000 },
+  { name: 'Week 5', inquiries: 24500 },
+  { name: 'Week 6', inquiries: 40000 },
+  { name: 'Week 7', inquiries: 19800 },
+  { name: 'Week 8', inquiries: 33200 },
+  { name: 'Week 9', inquiries: 28900 },
+  { name: 'Week 10', inquiries: 37000 },
+];
+
+
+export const tempTotalOrdersData: TotalOrderDataType[] = [
+  { name: 'Week 1', Abc: 120000, Xyz: 100000 },
+  { name: 'Week 2', Abc: 180000, Xyz: 130000 },
+  { name: 'Week 3', Abc: 220000, Xyz: 500000 },
+  { name: 'Week 4', Abc: 200000, Xyz: 80000 },
+  { name: 'Week 5', Abc: 150000, Xyz: 120000 },
+];
+export const recentActivityButtons = [
+  { label: "App Users", active: true },
+  { label: "Contact us", active: false },
+  { label: "Inquiries", active: false },
+];
+export const TestData = [
+      {
+        initials: "SP",
+        name: "Samuel Patrick",
+        email: "samul@example.com",
+        time: "3 days ago",
+        color: "bg-blue-100 text-blue-700",
+      },
+      {
+        initials: "EM",
+        name: "Elijah Matthew",
+        email: "elijah@example.com",
+        time: "9 days ago",
+        color: "bg-gray-200 text-gray-700",
+      },
+      {
+        initials: "EM",
+        name: "Noah Benjamin",
+        email: "noah@example.com",
+        time: "15 days ago",
+        color: "bg-red-100 text-red-700",
+      },
+    ]

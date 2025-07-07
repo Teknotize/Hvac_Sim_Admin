@@ -679,20 +679,20 @@ if (crmUsers.length === 0 || fetchAgain) {
                       <p className="subscription">
                         {contact.subscriptionLevel && (
                       <span
-  className={`px-2 py-1 rounded-full text-white text-sm font-semibold
-    ${contact.subscriptionLevel === "admin-paid"
-      ? "bg-[#1943A1]"
-      : contact.subscriptionLevel === "paid"
-      ? "bg-black"
-      : "bg-[#1F9E8A]"
-    }`}
->
+                        className={`px-2 py-1 rounded-full text-white text-sm font-semibold
+                          ${contact.subscriptionLevel === "admin-paid"
+                            ? "bg-[#1943A1]"
+                            : contact.subscriptionLevel === "paid"
+                            ? "bg-black"
+                            : "bg-[#1F9E8A]"
+                          }`}
+                      >
                             
                             {contact.subscriptionLevel === "admin-paid"
-  ? "Admin Paid"
-  : contact.subscriptionLevel === "paid"
-  ? "Paid"
-  : "Free"}
+                            ? "Admin Paid"
+                            : contact.subscriptionLevel === "paid"
+                            ? "Paid"
+                            : "Free"}
                           </span>
                         )}
                       </p>
