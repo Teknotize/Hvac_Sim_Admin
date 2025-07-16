@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect } from "react";
-import { faCheck, faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faEllipsisVertical, faXmark } from "@fortawesome/free-solid-svg-icons";
 import {
   Button,
   Field,
@@ -7,7 +7,9 @@ import {
   PopoverButton, PopoverPanel ,
   Popover,
   Dialog,
+  DialogPanel
 } from "@headlessui/react";
+import { DialogDeleteIcon } from "../svg/icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -17,7 +19,7 @@ import AddDistrubutorForm from "./addDistrubutorForm";
 import { getDistributors, toggleDistributorStatus, deleteDistributor } from "../../api/DistributorData";
 import EditDistrubutor from "./editDistributor";
 import useToastStore from "../../store/useToastStore"; 
-
+import Loader from "../../components/loader";
 
 
 const DistributorTable = () => {
@@ -32,6 +34,9 @@ const DistributorTable = () => {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [selectedDistributorId, setSelectedDistributorId] = useState<string | null>(null);
+    
 
     const fetchDistributors = async () => {
         try {
@@ -75,10 +80,6 @@ const DistributorTable = () => {
         if (!target) return;
 
         const isActive = target.Status === "Active";
-        const confirmToggle = window.confirm(
-            `Are you sure you want to ${isActive ? "deactivate" : "activate"} this distributor?`
-        );
-        if (!confirmToggle) return;
 
         try {
             await toggleDistributorStatus(id);
@@ -103,33 +104,27 @@ const DistributorTable = () => {
     };
 
 
-        const handleDeleteDistributor = async (id: string) => {
-            if (!id) {
-                console.error("No ID provided for deletion.");
-                return;
-            }
+        const handleDeleteDistributor = (id: string) => {
+            setSelectedDistributorId(id);
+            setIsDeleteConfirmOpen(true);
+            };
 
-            const distributor = distributors.find((d) => d._id === id);
-            if (!distributor) {
-                console.error("Distributor not found.");
-                return;
-            }
-
-            const confirmDelete = window.confirm(
-                `Are you sure you want to delete distributor "${distributor.distributorName}"?`
-            );
-
-            if (!confirmDelete) return;
+            const confirmDeleteDistributor = async () => {
+            if (!selectedDistributorId) return;
 
             try {
-                await deleteDistributor(id);
-                setDistributors((prev) => prev.filter((d) => d._id !== id));
+                await deleteDistributor(selectedDistributorId);
+                setDistributors((prev) => prev.filter((d) => d._id !== selectedDistributorId));
                 showToast("Distributor deleted successfully!", "success");
             } catch (err) {
                 console.error("Failed to delete distributor:", err);
                 showToast("Deletion failed", "error");
+            } finally {
+                setIsDeleteConfirmOpen(false);
+                setSelectedDistributorId(null);
             }
         };
+
 
 
   return (
@@ -241,7 +236,7 @@ const DistributorTable = () => {
                             <tbody className="bg-white">
                                 {loading ? (
                                 <tr>
-                                    <td colSpan={7} className="text-center py-6 text-gray-400">Loading...</td>
+                                    <td colSpan={7} ><Loader size="xl"/></td>
                                 </tr>
                                 ) : distributors.length > 0 ? (
                                 paginatedDistributors.map((item, index) => (
@@ -263,28 +258,50 @@ const DistributorTable = () => {
                                     <td className="px-4 py-4 text-gray-500  whitespace-nowrap">
                                             <div className="table-cell text-xl cell-action justify-end">
                                                 <Popover className="relative cursor-pointer">
-                                                    <PopoverButton className="block cursor-pointer">
-                                                    <FontAwesomeIcon icon={faEllipsisVertical} />
-                                                    </PopoverButton>
-                                                    <PopoverPanel className="absolute right-0 z-10 mt-2 w-50 bg-white shadow-lg border rounded-md" style={{ borderColor: "#e9ecef" }}>
-                                                        <div className="p-2 space-y-2 font-medium">
+                                                    {({ close }) => (
+                                                        <>
+                                                        <Popover.Button className="block cursor-pointer">
+                                                            <FontAwesomeIcon icon={faEllipsisVertical} />
+                                                        </Popover.Button>
+
+                                                        <Popover.Panel className="absolute right-0 z-10 mt-2 w-50 bg-white shadow-lg border rounded-md" style={{ borderColor: "#e9ecef" }}>
+                                                            <div className="p-2 space-y-2 font-medium">
                                                             <button
-                                                            onClick={() => {
+                                                                onClick={() => {
                                                                 setEditDistributor(item);
                                                                 setIsEditOpen(true);
-                                                            }} 
-                                                            className="block w-full rounded-md px-4 py-2 text-left cursor-pointer text-sm text-[#425466] transition-colors duration-200 rounded-md valid">
-                                                                 Edit
+                                                                // ✅ Close popover
+                                                                }}
+                                                                className="block w-full rounded-md px-4 py-2 text-left cursor-pointer text-sm text-[#425466] transition-colors duration-200 rounded-md valid"
+                                                            >
+                                                                Edit
                                                             </button>
-                                                            <button className="block w-full px-4 py-2 text-left text-sm cursor-pointer text-[#425466] transition-colors duration-200 rounded-md valid "   onClick={() => handleToggleStatus(item._id)}>
+
+                                                            <button
+                                                                onClick={() => {
+                                                                handleToggleStatus(item._id);
+                                                                close(); // ✅ Close popover
+                                                                }}
+                                                                className="block w-full rounded-md px-4 py-2 text-left cursor-pointer text-sm text-[#425466] transition-colors duration-200 rounded-md valid"
+                                                            >
                                                                 {item.Status === "Active" ? "Deactivate" : "Activate"}
                                                             </button>
-                                                            <button onClick={() => handleDeleteDistributor(item._id)} className="block w-full px-4 py-2 text-left text-sm cursor-pointer text-[#425466] transition-colors duration-200 rounded-md valid">
-                                                                    Delete
+
+                                                            <button
+                                                                onClick={() => {
+                                                                handleDeleteDistributor(item._id);
+                                                                // ✅ Close popover
+                                                                }}
+                                                                className="block w-full rounded-md px-4 py-2 text-left cursor-pointer text-sm text-[#425466] transition-colors duration-200 rounded-md valid"
+                                                            >
+                                                                Delete
                                                             </button>
-                                                        </div>
-                                                    </PopoverPanel>
+                                                            </div>
+                                                        </Popover.Panel>
+                                                        </>
+                                                    )}
                                                 </Popover>
+
                                             </div>
                                         </td>
                                     </tr>
@@ -295,6 +312,46 @@ const DistributorTable = () => {
                                 </tr>
                                 )}
                             </tbody>
+                            <Dialog
+                                open={isDeleteConfirmOpen}
+                                onClose={() => setIsDeleteConfirmOpen(false)}
+                                className="relative z-50"
+                                >
+                                <div className="fixed inset-0 flex w-screen items-center justify-center p-4 bg-black/40 dialog-item dialog-notification dialog-email-success">
+                                    <DialogPanel className="max-w-full w-xl space-y-4 border bg-white p-6 rounded-xl dialog-panel">
+                                    <div className="dialog-body">
+                                        <Button
+                                        className="closeBtn"
+                                        onClick={() => setIsDeleteConfirmOpen(false)}
+                                        >
+                                        <FontAwesomeIcon icon={faXmark} />
+                                        </Button>
+
+                                        <div className="icon">
+                                        <DialogDeleteIcon />
+                                        </div>
+
+                                        <h3>Confirm Deletion?</h3>
+                                        <p>
+                                        Are you sure you want to delete this distributor? This action cannot be undone.
+                                        </p>
+
+                                        <div className="btn-row flex gap-4 justify-end">
+                                        <Button
+                                            className="btn btn-primary-outline"
+                                            onClick={() => setIsDeleteConfirmOpen(false)}
+                                        >
+                                            Not Now
+                                        </Button>
+                                        <Button className="btn btn-primary" onClick={confirmDeleteDistributor}>
+                                            Yes, Delete
+                                        </Button>
+                                        </div>
+                                    </div>
+                                    </DialogPanel>
+                                </div>
+                            </Dialog>
+
                         </table>
                     
         </div>

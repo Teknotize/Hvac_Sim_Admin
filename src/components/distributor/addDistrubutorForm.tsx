@@ -32,24 +32,62 @@ const AddDistrubutorForm = ({ onSuccess, onClose }) => {
   }));
   };
 
-  const handleSubmit = async () => {
-    try {
-      await addDistributor({ ...formData, Status: "Active" });
-      showToast("Distributor added successfully!", "success");
-      setFormData({
-        distributorName: "",
-        state: "",
-        salesperson1: "",
-        salesperson2: "",
-        salesperson3: "",
-      });
-      if (onSuccess) onSuccess(); // 🔁 REFRESH TABLE
-      if (onClose) onClose();
-    } catch (error) {
-      showToast("Error adding distributor.", "error");
-      console.error(error);
-    }
-  };
+const handleSubmit = async () => {
+  const { distributorName, state, salesperson1, salesperson2, salesperson3 } = formData;
+
+  // ✅ Check if any field is empty
+  if (
+    !distributorName.trim() ||
+    !state.trim() ||
+    !salesperson1.trim() ||
+    !salesperson2.trim() ||
+    !salesperson3.trim()
+  ) {
+    showToast("Please fill in all the fields.", "error");
+    return;
+  }
+
+  // ✅ Basic email format regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const invalidEmail = [salesperson1, salesperson2, salesperson3].find(
+    (email) => !emailRegex.test(email)
+  );
+
+  if (invalidEmail) {
+    showToast(`Invalid email format: ${invalidEmail}`, "error");
+    return;
+  }
+
+  // ✅ Check for duplicate emails
+  const emails = [salesperson1, salesperson2, salesperson3];
+  const hasDuplicates = new Set(emails).size !== emails.length;
+
+  if (hasDuplicates) {
+    showToast("Salesperson emails must not be the same.", "error");
+    return;
+  }
+
+  // 🔄 Submit logic
+  try {
+    await addDistributor({ ...formData, Status: "Active" });
+    showToast("Distributor added successfully!", "success");
+
+    setFormData({
+      distributorName: "",
+      state: "",
+      salesperson1: "",
+      salesperson2: "",
+      salesperson3: "",
+    });
+
+    if (onSuccess) onSuccess();
+    if (onClose) onClose();
+  } catch (error) {
+    showToast("Error adding distributor.", "error");
+    console.error(error);
+  }
+};
+
 
 
   return (
@@ -75,7 +113,7 @@ const AddDistrubutorForm = ({ onSuccess, onClose }) => {
             onChange={handleChange}
             name="state" 
             className="select border px-[16px] py-[14px] border-gray-200 w-full rounded-lg text-sm text-black">
-                <option disabled={true}>Select State</option>
+                <option >Select State</option>
                 <option value="Alabama">Alabama</option>
                 <option value="Alaska">Alaska</option>
                 <option value="Arizona">Arizona</option>
@@ -162,7 +200,7 @@ const AddDistrubutorForm = ({ onSuccess, onClose }) => {
                   <PopoverButton className="block">
                     <Button
                     onClick={handleSubmit} 
-                    className="btn-primary px-[20px] py-[12px] rounded-3xl">
+                    className="btn-primary px-[20px] py-[12px] rounded-3xl cursor-pointer">
                       <span className="text-sm ">Save Changes</span>
                     </Button>
                   </PopoverButton>

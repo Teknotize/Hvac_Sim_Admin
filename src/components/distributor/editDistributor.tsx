@@ -23,17 +23,57 @@ const EditDistrubutor = ({ distributor, onClose, onSuccess }) => {
         }));
     };
 
-  const handleUpdate = async () => {
-    try {
-      await updateDistributor(distributor._id, formData);
-      showToast("Distributor Updated successfully!", "success");
-      onSuccess(); // refresh table
-      onClose();   // close modal
-    } catch (err) {
-      showToast("Error updating distributor.", "error");
-      console.error(err);
-    }
-  };
+ const handleUpdate = async () => {
+  const {
+    distributorName,
+    state,
+    salesperson1,
+    salesperson2,
+    salesperson3,
+  } = formData;
+
+  // 1️⃣ Check if any field is empty
+  if (
+    !distributorName.trim() ||
+    !state.trim() ||
+    !salesperson1.trim() ||
+    !salesperson2.trim() ||
+    !salesperson3.trim()
+  ) {
+    showToast("Please fill in all the fields.", "error");
+    return;
+  }
+
+  // 2️⃣ Check for valid email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const invalidEmail = [salesperson1, salesperson2, salesperson3].find(
+    (email) => !emailRegex.test(email)
+  );
+  if (invalidEmail) {
+    showToast(`Invalid email format: ${invalidEmail}`, "error");
+    return;
+  }
+
+  // 3️⃣ Check for duplicate emails
+  const emails = [salesperson1, salesperson2, salesperson3];
+  const hasDuplicates = new Set(emails).size !== emails.length;
+  if (hasDuplicates) {
+    showToast("Salesperson emails must not be the same.", "error");
+    return;
+  }
+
+  // 🔄 Submit update
+  try {
+    await updateDistributor(distributor._id, formData);
+    showToast("Distributor updated successfully!", "success");
+    if (onSuccess) onSuccess();
+    if (onClose) onClose();
+  } catch (err) {
+    showToast("Error updating distributor.", "error");
+    console.error(err);
+  }
+};
+
     
   return (
     <>
@@ -47,6 +87,7 @@ const EditDistrubutor = ({ distributor, onClose, onSuccess }) => {
             onChange={handleChange} 
             name="distributorName" 
             placeholder="Enter" 
+            required={true}
             className="border px-[16px] py-[14px] border-gray-200 w-full rounded-lg text-sm text-black" />
         </div>
         <div>
@@ -57,7 +98,7 @@ const EditDistrubutor = ({ distributor, onClose, onSuccess }) => {
             onChange={handleChange}
             name="state" 
             className="select border px-[16px] py-[14px] border-gray-200 w-full rounded-lg text-sm text-black">
-                <option disabled={true}>Select State</option>
+                <option >Select State</option>
                 <option value="Alabama">Alabama</option>
                 <option value="Alaska">Alaska</option>
                 <option value="Arizona">Arizona</option>
@@ -145,7 +186,7 @@ const EditDistrubutor = ({ distributor, onClose, onSuccess }) => {
           <PopoverButton className="block">
             <Button onClick={handleUpdate}
             className="btn-primary px-[20px] py-[12px] rounded-3xl">
-              <span className="text-sm">Save Changes</span>
+              <span className="text-sm cursor-pointer">Save Changes</span>
             </Button>
           </PopoverButton>
         </Popover>
