@@ -700,6 +700,32 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
             </Button>
           </div>
         )}
+        {route === "distributors" && (
+          <div className="filterArea">
+            <Field className="search-field">
+              <FontAwesomeIcon icon={faSearch} />
+              <Input as={Fragment}>
+                {({ focus, hover }) => (
+                  <input
+                    name="search"
+                    placeholder="Search"
+                    className={clsx(
+                      focus && "itemfocus",
+                      hover && "itemhover"
+                    )}
+                    onChange={(e) => onSearchChange?.(e.target.value)}
+                  />
+                )}
+              </Input>
+            </Field>
+            <Button
+              className="btn btn-primary"
+              onClick={() => {}}
+            >
+              <FontAwesomeIcon icon={faPlus} /> Add New
+            </Button>
+          </div>
+        )}
         {route === "app-data" && (
           <div className="filterArea">
             <Popover className="action-drop">

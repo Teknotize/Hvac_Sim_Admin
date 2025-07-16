@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/Dashboard";
 import Contacts from "./pages/crm/Contacts";
 import PdfManual from "./pages/crm/PdfManual";
 import Cms from "./pages/cms/Cms";
+import Distriburor from "./pages/Distriburor";
 import MainLayout from "./components/layout/MainLayout";
+import DistributorTable from "./components/distributor/distributorTable";
 import Toast from "./components/toast/loginToast";
 import useTokenRefresh from "./utils/refreshTokenTimer";
 import NotFoundPage from "./pages/notFound";
@@ -12,7 +14,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import AppData from "./pages/AppData";
 import ProgressToast from "./components/toast/sendingEmailToast";
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const accessToken = useAuthStore((state) => state.accessToken);
 
   if (!accessToken) {
@@ -21,7 +23,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   useTokenRefresh();
 
   return <>{children}</>;
-};
+}
 
 function App() {
   return (
@@ -41,12 +43,7 @@ function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route
-              path="distributors"
-              element={
-                <div className="p-4">Distributors Page (Coming Soon)</div>
-              }
-            />
+            <Route path="distributors" element={<DistributorTable />} />
             <Route path="app-data" element={<AppData />} />
             <Route path="crm/contacts" element={<Contacts />} />
             <Route path="crm/pdf-manual" element={<PdfManual />} />
