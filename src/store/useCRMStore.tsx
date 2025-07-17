@@ -20,6 +20,7 @@ const useCRMStore = create<CRMStoreState>((set, get) => ({
   originalUsers: [],
    itemsPerPage: 10, // <-- Default value
 
+
   setCRMUsers: (users) => {
     console.log('Updating Zustand Store: crmUsers', users); // Debug log
     set({ crmUsers: users });
