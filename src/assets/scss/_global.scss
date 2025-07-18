@@ -1,5 +1,24 @@
 @use 'base/mixins' as *;
 
+.dashCard{
+    background-color: #fff; border-radius: 10px; padding: 20px; border: 1px solid var(--table-border-color); position: relative;
+    h4{
+        @include para(16px, 600, 0, 0); color: var(--txt-color);
+    }
+    .stat{
+        display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 20px 0;
+        p{
+            @include para(50px, 600, 0, 0); text-align: center; line-height: 1; color: inherit;
+            +p{@include para(14px, 600, 0, 0); text-align: center;}
+        }
+    }
+    p{@include para(14px, 400, 0, 0); color: var(--txt-color); text-align: center;}
+
+    .action-drop {
+        position: absolute; top: 20px; right: 20px; z-index: 1;
+        button { font-size: 20px; min-width: 30px; cursor: pointer; }
+    }
+}
 
 .table-container {
     .table-header {
@@ -119,6 +138,8 @@
             flex: 1;
             display: flex;
             align-items: center;
+            --width-07: 250px;
+            --width-06: 220px;
             --width-05: 200px;
             --width-04: 180px;
             --width-03: 150px;
@@ -133,37 +154,17 @@
             }
 
             &.cell {
-                &-checkbox {
-                    flex: 0 0 var(--width-01);
-                }
-
-                &-user {
-                    flex: 1 0 var(--width-03);
-                }
-
-                &-phone {
-                    flex: 1 0 var(--width-02);
-                }
-
-                &-email {
-                    flex: 1 0 var(--width-05);
-                }
-
-                &-business {
-                    flex: 1 0 var(--width-04);
-                }
-
-                &-tags {
-                    flex: 0 0 var(--width-04);
-                }
-
-                &-date {
-                    flex: 0 0 var(--width-04);
-                }
-
-                &-action {
-                    flex: 0 0 var(--width-01);
-                }
+                &-checkbox { flex: 0 0 var(--width-01); }
+                &-user { flex: 1 0 var(--width-04); }
+                &-phone { flex: 1 0 var(--width-03); }
+                &-email { flex: 1 0 var(--width-06); }
+                &-business { flex: 1 0 var(--width-04); }
+                &-tags { flex: 0 0 var(--width-04); }
+                &-date { flex: 0 0 var(--width-04); }
+                &-action { flex: 0 0 var(--width-01); }
+                &-distributor { flex: 1 0 var(--width-05); }
+                &-country { flex: 1 0 var(--width-02); }
+                &-status { flex: 1 0 var(--width-03); }
             }
 
             &.pagination-cell {
@@ -180,10 +181,10 @@
 
             .table-header,
             .table-body {
-                min-width: 1350px;
+                min-width: 1700px;
 
                 @include desktopLarge {
-                    min-width: 1400px;
+                    // min-width: 1700px;
                 }
             }
         }
@@ -279,6 +280,15 @@
         }
 
         // span { max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
+    }
+
+    .status {
+        display: flex; align-items: center; gap: 5px; flex-wrap: wrap; 
+        span {
+             border-radius: 30px; @include para(10px, 400, 0, 4px 10px); color: #fff; 
+             &.active{background-color: #E7F4EE; color: #1F9E8A;}
+             &.inactive{background-color: #F4433626; color: #F44336;}
+        }
     }
 
     .tags {

@@ -1,4 +1,5 @@
 import { addDays } from "date-fns";
+import { AppUserDataType } from "./types";
 export const tags = [ 
   {
     id: 1,
@@ -62,3 +63,47 @@ export const defaultDate = {
   endDate: addDays(new Date(), 0),
   key: "selection",
 };
+
+export const   stats = [
+    { name: 'Distributors', value: 8 ,subText:"open",till: "2023-10-01",color:"text-blue-500"},
+    { name: 'Sales Persons', value: 24, subText:"Lorem Ipsium",till: "2023-10-01",color:"text-yellow-500"},
+    { name: 'Inquiries', value: 15 ,subText:"open",till: "2023-10-01",color:"text-red-700"},
+    { name: 'Active Users', value: 63 ,subText:"Lorem Ipsium",till: "2023-10-01",color:"text-teal-700"},
+  ];
+
+  
+
+export const tempAppUserData: AppUserDataType[] = [
+  
+  { name: 'Total User', value: 400 },
+  { name: 'Active User', value: 100 },
+];
+
+export const recentActivityButtons = [
+  { label: "App Users", active: true },
+  { label: "Contact us", active: false },
+  { label: "Inquiries", active: false },
+];
+export const TestData = [
+      {
+        initials: "SP",
+        name: "Samuel Patrick",
+        email: "samul@example.com",
+        time: "3 days ago",
+        color: "bg-blue-100 text-blue-700",
+      },
+      {
+        initials: "EM",
+        name: "Elijah Matthew",
+        email: "elijah@example.com",
+        time: "9 days ago",
+        color: "bg-gray-200 text-gray-700",
+      },
+      {
+        initials: "EM",
+        name: "Noah Benjamin",
+        email: "noah@example.com",
+        time: "15 days ago",
+        color: "bg-red-100 text-red-700",
+      },
+    ]
