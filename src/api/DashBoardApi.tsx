@@ -1,5 +1,5 @@
 import { apiClient } from "../config";
-import { InquiryChartResponse, ProductInquiryChartResponse,UserActivityResponse } from "../utils/types";
+import { InquiryChartResponse, ProductInquiryChartResponse } from "../utils/types";
 
 // ✅ Dashboard summary
 export const getsActiveUser = async () => {

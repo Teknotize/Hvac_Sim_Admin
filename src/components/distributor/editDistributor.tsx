@@ -8,72 +8,47 @@ import { useState } from "react";
 import { updateDistributor } from "../../api/DistributorData";
 import useToastStore from "../../store/useToastStore"; 
 
-const EditDistrubutor = ({ distributor, onClose, onSuccess }) => {
+type Distributor = {
+  _id: string;
+  distributorName: string;
+  state: string;
+  salesperson1: string;
+  salesperson2: string;
+  salesperson3: string;
+  Status?: string; // optional if not always present
+};
+
+type Props = {
+  onSuccess: () => void;
+  onClose: () => void;
+  distributor: Distributor;
+};
+const EditDistrubutor: React.FC<Props> = ({ distributor, onClose, onSuccess }) => {
 
        const { showToast } = useToastStore();
 
 
     const [formData, setFormData] = useState({ ...distributor });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
         ...prev,
         [name]: value,
-        }));
+      }));
     };
 
- const handleUpdate = async () => {
-  const {
-    distributorName,
-    state,
-    salesperson1,
-    salesperson2,
-    salesperson3,
-  } = formData;
-
-  // 1️⃣ Check if any field is empty
-  if (
-    !distributorName.trim() ||
-    !state.trim() ||
-    !salesperson1.trim() ||
-    !salesperson2.trim() ||
-    !salesperson3.trim()
-  ) {
-    showToast("Please fill in all the fields.", "error");
-    return;
-  }
-
-  // 2️⃣ Check for valid email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const invalidEmail = [salesperson1, salesperson2, salesperson3].find(
-    (email) => !emailRegex.test(email)
-  );
-  if (invalidEmail) {
-    showToast(`Invalid email format: ${invalidEmail}`, "error");
-    return;
-  }
-
-  // 3️⃣ Check for duplicate emails
-  const emails = [salesperson1, salesperson2, salesperson3];
-  const hasDuplicates = new Set(emails).size !== emails.length;
-  if (hasDuplicates) {
-    showToast("Salesperson emails must not be the same.", "error");
-    return;
-  }
-
-  // 🔄 Submit update
-  try {
-    await updateDistributor(distributor._id, formData);
-    showToast("Distributor updated successfully!", "success");
-    if (onSuccess) onSuccess();
-    if (onClose) onClose();
-  } catch (err) {
-    showToast("Error updating distributor.", "error");
-    console.error(err);
-  }
-};
-
+  const handleUpdate = async () => {
+    try {
+      await updateDistributor(distributor._id, formData);
+      showToast("Distributor Updated successfully!", "success");
+      onSuccess(); // refresh table
+      onClose();   // close modal
+    } catch (err) {
+      showToast("Error updating distributor.", "error");
+      console.error(err);
+    }
+  };
     
   return (
     <>

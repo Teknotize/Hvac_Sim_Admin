@@ -2,10 +2,13 @@ import { Popover } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 
+
 type OptionType = {
   label: string;
-  value: string;
+  value: "currentMonth" | "lastMonth"; // Narrow the type
 };
+
+
 
 export default function InquiryMonthPopover({
   onSelect,

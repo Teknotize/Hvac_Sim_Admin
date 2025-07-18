@@ -8,10 +8,13 @@ import {
 import { addDistributor } from "../../api/DistributorData";
 import { useState } from "react";
 import useToastStore from "../../store/useToastStore"; 
+type Props = {
+  onSuccess: () => void;
+  onClose: () => void;
+};
 
 
-
-const AddDistrubutorForm = ({ onSuccess, onClose }) => {
+const AddDistrubutorForm: React.FC<Props> = ({ onSuccess, onClose }) => {
   
 
   const [formData, setFormData] = useState({
@@ -24,13 +27,16 @@ const AddDistrubutorForm = ({ onSuccess, onClose }) => {
 
     const { showToast } = useToastStore();
 
-  const handleChange = (e) => {
+  const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
   const { name, value } = e.target;
   setFormData((prev) => ({
     ...prev,
     [name]: value,
   }));
-  };
+};
+
 
 const handleSubmit = async () => {
   const { distributorName, state, salesperson1, salesperson2, salesperson3 } = formData;

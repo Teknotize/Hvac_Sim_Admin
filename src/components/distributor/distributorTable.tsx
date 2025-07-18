@@ -1,10 +1,9 @@
 import { Fragment, useState, useEffect } from "react";
-import { faCheck, faEllipsisVertical, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsisVertical, faXmark } from "@fortawesome/free-solid-svg-icons";
 import {
   Button,
   Field,
   Input,
-  PopoverButton, PopoverPanel ,
   Popover,
   Dialog,
   DialogPanel
@@ -20,23 +19,32 @@ import { getDistributors, toggleDistributorStatus, deleteDistributor } from "../
 import EditDistrubutor from "./editDistributor";
 import useToastStore from "../../store/useToastStore"; 
 import Loader from "../../components/loader";
+import { Distributor } from '../../utils/types'; // Adjust path if needed
 
+type DistributorType = {
+  _id?: string;
+  distributorName: string;
+  state: string;
+  salesperson1?: string;
+  salesperson2?: string;
+  salesperson3?: string;
+  Status: "Active" | "Inactive";
+};
 
 const DistributorTable = () => {
     const { showToast } = useToastStore();
 
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [editDistributor, setEditDistributor] = useState(null);
+    const rowsPerPage = 10;
+    const [editDistributor, setEditDistributor] = useState<DistributorType | null>(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
-    const [distributors, setDistributors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [selectedDistributorId, setSelectedDistributorId] = useState<string | null>(null);
-    
+    const [distributors, setDistributors] = useState<DistributorType[]>([]);
 
     const fetchDistributors = async () => {
         try {
@@ -79,7 +87,7 @@ const DistributorTable = () => {
         const target = distributors.find((dist) => dist._id === id);
         if (!target) return;
 
-        const isActive = target.Status === "Active";
+        // const isActive = target.Status === "Active";
 
         try {
             await toggleDistributorStatus(id);
@@ -205,10 +213,10 @@ const DistributorTable = () => {
                     {/* Edit form with passed distributor */}
                     {editDistributor && (
                         <EditDistrubutor
-                        distributor={editDistributor}
-                        onClose={() => setIsEditOpen(false)}
-                        onSuccess={fetchDistributors}
-                        />
+                            distributor={editDistributor as Distributor}
+                            onClose={() => setIsEditOpen(false)}
+                            onSuccess={fetchDistributors}
+                            />
                     )}
                     </Dialog.Panel>
                 </div>
@@ -279,8 +287,8 @@ const DistributorTable = () => {
 
                                                             <button
                                                                 onClick={() => {
-                                                                handleToggleStatus(item._id);
-                                                                close(); // ✅ Close popover
+                                                                if (item._id) handleToggleStatus(item._id);
+                                                                close();
                                                                 }}
                                                                 className="block w-full rounded-md px-4 py-2 text-left cursor-pointer text-sm text-[#425466] transition-colors duration-200 rounded-md valid"
                                                             >
@@ -289,8 +297,8 @@ const DistributorTable = () => {
 
                                                             <button
                                                                 onClick={() => {
-                                                                handleDeleteDistributor(item._id);
-                                                                // ✅ Close popover
+                                                                if (item._id) handleDeleteDistributor(item._id);
+                                                                close();
                                                                 }}
                                                                 className="block w-full rounded-md px-4 py-2 text-left cursor-pointer text-sm text-[#425466] transition-colors duration-200 rounded-md valid"
                                                             >

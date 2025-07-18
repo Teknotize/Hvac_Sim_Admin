@@ -12,11 +12,17 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { AppUserDataType,InquiryDataType,TotalOrderDataType } from '../../utils/types';
+import { AppUserDataType,InquiryDataType} from '../../utils/types';
 import PopoverMenu from './counterTabPopups';
 import InquiryMonthPopover from './inquiryTablePop';
 import { getsActiveUser } from '../../api/DashBoardApi';
 import { useEffect, useState } from 'react';
+type ProductInquiryWeek = {
+  name: string;
+  weekNumber: number;
+  [product: string]: number | string; // dynamic product fields
+};
+
 
 const COLORS = ['#b92825', '#ffa800']; // Total User, Active User
 const LEGEND_COLORS = ['#b92825', '#ffa800'];
@@ -29,7 +35,6 @@ export function AppUserChart({ selectedRange, onRangeChange }: {
   onRangeChange: (range: string) => void;
 }) {
   const [chartData, setChartData] = useState<AppUserDataType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,15 +46,13 @@ export function AppUserChart({ selectedRange, onRangeChange }: {
         const active = res?.users?.active?.[`last${selectedRange}Days`] || 0;
 
         const data: AppUserDataType[] = [
-          { name: 'Total Users', value: total },
-          { name: 'Active Users', value: active }
+          { name: 'Total User', value: total },
+          { name: 'Active User', value: active }
         ];
 
         setChartData(data);
       } catch (error) {
         console.error('Failed to fetch user chart data:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -104,24 +107,7 @@ export function AppUserChart({ selectedRange, onRangeChange }: {
   );
 }
 
-const RoundedTopBar = (props: any) => {
-  const { x, y, width, height, fill } = props;
-  const radius = 6;
-  return (
-    <g>
-      <rect x={x} y={y} width={width} height={height - radius} fill={fill} opacity={0.3} />
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={radius}
-        rx={radius}
-        ry={radius}
-        fill={fill}
-      />
-    </g>
-  );
-};
+
 
 export function InquiriesChart({
   data,
@@ -130,7 +116,7 @@ export function InquiriesChart({
 }: {
   data: InquiryDataType[];
   selectedMonth: "currentMonth" | "lastMonth";
-  onMonthChange: (month: "currentMonth" | "lastMonth") => void;
+  onMonthChange: (month: string) => void;
 }) {
   // Optional: ensure even 0 values show as tiny bars
   const adjustedData = data.map((d) => ({
@@ -162,7 +148,7 @@ export function InquiriesChart({
             />
             <YAxis
               domain={[0, "auto"]}
-              tickFormatter={(value) => Math.floor(value)}
+              tickFormatter={(value) => Math.floor(value).toString()}
               allowDecimals={false}
             />
             <Tooltip />
@@ -199,7 +185,7 @@ export function TotalOrdersChart({ data, selectedMonth, onMonthChange }: {
           <h2 className="text-black font-semibold mb-2 text-xl">Total Orders</h2>
           <InquiryMonthPopover
             selected={selectedMonth}
-            onSelect={onMonthChange}
+            onSelect={(val: string) => onMonthChange(val as "currentMonth" | "lastMonth")}
             options={[
               { label: "Current Month", value: "currentMonth" },
               { label: "Last Month", value: "lastMonth" },
