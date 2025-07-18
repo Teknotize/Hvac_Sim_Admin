@@ -12,7 +12,7 @@ export default function InquiryMonthPopover({
   options,
   selected
 }: {
-  onSelect: (val: string) => void;
+  onSelect: (val: "currentMonth" | "lastMonth") => void;
   options: OptionType[];
   selected: string;
 }) {
@@ -32,7 +32,7 @@ export default function InquiryMonthPopover({
                 <button
                   key={opt.value}
                   onClick={() => {
-                    onSelect(opt.value);
+                    onSelect(opt.value as "currentMonth" | "lastMonth");
                     close(); // ✅ Close the popover on select
                   }}
                   className={`action-menu-item ${

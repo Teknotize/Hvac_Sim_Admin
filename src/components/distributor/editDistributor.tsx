@@ -7,21 +7,27 @@ import {
 import { useState } from "react";
 import { updateDistributor } from "../../api/DistributorData";
 import useToastStore from "../../store/useToastStore"; 
+import { Distributor } from "../../utils/types";
 
-const EditDistrubutor = ({ distributor, onClose, onSuccess }) => {
+interface Props {
+  distributor: Distributor;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+const EditDistrubutor: React.FC<Props> = ({ distributor, onClose, onSuccess }) => {
 
        const { showToast } = useToastStore();
 
 
     const [formData, setFormData] = useState({ ...distributor });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-        }));
-    };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
  const handleUpdate = async () => {
   const {

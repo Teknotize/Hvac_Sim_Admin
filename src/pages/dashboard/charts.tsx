@@ -12,7 +12,7 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { AppUserDataType,InquiryDataType,TotalOrderDataType } from '../../utils/types';
+import { AppUserDataType,InquiryDataType, ProductInquiryWeek} from '../../utils/types';
 import PopoverMenu from './counterTabPopups';
 import InquiryMonthPopover from './inquiryTablePop';
 import { getsActiveUser } from '../../api/DashBoardApi';
@@ -29,7 +29,6 @@ export function AppUserChart({ selectedRange, onRangeChange }: {
   onRangeChange: (range: string) => void;
 }) {
   const [chartData, setChartData] = useState<AppUserDataType[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,9 +47,7 @@ export function AppUserChart({ selectedRange, onRangeChange }: {
         setChartData(data);
       } catch (error) {
         console.error('Failed to fetch user chart data:', error);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
 
     fetchData();
@@ -103,26 +100,6 @@ export function AppUserChart({ selectedRange, onRangeChange }: {
     </div>
   );
 }
-
-const RoundedTopBar = (props: any) => {
-  const { x, y, width, height, fill } = props;
-  const radius = 6;
-  return (
-    <g>
-      <rect x={x} y={y} width={width} height={height - radius} fill={fill} opacity={0.3} />
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={radius}
-        rx={radius}
-        ry={radius}
-        fill={fill}
-      />
-    </g>
-  );
-};
-
 export function InquiriesChart({
   data,
   selectedMonth,
@@ -162,7 +139,7 @@ export function InquiriesChart({
             />
             <YAxis
               domain={[0, "auto"]}
-              tickFormatter={(value) => Math.floor(value)}
+              tickFormatter={(value) => Math.floor(value).toString()}
               allowDecimals={false}
             />
             <Tooltip />

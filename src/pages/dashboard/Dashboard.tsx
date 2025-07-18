@@ -2,11 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import PopoverMenu from "./counterTabPopups";
 import { getsActiveUser, getWeeklyProductInquiries, getUserActivitySummary } from '../../api/DashBoardApi';
 import { AppUserChart, InquiriesChart, TotalOrdersChart } from "./charts";
-import { tempInquiriesData, tempTotalOrdersData, recentActivityButtons, TestData } from "../../utils/constants";
 import { getWeeklyInquiries } from '../../api/DashBoardApi';
-import { WeeklyInquiry,UserActivity } from '../../utils/types';
+import { WeeklyInquiry, LoginUser, SignupUser, ContactUsUser, InquiryPerformer,TotalOrderDataType, UserActivityResponse } from '../../utils/types';
 
-
+type ActivityRange = "7" | "15" | "30";
 export default function Dashboard() {
   const [selectedButton, setSelectedButton] = useState("logins");
   const [selectedRange, setSelectedRange] = useState("7");
@@ -20,7 +19,7 @@ export default function Dashboard() {
   const [productMonth, setProductMonth] = useState<"currentMonth" | "lastMonth">("currentMonth");
   const [productChartData, setProductChartData] = useState<TotalOrderDataType[]>([]);
   const [userActivity, setUserActivity] = useState<UserActivityResponse | null>(null);;
-const [activityRange, setActivityRange] = useState("7");
+  const [activityRange, setActivityRange] = useState<ActivityRange>("7")
 const scrollRef = useRef<HTMLDivElement | null>(null);
 
 function getUserColor(nameOrEmail: string) {
@@ -192,7 +191,7 @@ useEffect(() => {
         <div className="rounded-lg bg-white p-6 shadow">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-gray-900">Recent Activities</h3>
-            <PopoverMenu onSelect={(range) => setActivityRange(range)} selectedRange={activityRange} />
+            <PopoverMenu onSelect={(range) => setActivityRange(range as ActivityRange)} selectedRange={activityRange} />
           </div>
 
           <div className="flex gap-3 mb-6">
@@ -221,7 +220,7 @@ useEffect(() => {
                 : activityRange === "15"
                 ? userActivity.logins?.last15Days
                 : userActivity.logins?.last30Days
-              )?.map((item, idx) => (
+              )?.map((item: LoginUser, idx: number) => (
                 <div key={idx} className="flex items-center py-4">
                   {(() => {
                   const [bgColor, textColor] = getUserColor(item.email || item.name);
@@ -253,7 +252,7 @@ useEffect(() => {
                 : activityRange === "15"
                 ? userActivity.signups?.last15Days
                 : userActivity.signups?.last30Days
-              )?.map((item, idx) => (
+              )?.map((item: SignupUser, idx: number) => (
                 <div key={idx} className="flex items-center py-4">
                   {(() => {
                   const [bgColor, textColor] = getUserColor(item.email || item.name);
@@ -285,7 +284,8 @@ useEffect(() => {
                 : activityRange === "15"
                 ? userActivity.contactUsFormUsers?.last15Days
                 : userActivity.contactUsFormUsers?.last30Days
-              )?.map((item, idx) => (
+              )?.map((item: ContactUsUser, idx: number) => (
+
                 <div key={idx} className="flex items-center py-4">
                   {(() => {
                     const [bgColor, textColor] = getUserColor(item.email || item.name);
@@ -316,7 +316,7 @@ useEffect(() => {
                 : activityRange === "15"
                 ? userActivity.inquiryPerformers?.last15Days
                 : userActivity.inquiryPerformers?.last30Days
-              )?.map((item, idx) => (
+              )?.map((item: InquiryPerformer, idx: number) => (
                 <div key={idx} className="flex items-center py-4">
                   {(() => {
                       const [bgColor, textColor] = getUserColor(item.email || item.name);

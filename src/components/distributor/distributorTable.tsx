@@ -1,10 +1,9 @@
 import { Fragment, useState, useEffect } from "react";
-import { faCheck, faEllipsisVertical, faXmark } from "@fortawesome/free-solid-svg-icons";
+import {  faEllipsisVertical, faXmark } from "@fortawesome/free-solid-svg-icons";
 import {
   Button,
   Field,
   Input,
-  PopoverButton, PopoverPanel ,
   Popover,
   Dialog,
   DialogPanel
@@ -20,17 +19,17 @@ import { getDistributors, toggleDistributorStatus, deleteDistributor } from "../
 import EditDistrubutor from "./editDistributor";
 import useToastStore from "../../store/useToastStore"; 
 import Loader from "../../components/loader";
-
+import { Distributor } from "../../utils/types";
 
 const DistributorTable = () => {
     const { showToast } = useToastStore();
 
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [editDistributor, setEditDistributor] = useState(null);
+    const rowsPerPage = 10;
+    const [editDistributor, setEditDistributor] = useState<Distributor | null>(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
-    const [distributors, setDistributors] = useState([]);
+    const [distributors, setDistributors] = useState<Distributor[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
@@ -79,7 +78,7 @@ const DistributorTable = () => {
         const target = distributors.find((dist) => dist._id === id);
         if (!target) return;
 
-        const isActive = target.Status === "Active";
+        // const isActive = target.Status === "Active";
 
         try {
             await toggleDistributorStatus(id);
@@ -204,12 +203,13 @@ const DistributorTable = () => {
                     
                     {/* Edit form with passed distributor */}
                     {editDistributor && (
-                        <EditDistrubutor
+                    <EditDistrubutor
                         distributor={editDistributor}
                         onClose={() => setIsEditOpen(false)}
                         onSuccess={fetchDistributors}
-                        />
+                    />
                     )}
+
                     </Dialog.Panel>
                 </div>
             </Dialog>
@@ -268,14 +268,14 @@ const DistributorTable = () => {
                                                             <div className="p-2 space-y-2 font-medium">
                                                             <button
                                                                 onClick={() => {
-                                                                setEditDistributor(item);
-                                                                setIsEditOpen(true);
-                                                                // ✅ Close popover
+                                                                    setEditDistributor(item); // ✅ item must contain _id, not id
+                                                                    setIsEditOpen(true);
                                                                 }}
-                                                                className="block w-full rounded-md px-4 py-2 text-left cursor-pointer text-sm text-[#425466] transition-colors duration-200 rounded-md valid"
-                                                            >
+                                                                className="block w-full rounded-md px-4 py-2 text-left cursor-pointer text-sm text-[#425466] transition-colors duration-200"
+                                                                >
                                                                 Edit
                                                             </button>
+
 
                                                             <button
                                                                 onClick={() => {

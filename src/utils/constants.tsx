@@ -1,5 +1,5 @@
 import { addDays } from "date-fns";
-import { AppUserDataType,InquiryDataType,TotalOrderDataType } from "./types";
+import { AppUserDataType } from "./types";
 export const tags = [ 
   {
     id: 1,
@@ -78,67 +78,7 @@ export const tempAppUserData: AppUserDataType[] = [
   { name: 'Total User', value: 400 },
   { name: 'Active User', value: 100 },
 ];
-export const tempInquiriesData: InquiryDataType[] = [
-  { name: 'Week 1', inquiries: 18500 },
-  { name: 'Week 2', inquiries: 42000 },
-  { name: 'Week 3', inquiries: 27800 },
-  { name: 'Week 4', inquiries: 36000 },
-  { name: 'Week 5', inquiries: 24500 },
-  { name: 'Week 6', inquiries: 40000 },
-  { name: 'Week 7', inquiries: 19800 },
-  { name: 'Week 8', inquiries: 33200 },
-  { name: 'Week 9', inquiries: 28900 },
-  { name: 'Week 10', inquiries: 37000 },
-];
 
-
-export const tempTotalOrdersData: TotalOrderDataType[] = [
-  {
-    name: 'Week 1',
-    Abc: 120000,
-    Xyz: 100000,
-    Pqr: 140000,
-    Lmn: 180000,
-    Def: 160000,
-    Ghi: 200000
-  },
-  {
-    name: 'Week 2',
-    Abc: 180000,
-    Xyz: 130000,
-    Pqr: 210000,
-    Lmn: 170000,
-    Def: 220000,
-    Ghi: 150000
-  },
-  {
-    name: 'Week 3',
-    Abc: 220000,
-    Xyz: 500000,
-    Pqr: 300000,
-    Lmn: 260000,
-    Def: 190000,
-    Ghi: 240000
-  },
-  {
-    name: 'Week 4',
-    Abc: 200000,
-    Xyz: 80000,
-    Pqr: 90000,
-    Lmn: 150000,
-    Def: 170000,
-    Ghi: 130000
-  },
-  {
-    name: 'Week 5',
-    Abc: 150000,
-    Xyz: 120000,
-    Pqr: 180000,
-    Lmn: 140000,
-    Def: 160000,
-    Ghi: 190000
-  }
-];
 export const recentActivityButtons = [
   { label: "App Users", active: true },
   { label: "Contact us", active: false },

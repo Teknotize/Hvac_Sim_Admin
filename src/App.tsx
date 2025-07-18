@@ -4,7 +4,6 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Contacts from "./pages/crm/Contacts";
 import PdfManual from "./pages/crm/PdfManual";
 import Cms from "./pages/cms/Cms";
-import Distriburor from "./pages/Distriburor";
 import MainLayout from "./components/layout/MainLayout";
 import DistributorTable from "./components/distributor/distributorTable";
 import Toast from "./components/toast/loginToast";
