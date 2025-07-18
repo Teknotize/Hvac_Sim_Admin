@@ -242,7 +242,7 @@ const DistributorTable = () => {
                                 paginatedDistributors.map((item, index) => (
                                     <tr key={item._id || index} className="border-t" style={{borderColor:"#CEDBE980"}}>
                                     <td className="px-4 py-4 text-sm text-gray-500">{item.distributorName}</td>
-                                    <td className="px-4 py-4 text-sm text-gray-500">{item.state}</td>
+                                    <td className="px-4 py-4 text-sm text-gray-500">{item.State}</td>
                                     <td className="px-4 py-4 text-sm text-gray-500">{item.salesperson1}</td>
                                     <td className="px-4 py-4 text-sm text-gray-500">{item.salesperson2}</td>
                                     <td className="px-4 py-4 text-sm text-gray-500">{item.salesperson3}</td>
