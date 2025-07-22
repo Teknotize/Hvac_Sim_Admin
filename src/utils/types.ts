@@ -80,11 +80,11 @@ export interface UserActivity {
 export type Distributor = {
   _id: string;
   distributorName: string;
-  State: string;
+  state: string;
   salesperson1: string;
   salesperson2: string;
   salesperson3: string;
-  Status?: string;
+  Status: string;
 };
 
 

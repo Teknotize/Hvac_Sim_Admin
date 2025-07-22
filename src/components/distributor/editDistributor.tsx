@@ -29,7 +29,7 @@ const EditDistrubutor: React.FC<Props> = ({ distributor, onClose, onSuccess }) =
     }));
   };
 
- const handleUpdate = async () => {
+const handleUpdate = async () => {
   const {
     distributorName,
     state,
@@ -38,37 +38,30 @@ const EditDistrubutor: React.FC<Props> = ({ distributor, onClose, onSuccess }) =
     salesperson3,
   } = formData;
 
-  // 1️⃣ Check if any field is empty
   if (
-    !distributorName.trim() ||
-    !state.trim() ||
-    !salesperson1.trim() ||
-    !salesperson2.trim() ||
-    !salesperson3.trim()
+    !distributorName?.trim() ||
+    !state?.trim() ||
+    !salesperson1?.trim()
   ) {
-    showToast("Please fill in all the fields.", "error");
+    showToast("Please fill in all the required fields.", "error");
     return;
   }
 
-  // 2️⃣ Check for valid email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const invalidEmail = [salesperson1, salesperson2, salesperson3].find(
-    (email) => !emailRegex.test(email)
-  );
+  const allEmails = [salesperson1, salesperson2, salesperson3].filter(email => email?.trim() !== "");
+
+  const invalidEmail = allEmails.find(email => !emailRegex.test(email));
   if (invalidEmail) {
     showToast(`Invalid email format: ${invalidEmail}`, "error");
     return;
   }
 
-  // 3️⃣ Check for duplicate emails
-  const emails = [salesperson1, salesperson2, salesperson3];
-  const hasDuplicates = new Set(emails).size !== emails.length;
+  const hasDuplicates = new Set(allEmails).size !== allEmails.length;
   if (hasDuplicates) {
     showToast("Salesperson emails must not be the same.", "error");
     return;
   }
 
-  // 🔄 Submit update
   try {
     await updateDistributor(distributor._id, formData);
     showToast("Distributor updated successfully!", "success");
@@ -79,6 +72,7 @@ const EditDistrubutor: React.FC<Props> = ({ distributor, onClose, onSuccess }) =
     console.error(err);
   }
 };
+
 
     
   return (
