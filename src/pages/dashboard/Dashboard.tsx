@@ -8,18 +8,18 @@ import { WeeklyInquiry, LoginUser, SignupUser, ContactUsUser, InquiryPerformer,T
 type ActivityRange = "7" | "15" | "30";
 export default function Dashboard() {
   const [selectedButton, setSelectedButton] = useState("logins");
-  const [selectedRange, setSelectedRange] = useState("7");
-  const [distributorRange, setDistributorRange] = useState("7"); // separate filter
-  const [activeUserRange, setActiveUserRange] = useState("7"); // 🔸 new
+  const [selectedRange, setSelectedRange] = useState("30");
+  const [distributorRange, setDistributorRange] = useState("30"); // separate filter
+  const [activeUserRange, setActiveUserRange] = useState("30"); // 🔸 new
   const [dashboardStats, setDashboardStats] = useState<any>(null);
-  const [salespersonRange, setSalespersonRange] = useState("7");
-  const [inquiryRange, setInquiryRange] = useState("7");
+  const [salespersonRange, setSalespersonRange] = useState("30");
+  const [inquiryRange, setInquiryRange] = useState("30");
   const [weeklyInquiryData, setWeeklyInquiryData] = useState<WeeklyInquiry[]>([]);
   const [inquiryMonth, setInquiryMonth] = useState<"currentMonth" | "lastMonth">("currentMonth");
   const [productMonth, setProductMonth] = useState<"currentMonth" | "lastMonth">("currentMonth");
   const [productChartData, setProductChartData] = useState<TotalOrderDataType[]>([]);
   const [userActivity, setUserActivity] = useState<UserActivityResponse | null>(null);;
-  const [activityRange, setActivityRange] = useState<ActivityRange>("7")
+  const [activityRange, setActivityRange] = useState<ActivityRange>("30")
 const scrollRef = useRef<HTMLDivElement | null>(null);
 
 function getUserColor(nameOrEmail: string) {
@@ -250,7 +250,7 @@ useEffect(() => {
                   </div>
                 ))
               ) : (
-                <div className="text-center text-gray-500 py-4">No logins performed</div>
+                <div className="text-center text-gray-500 py-4">No new Logins in the selected time range.</div>
               );
             })()}
 
@@ -291,7 +291,7 @@ useEffect(() => {
                   </div>
                 ))
               ) : (
-                <div className="text-center text-gray-500 py-4">No signups performed</div>
+                <div className="text-center text-gray-500 py-4">No new signups in the selected time range.</div>
               );
             })()}
 
@@ -332,7 +332,7 @@ useEffect(() => {
                   </div>
                 ))
               ) : (
-                <div className="text-center text-gray-500 py-4">No contacts performed</div>
+                <div className="text-center text-gray-500 py-4">No contact submissions found in selected time range.</div>
               );
             })()}
 
@@ -373,7 +373,7 @@ useEffect(() => {
                   </div>
                 ))
               ) : (
-                <div className="text-center text-gray-500 py-6">No inquiries found</div>
+                <div className="text-center text-gray-500 py-4">No inquiries found in selected time range.</div>
               );
             })()}
 
