@@ -8,10 +8,10 @@ interface CRMUser {
 interface CRMStoreState {
   crmUsers: CRMUser[];
   originalUsers: CRMUser[];
-  GlobalUsers: CRMUser[];
+  // GlobalUsers: CRMUser[];
   itemsPerPage: number;
   setCRMUsers: (users: CRMUser[]) => void;
-  setGlobalUsers: (users: CRMUser[]) => void;
+  // setGlobalUsers: (users: CRMUser[]) => void;
   setOriginalUsers: (users: CRMUser[]) => void;
   resetCRMUsers: () => void;
   setItemsPerPage: (count: number) => void;
@@ -28,11 +28,6 @@ const useCRMStore = create<CRMStoreState>()(
       setCRMUsers: (users) => {
         console.log('Updating Zustand Store: crmUsers', users);
         set({ crmUsers: users });
-      },
-
-      setGlobalUsers: (users) => {
-        console.log('Updating Zustand Store: Global users', users);
-        set({ GlobalUsers: users });
       },
 
       setOriginalUsers: (users) => {
