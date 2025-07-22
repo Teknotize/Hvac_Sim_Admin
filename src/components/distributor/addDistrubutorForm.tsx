@@ -38,43 +38,33 @@ const AddDistrubutorForm = ({ onSuccess, onClose }: Props) => {
 const handleSubmit = async () => {
   const { distributorName, state, salesperson1, salesperson2, salesperson3 } = formData;
 
-  // ✅ Check if any field is empty
-  if (
-    !distributorName.trim() ||
-    !state.trim() ||
-    !salesperson1.trim() ||
-    !salesperson2.trim() ||
-    !salesperson3.trim()
-  ) {
-    showToast("Please fill in all the fields.", "error");
+  // ✅ Validate required fields
+  if (!distributorName.trim() || !state.trim() || !salesperson1.trim()) {
+    showToast("Please fill in all the required fields.", "error");
     return;
   }
 
-  // ✅ Basic email format regex
+  // ✅ Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const invalidEmail = [salesperson1, salesperson2, salesperson3].find(
-    (email) => !emailRegex.test(email)
-  );
-
+  const allEmails = [salesperson1, salesperson2, salesperson3].filter(email => email.trim() !== "");
+  
+  const invalidEmail = allEmails.find(email => !emailRegex.test(email));
   if (invalidEmail) {
     showToast(`Invalid email format: ${invalidEmail}`, "error");
     return;
   }
 
-  // ✅ Check for duplicate emails
-  const emails = [salesperson1, salesperson2, salesperson3];
-  const hasDuplicates = new Set(emails).size !== emails.length;
-
+  // ✅ Check for duplicate only among non-empty emails
+  const hasDuplicates = new Set(allEmails).size !== allEmails.length;
   if (hasDuplicates) {
     showToast("Salesperson emails must not be the same.", "error");
     return;
   }
 
-  // 🔄 Submit logic
   try {
     await addDistributor({ ...formData, Status: "Active" });
     showToast("Distributor added successfully!", "success");
-
+    console.log(formData);
     setFormData({
       distributorName: "",
       state: "",
@@ -90,6 +80,7 @@ const handleSubmit = async () => {
     console.error(error);
   }
 };
+
 
 
 

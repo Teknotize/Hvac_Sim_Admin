@@ -8,18 +8,18 @@ import { WeeklyInquiry, LoginUser, SignupUser, ContactUsUser, InquiryPerformer,T
 type ActivityRange = "7" | "15" | "30";
 export default function Dashboard() {
   const [selectedButton, setSelectedButton] = useState("logins");
-  const [selectedRange, setSelectedRange] = useState("7");
-  const [distributorRange, setDistributorRange] = useState("7"); // separate filter
-  const [activeUserRange, setActiveUserRange] = useState("7"); // 🔸 new
+  const [selectedRange, setSelectedRange] = useState("30");
+  const [distributorRange, setDistributorRange] = useState("30"); // separate filter
+  const [activeUserRange, setActiveUserRange] = useState("30"); // 🔸 new
   const [dashboardStats, setDashboardStats] = useState<any>(null);
-  const [salespersonRange, setSalespersonRange] = useState("7");
-  const [inquiryRange, setInquiryRange] = useState("7");
+  const [salespersonRange, setSalespersonRange] = useState("30");
+  const [inquiryRange, setInquiryRange] = useState("30");
   const [weeklyInquiryData, setWeeklyInquiryData] = useState<WeeklyInquiry[]>([]);
   const [inquiryMonth, setInquiryMonth] = useState<"currentMonth" | "lastMonth">("currentMonth");
   const [productMonth, setProductMonth] = useState<"currentMonth" | "lastMonth">("currentMonth");
   const [productChartData, setProductChartData] = useState<TotalOrderDataType[]>([]);
   const [userActivity, setUserActivity] = useState<UserActivityResponse | null>(null);;
-  const [activityRange, setActivityRange] = useState<ActivityRange>("7")
+  const [activityRange, setActivityRange] = useState<ActivityRange>("30")
 const scrollRef = useRef<HTMLDivElement | null>(null);
 
 function getUserColor(nameOrEmail: string) {
@@ -214,111 +214,18 @@ useEffect(() => {
 
 
           <div ref={scrollRef} className="max-h-72 divide-y divide-gray-100 overflow-y-auto">
-            {selectedButton === "logins" && userActivity && (
-              (activityRange === "7"
-                ? userActivity.logins?.last7Days
-                : activityRange === "15"
-                ? userActivity.logins?.last15Days
-                : userActivity.logins?.last30Days
-              )?.map((item: LoginUser, idx: number) => (
-                <div key={idx} className="flex items-center py-4">
-                  {(() => {
-                  const [bgColor, textColor] = getUserColor(item.email || item.name);
-                  return (
-                    <div
-                      className="h-10 w-10 rounded-full flex items-center justify-center font-bold mr-3"
-                      style={{ backgroundColor: bgColor, color: textColor }}
-                    >
-                      {item.name?.slice(0, 1)?.toUpperCase()}
-                    </div>
-                  );
-                })()}
-                  <div className="flex w-full">
-                    <div className="flex-1">
-                      <div className="text-base font-medium text-gray-900">{item.name}</div>
-                    </div>
-                    <div className="text-base text-gray-500 flex-1">{item.email}</div>
-                    <div className="text-base text-gray-500 w-24">
-                      {item.lastActive}
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
+            {selectedButton === "logins" && userActivity && (() => {
+              const logins =
+                activityRange === "7"
+                  ? userActivity.logins?.last7Days
+                  : activityRange === "15"
+                  ? userActivity.logins?.last15Days
+                  : userActivity.logins?.last30Days;
 
-            {selectedButton === "signups" && userActivity && (
-              (activityRange === "7"
-                ? userActivity.signups?.last7Days
-                : activityRange === "15"
-                ? userActivity.signups?.last15Days
-                : userActivity.signups?.last30Days
-              )?.map((item: SignupUser, idx: number) => (
-                <div key={idx} className="flex items-center py-4">
-                  {(() => {
-                  const [bgColor, textColor] = getUserColor(item.email || item.name);
-                  return (
-                    <div
-                      className="h-10 w-10 rounded-full flex items-center justify-center font-bold mr-3"
-                      style={{ backgroundColor: bgColor, color: textColor }}
-                    >
-                      {item.name?.slice(0, 1)?.toUpperCase()}
-                    </div>
-                  );
-                })()}
-                  <div className="flex w-full">
-                    <div className="flex-1">
-                      <div className="text-base font-medium text-gray-900">{item.name}</div>
-                    </div>
-                    <div className="text-base text-gray-500 flex-1">{item.email}</div>
-                    <div className="text-base text-gray-500 w-24">
-                      {item.daysSinceSignup}
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-
-            {selectedButton === "Contact Us" && userActivity && (
-              (activityRange === "7"
-                ? userActivity.contactUsFormUsers?.last7Days
-                : activityRange === "15"
-                ? userActivity.contactUsFormUsers?.last15Days
-                : userActivity.contactUsFormUsers?.last30Days
-              )?.map((item: ContactUsUser, idx: number) => (
-
-                <div key={idx} className="flex items-center py-4">
-                  {(() => {
-                    const [bgColor, textColor] = getUserColor(item.email || item.name);
-                    return (
-                      <div
-                        className="h-10 w-10 rounded-full flex items-center justify-center font-bold mr-3"
-                        style={{ backgroundColor: bgColor, color: textColor }}
-                      >
-                        {item.name?.slice(0, 1)?.toUpperCase()}
-                      </div>
-                    );
-                  })()}
-                  <div className="flex w-full">
-                    <div className="text-sm font-medium text-gray-900 flex-1">{item.name}
-                    </div>
-                    <div className="text-base text-gray-500 flex-1">{item.email}</div>
-                    <div className="text-base text-gray-500 w-24">
-                      {item.lastContact}
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-
-            {selectedButton === "Inquiry Users" && userActivity && (
-              (activityRange === "7"
-                ? userActivity.inquiryPerformers?.last7Days
-                : activityRange === "15"
-                ? userActivity.inquiryPerformers?.last15Days
-                : userActivity.inquiryPerformers?.last30Days
-              )?.map((item: InquiryPerformer, idx: number) => (
-                <div key={idx} className="flex items-center py-4">
-                  {(() => {
+              return logins && logins.length > 0 ? (
+                logins.map((item: LoginUser, idx: number) => (
+                  <div key={idx} className="flex items-center py-4">
+                    {(() => {
                       const [bgColor, textColor] = getUserColor(item.email || item.name);
                       return (
                         <div
@@ -329,16 +236,147 @@ useEffect(() => {
                         </div>
                       );
                     })()}
-                  <div className="flex w-full">
-                    <div className="text-base font-medium text-gray-900 flex-1">{item.name}</div>
-                    <div className="text-base text-gray-500 flex-1">{item.email}</div>
-                    <div className="text-base text-gray-500 w-24">
-                      {item[`last${activityRange}Days`]} inquiries
+                    <div className="flex w-full items-center space-x-4">
+                      <div className="w-1/3 text-base font-medium text-gray-900 truncate">
+                        {item.name}
+                      </div>
+                      <div className="w-1/3 text-base text-gray-500 truncate">
+                        {item.email}
+                      </div>
+                      <div className="w-1/4 text-base text-gray-500 text-right shrink-0">
+                        {item.lastActive}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-4">No new Logins in the selected time range.</div>
+              );
+            })()}
+
+
+            {selectedButton === "signups" && userActivity && (() => {
+              const signups =
+                activityRange === "7"
+                  ? userActivity.signups?.last7Days
+                  : activityRange === "15"
+                  ? userActivity.signups?.last15Days
+                  : userActivity.signups?.last30Days;
+
+              return signups && signups.length > 0 ? (
+                signups.map((item: SignupUser, idx: number) => (
+                  <div key={idx} className="flex items-center py-4">
+                    {(() => {
+                      const [bgColor, textColor] = getUserColor(item.email || item.name);
+                      return (
+                        <div
+                          className="h-10 w-10 rounded-full flex items-center justify-center font-bold mr-3"
+                          style={{ backgroundColor: bgColor, color: textColor }}
+                        >
+                          {item.name?.slice(0, 1)?.toUpperCase()}
+                        </div>
+                      );
+                    })()}
+                    <div className="flex w-full items-center space-x-4">
+                      <div className="w-1/3 text-base font-medium text-gray-900 truncate" title={item.name}>
+                        {item.name}
+                      </div>
+                      <div className="w-1/3 text-base text-gray-500 truncate" title={item.email}>
+                        {item.email}
+                      </div>
+                      <div className="w-1/4 text-base text-gray-500 text-right shrink-0">
+                        {item.daysSinceSignup}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-4">No new signups in the selected time range.</div>
+              );
+            })()}
+
+
+           {selectedButton === "Contact Us" && userActivity && (() => {
+              const contacts =
+                activityRange === "7"
+                  ? userActivity.contactUsFormUsers?.last7Days
+                  : activityRange === "15"
+                  ? userActivity.contactUsFormUsers?.last15Days
+                  : userActivity.contactUsFormUsers?.last30Days;
+
+              return contacts && contacts.length > 0 ? (
+                contacts.map((item: ContactUsUser, idx: number) => (
+                  <div key={idx} className="flex items-center py-4">
+                    {(() => {
+                      const [bgColor, textColor] = getUserColor(item.email || item.name);
+                      return (
+                        <div
+                          className="h-10 w-10 rounded-full flex items-center justify-center font-bold mr-3"
+                          style={{ backgroundColor: bgColor, color: textColor }}
+                        >
+                          {item.name?.slice(0, 1)?.toUpperCase()}
+                        </div>
+                      );
+                    })()}
+                    <div className="flex w-full items-center space-x-4">
+                      <div className="w-1/3 text-sm font-medium text-gray-900 truncate" title={item.name}>
+                        {item.name}
+                      </div>
+                      <div className="w-1/3 text-base text-gray-500 truncate" title={item.email}>
+                        {item.email}
+                      </div>
+                      <div className="w-1/4 text-base text-gray-500 text-right shrink-0">
+                        {item.lastContact}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-4">No contact submissions found in selected time range.</div>
+              );
+            })()}
+
+
+           {selectedButton === "Inquiry Users" && userActivity && (() => {
+              const selectedData =
+                activityRange === "7"
+                  ? userActivity.inquiryPerformers?.last7Days
+                  : activityRange === "15"
+                  ? userActivity.inquiryPerformers?.last15Days
+                  : userActivity.inquiryPerformers?.last30Days;
+
+              return selectedData && selectedData.length > 0 ? (
+                selectedData.map((item: InquiryPerformer, idx: number) => (
+                  <div key={idx} className="flex items-center py-4">
+                    {(() => {
+                      const [bgColor, textColor] = getUserColor(item.email || item.name);
+                      return (
+                        <div
+                          className="h-10 w-10 rounded-full flex items-center justify-center font-bold mr-3"
+                          style={{ backgroundColor: bgColor, color: textColor }}
+                        >
+                          {item.name?.slice(0, 1)?.toUpperCase()}
+                        </div>
+                      );
+                    })()}
+                    <div className="flex w-full items-center space-x-4">
+                      <div className="w-1/3 text-base font-medium text-gray-900 truncate" title={item.name}>
+                        {item.name}
+                      </div>
+                      <div className="w-1/3 text-base text-gray-500 truncate" title={item.email}>
+                        {item.email}
+                      </div>
+                      <div className="w-1/4 text-base text-gray-500 text-right shrink-0">
+                        {item[`last${activityRange}Days`]} inquiries
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-4">No inquiries found in selected time range.</div>
+              );
+            })()}
+
 
 
 
