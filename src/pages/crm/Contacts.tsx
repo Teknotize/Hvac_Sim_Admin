@@ -50,8 +50,11 @@ export default function Contacts() {
   const [maxUsers,setmaxUsers] = useState({string:"10,000",number:10000})
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const setCRMUsers = useCRMStore((state) => state.setCRMUsers);
+  const setGlobalUsers = useCRMStore((state) => state.setGlobalUsers);
+
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const crmUsers = useCRMStore((state) => state.crmUsers);
+  const GlobalUsers = useCRMStore((state) => state.GlobalUsers);
   const [originalUsers, setOriginalUsers] = useState<CRMUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -258,7 +261,7 @@ const itemsPerPage = useCRMStore((state) => state.itemsPerPage);
           isChecked: false,
         }));
         setOriginalUsers(users);
-
+setGlobalUsers(users)
         // After fetching new data, reapply current filters
         const filteredUsers = filterUsers(
           users,
@@ -439,8 +442,15 @@ if (crmUsers.length === 0 || fetchAgain) {
     console.log("Search value:", crmUsers.length,fetchAgain)
     const filteredUsers = filterUsers(originalUsers, value, activeTags);
     setCRMUsers(filteredUsers);
+    
     setCurrentPage(1);
   };
+
+  useEffect(()=>{
+    console.log("Global Users",GlobalUsers.length)
+    setCRMUsers(GlobalUsers)
+    setOriginalUsers(GlobalUsers)
+  },[])
 
   const handleToggleSubscription = async (id: string) => {
     try {
