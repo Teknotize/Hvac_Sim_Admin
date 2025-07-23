@@ -14,14 +14,24 @@
             padding: 5px 10px;
             border-radius: 5px;
 
-            p {
-                @include para(14px, 500, 0, 0);
-            }
+            p { @include para(14px, 500, 0, 0); }
 
             &:hover {
                 background-color: rgba(var(--base-color-primary-rgb), 0.1);
             }
         }
+
+        .action-menu-item-box{
+            margin: 0 0 5px;
+            .parentLink{@include para(14px, 400, 0, 5px 0px); color: #000;}
+            .childLinks{
+                padding-left: 10px;
+                .action-menu-item{
+                    @include para(14px, 400, 0, 8px 10px); color: #425466;
+                }
+            }
+        }
+
         button.action-menu-item{width: 100%; text-align: left; cursor: pointer;}
     }
 

@@ -168,6 +168,10 @@ export default function AppData() {
               <div className="flex-1">
                 <h1 className="page-title">Mega Core</h1>
               </div>
+              <div className="tabBtnsGroup">
+                <button className="active">Combustion Data</button>
+                <button>Refrigerant</button>
+              </div>
             </div>
           </div>
           <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">

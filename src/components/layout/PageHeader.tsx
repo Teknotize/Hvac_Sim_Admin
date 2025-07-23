@@ -739,11 +739,11 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                 anchor="bottom end"
                 className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
               >
-                <div className="action-menu space-y-4">
+                <div className="action-menu">
                   {/* Megacore */}
-                  <div>
-                    <p className="font-semibold text-gray-800">Megacore</p>
-                    <div className="pl-4 space-y-2">
+                  <div className="action-menu-item-box">
+                    <p className="parentLink">Megacore</p>
+                    <div className="childLinks">
                       <Link
                         to=""
                         className="action-menu-item"
@@ -766,11 +766,11 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                   </div>
 
                   {/* Knowledge Evaluator */}
-                  <div>
-                    <p className="font-semibold text-gray-800">
+                  <div className="action-menu-item-box">
+                    <p className="parentLink">
                       Knowledge Evaluator
                     </p>
-                    <div className="pl-4 space-y-2">
+                    <div className="childLinks">
                       <Link
                         to=""
                         className="action-menu-item"
@@ -793,11 +793,11 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                   </div>
 
                   {/* Comfort Cooling */}
-                  <div>
-                    <p className="font-semibold text-gray-800">
+                  <div className="action-menu-item-box">
+                    <p className="parentLink">
                       Comfort Cooling Simulator
                     </p>
-                    <div className="pl-4 space-y-2">
+                    <div className="childLinks">
                       <Link
                         to=""
                         className="action-menu-item"
