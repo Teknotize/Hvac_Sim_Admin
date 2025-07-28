@@ -125,13 +125,14 @@ export default function EmailPopup({
               {tempRecipients?.map((recipient) => (
               <div className={`emailItem type0${Math.floor(Math.random() * 3) + 1}`}>
                 <figure>
-                  <span>{recipient.name.charAt(0)}</span>
+                  <span>{recipient?.name?.charAt(0)?.toUpperCase() || "?"}</span>
                 </figure>
-                <span>{recipient.name}</span>
+                <span>{recipient?.name || "N/A"}</span>
                 <i onClick={() => removeRecipient(recipient)}>
                   <FontAwesomeIcon icon={faXmark} />
                 </i>
               </div>
+
             ))}
 
               </>
