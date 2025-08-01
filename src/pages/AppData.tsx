@@ -44,6 +44,11 @@ export default function AppData() {
   const [loading, setLoading] = useState(true);
   const { showToast } = useToastStore();
   const [refreshFlag, setRefreshFlag] = useState(false);
+  const [tabs, setTabs] = useState({
+  MegaCore: 'Combustion',
+  KnowledgeEvaluator: 'Combustion',
+});
+
   const [selectedBadgeId, setSelectedBadgeId] = useState<string>("");
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
@@ -168,15 +173,28 @@ export default function AppData() {
               <div className="flex-1">
                 <h1 className="page-title">Mega Core</h1>
               </div>
-              <div className="tabBtnsGroup">
-                <button className="active">Combustion Data</button>
-                <button>Refrigerant</button>
-              </div>
+             <div className="tabBtnsGroup">
+  <button
+    className={`${tabs.MegaCore === 'Combustion' ? 'active' : ''}`}
+    onClick={() => setTabs((prev) => ({ ...prev, MegaCore: 'Combustion' }))}
+  >
+    Combustion 
+  </button>
+  <button
+    className={`${tabs.MegaCore === 'Refrigerant' ? 'active' : ''}`}
+    onClick={() => setTabs((prev) => ({ ...prev, MegaCore: 'Refrigerant' }))}
+  >
+    Refrigerant 
+  </button>
+</div>
+
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+          {tabs.MegaCore === 'Combustion'?
+          <>
+            {/* <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
             Combustion Data
-          </h2>
+          </h2> */}
 
           <div className="flex gap-6 flex-wrap mb-20">
             {/* <div className="fileDownloadDv locked">
@@ -279,9 +297,12 @@ export default function AppData() {
                 </div>
               ))}
           </div>
-          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
-            Refrigerant Data
-          </h2>
+          </>
+          :
+          <>
+          {/* <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Refrigerant
+          </h2> */}
           <div className="flex gap-6 flex-wrap mb-20">
             {/* <div className="fileDownloadDv locked">
               <span className="fileLockIcon">
@@ -415,18 +436,36 @@ export default function AppData() {
               <h3>PDF Manual</h3>
             </div> */}
           </div>
-
+          </>
+}
           <div className="page-header">
             <div className="flex items-center">
               <div className="flex-1">
                 <h1 className="page-title">Knowledge Evaluator</h1>
               </div>
+             <div className="tabBtnsGroup">
+                <button
+                  className={`${tabs.KnowledgeEvaluator === 'Combustion' ? 'active' : ''}`}
+                  onClick={() => setTabs((prev) => ({ ...prev, KnowledgeEvaluator: 'Combustion' }))}
+                >
+                  KE Combustion
+                </button>
+                <button
+                  className={`${tabs.KnowledgeEvaluator === 'Refrigerant' ? 'active' : ''}`}
+                  onClick={() => setTabs((prev) => ({ ...prev, KnowledgeEvaluator: 'Refrigerant' }))}
+                >
+                  KE Refrigerant
+                </button>
+              </div>
+
             </div>
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
-            Combustion Data
-          </h2>
+         {tabs.KnowledgeEvaluator === 'Combustion'?
+         <> 
+         {/* <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Combustion 
+          </h2> */}
           <div className="flex gap-6 flex-wrap mb-20">
             {combustionSubcategories[0]?.subcategories
               .filter((item) => item.AppCategory === "Knowledge Evaluator")
@@ -496,9 +535,12 @@ export default function AppData() {
                 </div>
               ))}
           </div>
-          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
-            Regrigerant Data
-          </h2>
+          </>
+          :
+          <>
+          {/* <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Refrigerant 
+          </h2> */}
           <div className="flex gap-6 flex-wrap mb-20">
             {" "}
             {refrigerantSubcategories[0]?.subcategories
@@ -569,7 +611,8 @@ export default function AppData() {
                 </div>
               ))}
           </div>
-
+          </>
+}
           <div className="page-header">
             <div className="flex items-center">
               <div className="flex-1">
@@ -577,10 +620,10 @@ export default function AppData() {
               </div>
             </div>
           </div>
-
+{/* 
           <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
-            Regrigerant Data
-          </h2>
+            Refrigerant 
+          </h2> */}
           <div className="flex gap-6 flex-wrap mb-20">
             {" "}
             {refrigerantSubcategories[0]?.subcategories

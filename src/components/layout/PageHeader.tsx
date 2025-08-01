@@ -87,6 +87,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
     condition_type: "free",
     AppCategory: "Knowledge Evaluator",
     category: "",
+    chapter: "",
   });
 
   const [selectedTags, setSelectedTags] = useState(
@@ -212,12 +213,14 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
     );
   };
 
-  const handleFileUpload = (category: string, AppCategory: string) => {
+  const handleFileUpload = (category: string, AppCategory: string,chapter?:string) => {
     setSelectedCategory(category);
+    console.log(chapter)
     setFormData((prev) => ({
       ...prev,
       category: category,
       AppCategory: AppCategory,
+    chapter:chapter
     }));
     setIsFileUploadOpen(true);
   };
@@ -263,6 +266,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
   const handleUploadSubmit = async (e: any) => {
     if (selectedFile) {
       // Validate required fields
+      console.log('formdata',formData)
       if (
         !formData.name ||
         !formData.icon ||
@@ -804,11 +808,27 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                         onClick={() =>
                           handleFileUpload(
                             "Refrigerant",
-                            "Comfort Cooling Simulator"
+                            "Comfort Cooling Simulator",
+                            "Chapter 4",
+                            
                           )
                         }
                       >
-                        Refrigerant
+                        Chapter 4
+                      </Link>
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload(
+                            "Refrigerant",
+                            "Comfort Cooling Simulator",
+                            "Chapter 5",
+                            
+                          )
+                        }
+                      >
+                        Chapter 5
                       </Link>
                     </div>
                   </div>
