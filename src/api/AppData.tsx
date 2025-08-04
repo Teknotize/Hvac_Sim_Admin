@@ -13,7 +13,7 @@ export const createBadgeWithCSV = async (formValues: any, file: any) => {
   formData.append("AppCategory", formValues.AppCategory);
   formData.append("condition_type", formValues.condition_type);
   formData.append("chapter", formValues.chapter);
-
+formData.append("sequence",formValues.sequence)
   // Add file
   formData.append("csvFile", file); // file should be a File object
 

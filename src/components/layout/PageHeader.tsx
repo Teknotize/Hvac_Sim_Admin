@@ -78,7 +78,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
   const [isUploading, setIsUploading] = useState(false);
   const { showToast } = useToastStore();
   const [shouldResetOnClose, setShouldResetOnClose] = useState(true);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     name: "",
     icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new.png",
     is_locked: false,
@@ -88,6 +88,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
     AppCategory: "Knowledge Evaluator",
     category: "",
     chapter: "",
+    sequence:null
   });
 
   const [selectedTags, setSelectedTags] = useState(
@@ -216,7 +217,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
   const handleFileUpload = (category: string, AppCategory: string,chapter?:string) => {
     setSelectedCategory(category);
     console.log(chapter)
-    setFormData((prev) => ({
+    setFormData((prev:any) => ({
       ...prev,
       category: category,
       AppCategory: AppCategory,
@@ -236,7 +237,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
 
     setSelectedFile(file);
     const fileNameWithoutExtension = file.name.replace(".csv", "");
-    setFormData((prev) => ({
+    setFormData((prev:any) => ({
       ...prev,
       name: fileNameWithoutExtension,
     }));
@@ -274,7 +275,9 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
         !formData.type ||
         !formData.category ||
         !formData.AppCategory ||
-        !formData.category
+        !formData.category ||
+  formData.sequence === null || // Add this check
+  formData.sequence === ""     // And this check
       ) {
         setFileError("All fields are required");
         return;
@@ -292,16 +295,19 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
         setIsFileUploadOpen(false);
         setSelectedFile(null);
         setSelectedCategory("");
-        setFormData({
-          name: "",
-          icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new",
-          is_locked: false,
-          unlock_condition: "Unlock with Fingerprint",
-          type: "Conditional",
-          condition_type: "free",
-          AppCategory: "Knowledge Evaluator",
-          category: "",
-        });
+   // After successful upload
+setFormData({
+  name: "",
+  icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new.png",
+  is_locked: false,
+  unlock_condition: "Unlock with Fingerprint",
+  type: "Conditional",
+  condition_type: "free",
+  AppCategory: "Knowledge Evaluator",
+  category: "",
+  chapter: "",
+  sequence: null // or some default value if appropriate
+});
       } catch (error) {
         setFileError("Error uploading file. Please try again.");
         console.error("Upload error:", error);
@@ -920,6 +926,38 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                     )}
                   </div>
                 </div>
+
+<div className="mt-4">
+  <label
+    htmlFor="sequence"
+    className="block text-sm font-medium text-gray-700 mb-1"
+  >
+    Add the sequence number at which this badge/template should appear.
+  </label>
+
+ <input
+  type="number"
+  id="sequence"
+  value={formData.sequence}
+  onChange={(e) => {
+  const value = e.target.value;
+  setFormData((p: any) => ({
+    ...p,
+    sequence: value === "" ? null : Number(value),
+  }));
+}}
+
+
+
+    className="w-full px-3 py-2 border border-[#B92825] rounded-md focus:outline-none focus:border-[#B92825]"
+    placeholder="Enter sequence index"
+  />
+
+  {fileError && (
+    <p className="text-red-500 text-sm mt-1">{fileError}</p>
+  )}
+</div>
+
                 {fileError && (
                   <p className="text-red-500 text-sm mt-1">{fileError}</p>
                 )}
@@ -929,7 +967,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
               <Button
                 className="btn btn-primary"
                 onClick={handleUploadSubmit}
-                disabled={!selectedFile || isUploading}
+                disabled={!selectedFile || isUploading ||formData.sequence === ""||formData.sequence === null}
               >
                 {isUploading ? "Uploading..." : "Upload"}
               </Button>
