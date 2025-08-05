@@ -159,8 +159,9 @@
                 &-phone { flex: 1 0 var(--width-03); }
                 &-email { flex: 1 0 var(--width-06); }
                 &-business { flex: 1 0 var(--width-04); }
-                &-tags { flex: 0 0 var(--width-04); }
-                &-date { flex: 0 0 var(--width-04); }
+                &-subscription { flex: 1 0 var(--width-02); }
+                &-tags { flex: 0 0 var(--width-03); }
+                &-date { flex: 0 0 var(--width-03); }
                 &-action { flex: 0 0 var(--width-01); }
                 &-distributor { flex: 1 0 var(--width-05); }
                 &-country { flex: 1 0 var(--width-02); }
@@ -184,7 +185,7 @@
                 min-width: 1700px;
 
                 @include desktopLarge {
-                    // min-width: 1700px;
+                    min-width: 1480px;
                 }
             }
         }

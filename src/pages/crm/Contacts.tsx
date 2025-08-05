@@ -634,7 +634,7 @@ if (crmUsers.length === 0 || fetchAgain) {
                 <div className="table-cell cell-phone">Phone</div>
                 <div className="table-cell cell-email">Email</div>
                 <div className="table-cell cell-business">Business</div>
-                <div className="table-cell cell-business">Subscription</div>
+                <div className="table-cell cell-subscription">Subscription</div>
                 <div className="table-cell cell-tags">Tags</div>
                 <div className="table-cell cell-date">Date</div>
                 <div className="table-cell cell-date">Expiry Date</div>
@@ -685,7 +685,7 @@ if (crmUsers.length === 0 || fetchAgain) {
                     <div className="table-cell cell-business">
                       <p>{contact.business || "N/A"}</p>
                     </div>
-                    <div className="table-cell cell-business">
+                    <div className="table-cell cell-subscription">
                       <p className="subscription">
                         {contact.subscriptionLevel && (
                       <span

@@ -78,7 +78,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
   const [isUploading, setIsUploading] = useState(false);
   const { showToast } = useToastStore();
   const [shouldResetOnClose, setShouldResetOnClose] = useState(true);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     name: "",
     icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new.png",
     is_locked: false,
@@ -87,6 +87,8 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
     condition_type: "free",
     AppCategory: "Knowledge Evaluator",
     category: "",
+    chapter: "",
+    sequence:null
   });
 
   const [selectedTags, setSelectedTags] = useState(
@@ -212,12 +214,14 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
     );
   };
 
-  const handleFileUpload = (category: string, AppCategory: string) => {
+  const handleFileUpload = (category: string, AppCategory: string,chapter?:string) => {
     setSelectedCategory(category);
-    setFormData((prev) => ({
+    console.log(chapter)
+    setFormData((prev:any) => ({
       ...prev,
       category: category,
       AppCategory: AppCategory,
+    chapter:chapter
     }));
     setIsFileUploadOpen(true);
   };
@@ -233,7 +237,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
 
     setSelectedFile(file);
     const fileNameWithoutExtension = file.name.replace(".csv", "");
-    setFormData((prev) => ({
+    setFormData((prev:any) => ({
       ...prev,
       name: fileNameWithoutExtension,
     }));
@@ -263,6 +267,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
   const handleUploadSubmit = async (e: any) => {
     if (selectedFile) {
       // Validate required fields
+      console.log('formdata',formData)
       if (
         !formData.name ||
         !formData.icon ||
@@ -270,7 +275,9 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
         !formData.type ||
         !formData.category ||
         !formData.AppCategory ||
-        !formData.category
+        !formData.category ||
+  formData.sequence === null || // Add this check
+  formData.sequence === ""     // And this check
       ) {
         setFileError("All fields are required");
         return;
@@ -288,16 +295,19 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
         setIsFileUploadOpen(false);
         setSelectedFile(null);
         setSelectedCategory("");
-        setFormData({
-          name: "",
-          icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new",
-          is_locked: false,
-          unlock_condition: "Unlock with Fingerprint",
-          type: "Conditional",
-          condition_type: "free",
-          AppCategory: "Knowledge Evaluator",
-          category: "",
-        });
+   // After successful upload
+setFormData({
+  name: "",
+  icon: "https://hvac-project-teknotize.s3.ap-south-1.amazonaws.com/noflame_new.png",
+  is_locked: false,
+  unlock_condition: "Unlock with Fingerprint",
+  type: "Conditional",
+  condition_type: "free",
+  AppCategory: "Knowledge Evaluator",
+  category: "",
+  chapter: "",
+  sequence: null // or some default value if appropriate
+});
       } catch (error) {
         setFileError("Error uploading file. Please try again.");
         console.error("Upload error:", error);
@@ -739,11 +749,11 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                 anchor="bottom end"
                 className="action-popover shadow-xl transition duration-200 ease-in-out data-[closed]:-translate-y-1 data-[closed]:opacity-0"
               >
-                <div className="action-menu space-y-4">
+                <div className="action-menu">
                   {/* Megacore */}
-                  <div>
-                    <p className="font-semibold text-gray-800">Megacore</p>
-                    <div className="pl-4 space-y-2">
+                  <div className="action-menu-item-box">
+                    <p className="parentLink">Megacore</p>
+                    <div className="childLinks">
                       <Link
                         to=""
                         className="action-menu-item"
@@ -766,11 +776,11 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                   </div>
 
                   {/* Knowledge Evaluator */}
-                  <div>
-                    <p className="font-semibold text-gray-800">
+                  <div className="action-menu-item-box">
+                    <p className="parentLink">
                       Knowledge Evaluator
                     </p>
-                    <div className="pl-4 space-y-2">
+                    <div className="childLinks">
                       <Link
                         to=""
                         className="action-menu-item"
@@ -793,22 +803,38 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                   </div>
 
                   {/* Comfort Cooling */}
-                  <div>
-                    <p className="font-semibold text-gray-800">
+                  <div className="action-menu-item-box">
+                    <p className="parentLink">
                       Comfort Cooling Simulator
                     </p>
-                    <div className="pl-4 space-y-2">
+                    <div className="childLinks">
                       <Link
                         to=""
                         className="action-menu-item"
                         onClick={() =>
                           handleFileUpload(
                             "Refrigerant",
-                            "Comfort Cooling Simulator"
+                            "Comfort Cooling Simulator",
+                            "Chapter 4",
+                            
                           )
                         }
                       >
-                        Refrigerant
+                        Chapter 4
+                      </Link>
+                      <Link
+                        to=""
+                        className="action-menu-item"
+                        onClick={() =>
+                          handleFileUpload(
+                            "Refrigerant",
+                            "Comfort Cooling Simulator",
+                            "Chapter 5",
+                            
+                          )
+                        }
+                      >
+                        Chapter 5
                       </Link>
                     </div>
                   </div>
@@ -900,6 +926,38 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
                     )}
                   </div>
                 </div>
+
+<div className="mt-4">
+  <label
+    htmlFor="sequence"
+    className="block text-sm font-medium text-gray-700 mb-1"
+  >
+    Set sequence number at which this badge/template should appear.
+  </label>
+
+ <input
+  type="number"
+  id="sequence"
+  value={formData.sequence}
+  onChange={(e) => {
+  const value = e.target.value;
+  setFormData((p: any) => ({
+    ...p,
+    sequence: value === "" ? null : Number(value),
+  }));
+}}
+
+
+
+    className="w-full px-3 py-2 border border-[#B92825] rounded-md focus:outline-none focus:border-[#B92825]"
+    placeholder="Enter sequence index"
+  />
+
+  {fileError && (
+    <p className="text-red-500 text-sm mt-1">{fileError}</p>
+  )}
+</div>
+
                 {fileError && (
                   <p className="text-red-500 text-sm mt-1">{fileError}</p>
                 )}
@@ -909,7 +967,7 @@ const [lastAppliedSubscriptionLevels, setLastAppliedSubscriptionLevels] = useSta
               <Button
                 className="btn btn-primary"
                 onClick={handleUploadSubmit}
-                disabled={!selectedFile || isUploading}
+                disabled={!selectedFile || isUploading ||formData.sequence === ""||formData.sequence === null}
               >
                 {isUploading ? "Uploading..." : "Upload"}
               </Button>

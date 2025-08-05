@@ -47,63 +47,67 @@ export default function EmailPopup({
   function onChange(e: any) {
     setHtml(e.target.value);
   }
+const handleSendEmail = async () => {
+  if (!html || !subject || tempRecipients.length === 0) return;
 
-  const handleSendEmail = async () => {
-    if (!html || !subject || tempRecipients.length === 0) return;
+  const emailList = tempRecipients.map((r) => r.email);
+  const totalEmails = emailList.length;
 
-    const emailList = tempRecipients.map((r) => r.email);
-    const totalEmails = emailList.length;
+  startProgress(totalEmails);
+  onClose();
+  setHtml("");
+  setSubject("");
 
-    // Start progress tracking before closing modal
-    startProgress(totalEmails);
+  try {
+    const response = await fetch(`${apiClient.defaults.baseURL}/admin/send-mails`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        emails: emailList,
+        subject,
+        content: html,
+      }),
+    });
 
-    // Close the modal immediately
+    if (!response.ok || !response.body) {
+      throw new Error("Failed to send email.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split("\n\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          const data = JSON.parse(line.slice(6));
+          if (data.completed) {
+            completeProgress(true);
+            if (onSuccess) onSuccess();
+            setTimeout(() => hideToast(), 5000);
+            return;
+          }
+          updateProgress(data.step);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Email sending failed:", error);
+    completeProgress(false);
     onClose();
     setHtml("");
     setSubject("");
-
-    try {
-      const eventSource = new EventSource(
-        `${
-          apiClient.defaults.baseURL
-        }/admin/send-mails?emails=${encodeURIComponent(
-          JSON.stringify(emailList)
-        )}&subject=${encodeURIComponent(subject)}&content=${encodeURIComponent(
-          html
-        )}`
-      );
-
-      eventSource.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.completed) {
-          eventSource.close();
-          completeProgress(true);
-          if (onSuccess) onSuccess();
-          setTimeout(() => {
-            hideToast();
-          }, 5000);
-          return;
-        }
-
-        updateProgress(data.step);
-      };
-
-      eventSource.onerror = () => {
-        eventSource.close();
-        completeProgress(false);
-        onClose();
-        setHtml("");
-        setSubject("");
-      };
-    } catch (error) {
-      console.error("Error sending emails:", error);
-      completeProgress(false);
-      onClose();
-      setHtml("");
-      setSubject("");
-    }
-  };
+  }
+};
 
   if (!isOpen) return null;
 
@@ -125,7 +129,7 @@ export default function EmailPopup({
               {tempRecipients?.map((recipient) => (
               <div className={`emailItem type0${Math.floor(Math.random() * 3) + 1}`}>
                 <figure>
-                  <span>{recipient.name.charAt(0)}</span>
+                  <span>{recipient.name?.charAt(0)}</span>
                 </figure>
                 <span>{recipient.name}</span>
                 <i onClick={() => removeRecipient(recipient)}>
@@ -140,7 +144,7 @@ export default function EmailPopup({
               {tempRecipients?.slice(0, 9).map((recipient) => (
                 <div className={`emailItem shrinked type0${Math.floor(Math.random() * 3) + 1}`}>
                   <figure>
-                    <span>{recipient.name.charAt(0)}</span>
+                    <span>{recipient.name?.charAt(0)}</span>
                   </figure>
                 </div>
               ))}
