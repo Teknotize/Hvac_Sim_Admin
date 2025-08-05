@@ -932,7 +932,7 @@ setFormData({
     htmlFor="sequence"
     className="block text-sm font-medium text-gray-700 mb-1"
   >
-    Add the sequence number at which this badge/template should appear.
+    Set sequence number at which this badge/template should appear.
   </label>
 
  <input
