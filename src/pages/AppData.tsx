@@ -37,6 +37,7 @@ interface Badge {
   name: string;
   is_locked: boolean;
   AppCategory: string;
+  chapter?:number
 }
 
 export default function AppData() {
@@ -44,6 +45,12 @@ export default function AppData() {
   const [loading, setLoading] = useState(true);
   const { showToast } = useToastStore();
   const [refreshFlag, setRefreshFlag] = useState(false);
+  const [tabs, setTabs] = useState({
+  MegaCore: 'Combustion',
+  KnowledgeEvaluator: 'Combustion',
+  ComfortCoolingSim:4
+});
+
   const [selectedBadgeId, setSelectedBadgeId] = useState<string>("");
   const [isDeleteItemConfirmation, setIsDeleteItemConfirmation] =
     useState(false);
@@ -168,15 +175,28 @@ export default function AppData() {
               <div className="flex-1">
                 <h1 className="page-title">Mega Core</h1>
               </div>
-              <div className="tabBtnsGroup">
-                <button className="active">Combustion Data</button>
-                <button>Refrigerant</button>
-              </div>
+             <div className="tabBtnsGroup">
+  <button
+    className={`${tabs.MegaCore === 'Combustion' ? 'active' : ''} cursor-pointer`}
+    onClick={() => setTabs((prev) => ({ ...prev, MegaCore: 'Combustion' }))}
+  >
+    Combustion 
+  </button>
+  <button
+    className={`${tabs.MegaCore === 'Refrigerant' ? 'active' : ''} cursor-pointer`}
+    onClick={() => setTabs((prev) => ({ ...prev, MegaCore: 'Refrigerant' }))}
+  >
+    Refrigerant 
+  </button>
+</div>
+
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+          {tabs.MegaCore === 'Combustion'?
+          <>
+            {/* <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
             Combustion Data
-          </h2>
+          </h2> */}
 
           <div className="flex gap-6 flex-wrap mb-20">
             {/* <div className="fileDownloadDv locked">
@@ -279,9 +299,12 @@ export default function AppData() {
                 </div>
               ))}
           </div>
-          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
-            Refrigerant Data
-          </h2>
+          </>
+          :
+          <>
+          {/* <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Refrigerant
+          </h2> */}
           <div className="flex gap-6 flex-wrap mb-20">
             {/* <div className="fileDownloadDv locked">
               <span className="fileLockIcon">
@@ -415,18 +438,36 @@ export default function AppData() {
               <h3>PDF Manual</h3>
             </div> */}
           </div>
-
+          </>
+}
           <div className="page-header">
             <div className="flex items-center">
               <div className="flex-1">
                 <h1 className="page-title">Knowledge Evaluator</h1>
               </div>
+             <div className="tabBtnsGroup">
+                <button
+                  className={`${tabs.KnowledgeEvaluator === 'Combustion' ? 'active' : ''} cursor-pointer`}
+                  onClick={() => setTabs((prev) => ({ ...prev, KnowledgeEvaluator: 'Combustion' }))}
+                >
+                  KE Combustion
+                </button>
+                <button
+                  className={`${tabs.KnowledgeEvaluator === 'Refrigerant' ? 'active' : ''} cursor-pointer`}
+                  onClick={() => setTabs((prev) => ({ ...prev, KnowledgeEvaluator: 'Refrigerant' }))}
+                >
+                  KE Refrigerant
+                </button>
+              </div>
+
             </div>
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
-            Combustion Data
-          </h2>
+         {tabs.KnowledgeEvaluator === 'Combustion'?
+         <> 
+         {/* <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Combustion 
+          </h2> */}
           <div className="flex gap-6 flex-wrap mb-20">
             {combustionSubcategories[0]?.subcategories
               .filter((item) => item.AppCategory === "Knowledge Evaluator")
@@ -496,9 +537,12 @@ export default function AppData() {
                 </div>
               ))}
           </div>
-          <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
-            Regrigerant Data
-          </h2>
+          </>
+          :
+          <>
+          {/* <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
+            Refrigerant 
+          </h2> */}
           <div className="flex gap-6 flex-wrap mb-20">
             {" "}
             {refrigerantSubcategories[0]?.subcategories
@@ -569,24 +613,42 @@ export default function AppData() {
                 </div>
               ))}
           </div>
-
+          </>
+}
           <div className="page-header">
             <div className="flex items-center">
               <div className="flex-1">
                 <h1 className="page-title">Comfort Cooling Simulator</h1>
               </div>
+               <div className="tabBtnsGroup">
+  <button
+    className={`${tabs.ComfortCoolingSim === 4 ? 'active' : ''} cursor-pointer`}
+    onClick={() => setTabs((prev) => ({ ...prev, ComfortCoolingSim: 4}))}
+  >
+    Chapter 4 
+  </button>
+  <button
+    className={`${tabs.ComfortCoolingSim === 5 ? 'active' : ''} cursor-pointer`}
+    onClick={() => setTabs((prev) => ({ ...prev, ComfortCoolingSim: 5}))}
+  >
+    Chapter 5 
+  </button>
+</div>
             </div>
           </div>
-
+      
+{/* 
           <h2 className="text-xl font-semibold text-gray-800  pl-4 py-2 ">
-            Regrigerant Data
-          </h2>
+            Refrigerant 
+          </h2> */}
           <div className="flex gap-6 flex-wrap mb-20">
             {" "}
             {refrigerantSubcategories[0]?.subcategories
-              .filter(
-                (item) => item.AppCategory === "Comfort Cooling Simulator"
-              )
+               .filter(
+    (item) =>
+      item.AppCategory === "Comfort Cooling Simulator" &&
+      item.chapter === tabs.ComfortCoolingSim
+  )
               .map((subcat) => (
                 <div
                   key={subcat._id}

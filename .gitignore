@@ -16,6 +16,9 @@ yarn-error.log*
 .env
 .env.local
 
+# Config files (custom)
+src/config.tsx
+
 # IDE files
 .vscode/
 .idea/
