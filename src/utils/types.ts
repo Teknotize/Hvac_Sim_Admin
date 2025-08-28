@@ -84,7 +84,7 @@ export type Distributor = {
   salesperson1: string;
   salesperson2: string;
   salesperson3: string;
-  Status: string;
+  status: string;
 };
 
 
