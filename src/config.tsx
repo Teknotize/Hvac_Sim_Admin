@@ -3,8 +3,8 @@ import refreshAccessToken from "./utils/refreshAccessToken";
 import { useAuthStore } from "./store/useAuthStore";
 
 // const BASE_URL = "https://app.hvacsimulator.com/api";
-// const BASE_URL = "https://hvac-simulator.vercel.app/api";
-const BASE_URL = "http://localhost:3000/api";
+const BASE_URL = "https://hvac-simulator.vercel.app/api";
+// const BASE_URL = "http://localhost:3000/api";
 // const BASE_URL = "http://192.168.18.131:3000/api";
 
 const apiClient = axios.create({
